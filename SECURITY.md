@@ -24,11 +24,10 @@ than screenshots and videos.
 Our [Responsible Disclosure](https://www.odoo.com/security-report) page gives an overview of the
 process, including:
 
- - Our Incident Response Procedure (what will happen after you report an issue)
- - Our Rules (what you can and cannot do while researching security issues)
- - Guidelines with **DO REPORT** and **DO NOT REPORT** issues
-   (what kind of issues will be accepted/rejected)
-
+- Our Incident Response Procedure (what will happen after you report an issue)
+- Our Rules (what you can and cannot do while researching security issues)
+- Guidelines with **DO REPORT** and **DO NOT REPORT** issues
+  (what kind of issues will be accepted/rejected)
 
 ## Important note
 

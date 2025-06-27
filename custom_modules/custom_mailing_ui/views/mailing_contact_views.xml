@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_mailing_contact_tree_custom" model="ir.ui.view">
+        <field name="name">mailing.contact.tree.custom</field>
+        <field name="model">mailing.contact</field>
+        <field name="arch" type="xml">
+          <tree>
+            <field name="name"/>
+            <field name="email"/>
+          </tree>
+        </field>
+      </record>
+
+      <record id="view_mailing_contact_form_custom" model="ir.ui.view">
+        <field name="name">mailing.contact.form.custom</field>
+        <field name="model">mailing.contact</field>
+        <field name="arch" type="xml">
+          <form>
+            <sheet>
+              <group>
+                <field name="name"/>
+                <field name="email"/>
+              </group>
+            </sheet>
+          </form>
+        </field>
+      </record>
+
+      <record id="action_mailing_contact_custom" model="ir.actions.act_window">
+        <field name="name">Mailing Contacts</field>
+        <field name="res_model">mailing.contact</field>
+        <field name="view_mode">tree,form</field>
+      </record>
+
+      <menuitem id="menu_mailing_contact_custom"
+            name="Mailing Contacts"
+            parent="mass_mailing.mass_mailing_menu"
+            action="action_mailing_contact_custom"/>
+</odoo>

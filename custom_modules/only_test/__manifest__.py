@@ -1,13 +1,9 @@
 {
     'name': 'Only Test Module',
     'version': '1.0',
-    'summary': '',
-    'description': "",
-    'depends': ['mail', 'web'],
-    'data': [
-        'data/system_parameters.xml',
-    ],
-    'post_init_hook': 'post_init_hook',
+    'summary': 'Extended from mail.mail',
+    'description': "Extends the mail module to add custom functionality",
+    'depends': ['mail'],
     'installable': True,
     'application': True,
 }

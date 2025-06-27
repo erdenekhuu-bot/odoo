@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <menuitem
+     id="menu_demo_app"
+     name="Demo App"
+    />
+
+    <record id="demo_action" model="ir.actions.act_window">
+        <field name="name">Demo Charts</field>
+      <field name="res_model">demo.chart</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="model_name_menu"
+        name="Demo App"
+        action="demo_action"
+        parent="menu_demo_app"
+        sequence="10"/>
+</odoo>
