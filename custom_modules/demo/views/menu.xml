@@ -2,19 +2,32 @@
 <odoo>
     <menuitem
      id="menu_demo_app"
-     name="Demo App"
+     name="Jishee addon"
     />
 
     <record id="demo_action" model="ir.actions.act_window">
         <field name="name">Demo Charts</field>
-      <field name="res_model">demo.chart</field>
-      <field name="view_mode">list,form</field>
+        <field name="res_model">demo.chart</field>
+        <field name="view_mode">list,form</field>
     </record>
+
+    <record id="profile_action" model="ir.actions.act_window">
+      <field name="name">Demo Profiles</field>
+      <field name="res_model">demo.profile</field>
+      <field name="view_mode">list,form</field>
+  </record>
 
     <menuitem
         id="model_name_menu"
-        name="Demo App"
+        name="Chart model"
         action="demo_action"
         parent="menu_demo_app"
         sequence="10"/>
+
+    <menuitem
+        id="model_profile_menu"
+        name="Profile model"
+        action="profile_action"
+        parent="menu_demo_app"
+        sequence="20"/>
 </odoo>

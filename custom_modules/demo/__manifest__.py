@@ -10,6 +10,7 @@
     'depends': ['base'],
     'data':[
        'views/chart_view.xml',
+       'views/profile_view.xml',
        'views/menu.xml',
        'security/ir.model.access.csv'
     ],

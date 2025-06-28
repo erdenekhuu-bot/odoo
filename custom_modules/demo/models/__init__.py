@@ -1,1 +1,1 @@
-from . import chart
+from . import chart, profile
