@@ -6,7 +6,8 @@
     'depends': ['base', 'mass_mailing'],
     'version': '1.0',
     'data': [
-        'views/ui.xml'
+        'views/ui.xml',
+        'views/contact.xml'
     ],
     'application': True,
     'installable': True

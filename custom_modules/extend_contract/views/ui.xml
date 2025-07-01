@@ -36,6 +36,13 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <record id="contact_action" model="ir.actions.act_window">
+        <field name="name">Action Name</field>
+        <field name="res_model">mailing.contact</field>
+        <field name="view_mode">list,form</field>
+       
+    </record>
+
 
 
     <menuitem
@@ -44,9 +51,16 @@
         sequence="10"/>
 
         <menuitem
-        id="model_name_menu"
-        name="name"
+        id="mail_l"
+        name="mail list"
         action="model_name_action"
         parent="parent"
-        sequence="10"/>
+        />
+
+        <menuitem
+            id="mail_c"
+            name="mail contact"
+            action="contact_action"
+            parent="parent"
+            />
 </odoo>
