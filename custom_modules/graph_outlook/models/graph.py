@@ -30,6 +30,11 @@ class Graph(models.Model):
         _logger.info(f"**************** {token} ********************")
         return self._send_email(token)
 
+    def action_schedule(self):
+        _logger.info(f"**************** SEND TRIGGER ****************")
+        return True
+
+
     def _get_token(self):
         url = f'https://login.microsoftonline.com/{self.tenantId}/oauth2/v2.0/token'
         headers = {
@@ -72,3 +77,6 @@ class Graph(models.Model):
         response.raise_for_status() 
         _logger.info(f"**************** {response.status_code} ********************")
         return response.status_code
+
+
+
