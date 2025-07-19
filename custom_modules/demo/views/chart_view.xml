@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="record_chart" model="ir.ui.view">
+        <field name="name">demo.chart.list</field>
+        <field name="model">demo.chart</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="description"/>
+                <field name="is_active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="record_form" model="ir.ui.view">
+        <field name="name">demo.chart.form</field>
+        <field name="model">demo.chart</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="description"/>
+                        <field name="is_active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
