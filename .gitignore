@@ -50,3 +50,4 @@ package.json
 /share/
 /src/
 python3.12/
+odoo.conf
