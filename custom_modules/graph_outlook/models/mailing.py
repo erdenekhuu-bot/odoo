@@ -39,7 +39,20 @@ class MailingMailing(models.Model):
         demo_mail=self.env['mailing.mailing'].browse([10])
         demo_contact=self.env['res.partner'].browse([43])
         
-        send_ms_email(token, self.from_email, demo_contact.email, demo_mail.subject, demo_mail.body_html)
-        _logger.info(f"**************** Test succed check your sundui.g@gmobile.mn ****************")
+        
+        # send_ms_email(token, self.from_email, demo_contact.email, demo_mail.subject, demo_mail.body_html)
+        # _logger.info(f"**************** Test succed check your email ****************")
         return True
 
+    def trigger_email(self):
+        for contact in self.env['res.partner'].search([]):
+            if contact.email:
+                token = get_ms_token()
+                status, message = send_ms_email(
+                    token, self.from_email, contact.email, 
+                    self.subject, self.body_html
+                )
+                if status >= 400:
+                    _logger.error(f"Failed to send email to {contact.email}: {message}")
+                else:
+                    _logger.info(f"Email sent successfully to {contact.email}")
