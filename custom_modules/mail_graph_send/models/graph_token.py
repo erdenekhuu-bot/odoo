@@ -5,7 +5,7 @@ import logging
 from odoo import models
 from dotenv import load_dotenv
 
-# .env ачаалж утгуудыг environment-д оруулах
+
 load_dotenv()
 
 _logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ class MsGraphToken(models.Model):
     _description = 'Microsoft Graph Access Token'
 
     def get_access_token(self):
-        # .env-оос шууд авна
+        
         tenant_id = os.getenv('tenantId')
         client_id = os.getenv('clientId')
         client_secret = os.getenv('clientSecret')
