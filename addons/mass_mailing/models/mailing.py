@@ -1422,7 +1422,7 @@ class MassMailing(models.Model):
             if original_id:
                 checksum_original_id[checksum] = original_id
             if not existing_attach and not checksum in checksums_set:
-                # We create only one attachment per checksum
+                # We create only one attachment per checksum/9
                 vals_for_attachs.append({
                     'datas': b64image,
                     'name': f"image_mailing_{self.id}_{next_img_id}",
