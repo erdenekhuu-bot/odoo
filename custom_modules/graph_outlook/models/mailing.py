@@ -54,7 +54,7 @@ class MailingMailing(models.Model):
 
             _logger.info("********* MASS MAIL VIA GRAPH API *********")
 
-            # Mass Mailing бүрийн хүлээн авагч бүрт илгээх
+            # Mass Mailing бүрийн хүлээн авагч бүрт илгээх.
             for partner_id in mailing_res_ids:
                 
                 partner = self.env['res.partner'].browse(partner_id)
@@ -69,7 +69,7 @@ class MailingMailing(models.Model):
                 if status not in (200, 202):
                     _logger.error("Graph API send failed: %s", text)
 
-            # Илгээсний дараа state update
+            # Илгээсний дараа state update.
             mailing.write({
                 'state': 'done',
                 'sent_date': fields.Datetime.now(),
