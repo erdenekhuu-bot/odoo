@@ -14,11 +14,11 @@ class MailingMailing(models.Model):
 
     def action_test(self):
         token=get_ms_token()
-        _logger.info(f"**************** Test succed check your email {token} ****************")
+        _logger.info(f"**************** {token} ****************")
         return True
 
     def action_launch(self):
-        _logger.info(f"**************** ACTION TRIGGERED **************************")
+        _logger.info(f"**************** ACTION TRIGGERED *************************")
         return super().action_launch()
     
     
