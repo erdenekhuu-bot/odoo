@@ -12,47 +12,36 @@ class MailingMailing(models.Model):
     _inherit = 'mailing.mailing'
     from_email=sender_email
 
-    def action_test10(self):
-        token=get_ms_token()
-       
-        _logger.info(f"Access token acquired successfully")
-
-        for contact in self.mailing.mailing.search(['subject']):
-            to_email=contact.email
-            subject=self.subject
-            body_html=self.body_html
-            if not to_email:
-                continue 
-            _logger.info(f"Preparing to send email to {subject}")
-
-            # status, message= send_ms_email(token, from_email, to_email, subject, body_html)
-            # _logger.info(f"Email sent to {to_email} with status {status}")
-            # if status >= 400:
-            #     _logger.error(f"Failed to send email to {to_email}: {message}")
-            # else:
-            #     _logger.info(f"Email sent successfully to {to_email}")
-
-        return True
-
     def action_test(self):
         token=get_ms_token()
-        demo_mail=self.env['mailing.mailing'].browse([10])
-        demo_contact=self.env['res.partner'].browse([43])
-        
-        
-        # send_ms_email(token, self.from_email, demo_contact.email, demo_mail.subject, demo_mail.body_html)
-        # _logger.info(f"**************** Test succed check your email ****************")
+        _logger.info(f"**************** Test succed check your email {token} ****************")
         return True
 
-    def trigger_email(self):
-        for contact in self.env['res.partner'].search([]):
-            if contact.email:
-                token = get_ms_token()
-                status, message = send_ms_email(
-                    token, self.from_email, contact.email, 
-                    self.subject, self.body_html
-                )
-                if status >= 400:
-                    _logger.error(f"Failed to send email to {contact.email}: {message}")
-                else:
-                    _logger.info(f"Email sent successfully to {contact.email}")
+    def action_launch(self):
+        _logger.info(f"**************** ACTION TRIGGERED **************************")
+        return True
+    
+
+    # def action_test10(self):
+    #     token=get_ms_token()
+       
+    #     _logger.info(f"Access token acquired successfully")
+
+    #     for contact in self.mailing.mailing.search(['subject']):
+    #         to_email=contact.email
+    #         subject=self.subject
+    #         body_html=self.body_html
+    #         if not to_email:
+    #             continue 
+    #         _logger.info(f"Preparing to send email to {subject}")
+
+    #         status, message= send_ms_email(token, from_email, to_email, subject, body_html)
+    #         _logger.info(f"Email sent to {to_email} with status {status}")
+    #         if status >= 400:
+    #             _logger.error(f"Failed to send email to {to_email}: {message}")
+    #         else:
+    #             _logger.info(f"Email sent successfully to {to_email}")
+
+    #     return True
+
+    

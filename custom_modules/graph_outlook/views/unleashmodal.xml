@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_mail_mass_mailing_form_inherit" model="ir.ui.view">
+        <field name="name">mail.mass.mailing.form.inherit</field>
+        <field name="model">mailing.mailing</field>
+        <field name="inherit_id" ref="mass_mailing.view_mail_mass_mailing_form"/>
+        <field name="arch" type="xml">
+             <xpath expr="//button[@name='action_launch']" position="replace">
+                <button name="action_launch"
+                        string="SEND"
+                        type="object"
+                        data-hotkey="q"
+                        invisible="state in ('in_queue', 'sending', 'done')"
+                        context="{'no_confirm': True}"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

@@ -1,5 +1,6 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
-class AttachMailCustom(models.Model):
-    _inherit='mailing.list'
-    email=fields.Char(string='email')  
+
+class ExtendsContract(models.Model):
+    _inherit='res.partner'
+
