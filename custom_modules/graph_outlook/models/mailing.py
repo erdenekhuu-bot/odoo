@@ -1,5 +1,5 @@
 import logging
-from odoo import models
+from odoo import models, fields, api
 from .ms_graph_helper import get_ms_token, send_ms_email
 import os
 
@@ -19,29 +19,64 @@ class MailingMailing(models.Model):
 
     def action_launch(self):
         _logger.info(f"**************** ACTION TRIGGERED **************************")
-        return True
+        return super().action_launch()
     
 
-    # def action_test10(self):
-    #     token=get_ms_token()
+    def action_test10(self):
+        token=get_ms_token()
        
-    #     _logger.info(f"Access token acquired successfully")
+        _logger.info(f"Access token acquired successfully")
 
-    #     for contact in self.mailing.mailing.search(['subject']):
-    #         to_email=contact.email
-    #         subject=self.subject
-    #         body_html=self.body_html
-    #         if not to_email:
-    #             continue 
-    #         _logger.info(f"Preparing to send email to {subject}")
+        for contact in self.mailing.mailing.search(['subject']):
+            to_email=contact.email
+            subject=self.subject
+            body_html=self.body_html
+            if not to_email:
+                continue 
+            _logger.info(f"Preparing to send email to {subject}")
 
-    #         status, message= send_ms_email(token, from_email, to_email, subject, body_html)
-    #         _logger.info(f"Email sent to {to_email} with status {status}")
-    #         if status >= 400:
-    #             _logger.error(f"Failed to send email to {to_email}: {message}")
-    #         else:
-    #             _logger.info(f"Email sent successfully to {to_email}")
+            status, message= send_ms_email(token, self.from_email, to_email, subject, body_html)
+            _logger.info(f"Email sent to {to_email} with status {status}")
+            if status >= 400:
+                _logger.error(f"Failed to send email to {to_email}: {message}")
+            else:
+                _logger.info(f"Email sent successfully to {to_email}")
 
-    #     return True
+        return True
+
+    
+    def _action_send_mail(self, res_ids=None):
+        token = get_ms_token()
+        author_id = self.env.user.partner_id.id
+
+        for mailing in self:
+            mailing_res_ids = res_ids or mailing._get_remaining_recipients()
+
+            _logger.info("********* MASS MAIL VIA GRAPH API *********")
+
+            # Mass Mailing бүрийн хүлээн авагч бүрт илгээх
+            for partner_id in mailing_res_ids:
+                
+                partner = self.env['res.partner'].browse(partner_id)
+                _logger.info(f"********* {partner} ***********")
+                status, text = send_ms_email(
+                    token,
+                    from_email=self.from_email,
+                    to_email=partner.email or '',
+                    subject=mailing.subject or '',
+                    html_content=mailing.body_html or ''
+                )
+                if status not in (200, 202):
+                    _logger.error("Graph API send failed: %s", text)
+
+            # Илгээсний дараа state update
+            mailing.write({
+                'state': 'done',
+                'sent_date': fields.Datetime.now(),
+                'kpi_mail_required': not mailing.sent_date,
+            })
+
+        return True
+
 
     
