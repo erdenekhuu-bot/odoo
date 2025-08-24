@@ -8,6 +8,9 @@ _logger = logging.getLogger(__name__)
 # sender_email = 'no-reply@gmobile.mn'
 sender_email = 'newsletter@gmobile.mn'
 
+
+class TestCustom(models.Model):
+    pass
 class MailingMailing(models.Model):
     _inherit = 'mailing.mailing'
     from_email=sender_email
