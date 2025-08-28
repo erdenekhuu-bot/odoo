@@ -45,3 +45,4 @@ requests==2.31.0
 rjsmin==1.2.0
 #Pillow==10.2.0
 #rl-renderPM==4.0.3  
+python-dotenv==1.1.0
