@@ -6,7 +6,7 @@ load_dotenv()
 
 tenantId=os.environ['tenantId']
 clientId=os.environ['clientId']
-clientSecret=os.environ['clientSecret']
+clientkey=os.environ['clientkey']
 
 
 def get_ms_token():
@@ -17,7 +17,7 @@ def get_ms_token():
     body = {
         'grant_type': 'client_credentials',
         'client_id': clientId,
-        'client_secret': clientSecret,
+        'client_secret': clientkey,
         'scope': 'https://graph.microsoft.com/.default'
     }
     response = requests.post(url, headers=headers, data=body)

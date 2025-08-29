@@ -1,14 +1,12 @@
 {
     'name': 'Extend contract',
-    'summary': 'Contract jagsaaltiig orgosgoh',
-    'description': 'mail.list, mail.contact oroltuulah',
+    'summary': 'Constract recipient email',
+    'description': 'Contact jagsaalt deer default recipient email tohiruulah',
     'author': 'admin',
-    'depends': ['base', 'mass_mailing'],
-    'version': '1.0',
-    # 'data': [
-    #     'views/ui.xml',
-    #     'views/contact.xml'
-    # ],
+    'depends': ['mail', 'mass_mailing'],
+    'images': [
+        'static/description/alert.png'
+    ],
     'application': True,
-    'installable': True
+    'installable': True,
 }
