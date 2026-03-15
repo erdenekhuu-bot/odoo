@@ -50,5 +50,6 @@ package.json
 /share/
 /src/
 python3.12/
+python3.13/
 odoo.conf
 .env
