@@ -5,7 +5,6 @@ import os
 
 _logger = logging.getLogger(__name__)
 
-# sender_email = 'no-reply@gmobile.mn'
 sender_email = 'newsletter@gmobile.mn'
 
 class MailingMailing(models.Model):
