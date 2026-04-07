@@ -25,37 +25,37 @@ class gmobile(models.AbstractModel):
     def send_custom_page_mail(self):
         result = self.fetch_items()
 
-        # html_body = self.env['ir.qweb']._render(
-        #     'gmobile_invoice.gmobile_invoice_email_body',
-        #     {
-        #         'items': result.get('items', [])[:10],
-        #         'total': result.get('total', 0),
-        #     }
-        # )
-        # mail = self.env['mail.mail'].create({
-        #     'subject': 'Gmobile Invoice Dashboard',
-        #     'email_to': 'erdenekhuu.e@gmobile.mn',
-        #     'email_from': 'alert@gmobile.mn',
-        #     'body_html': html_body,
-        # })
-        html_body = """
-                <div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2>Gmobile Invoice Dashboard</h2>
-                    <p>Энэ бол тест email.</p>
-                    <ul>
-                        <li>Invoice A</li>
-                        <li>Invoice B</li>
-                        <li>Invoice C</li>
-                    </ul>
-                </div>
-                """
-
-        mail = self.env['mail.mail'].sudo().create({
-            'subject': 'Simple HTML Mail',
-            'email_to': 'nvipree441@gmail.com',
+        html_body = self.env['ir.qweb']._render(
+            'gmobile_invoice.gmobile_invoice_email_body',
+            {
+                'items': result.get('items', [])[:10],
+                'total': result.get('total', 0),
+            }
+        )
+        mail = self.env['mail.mail'].create({
+            'subject': 'Gmobile Invoice Dashboard',
+            'email_to': 'erdenekhuu.e@gmobile.mn',
             'email_from': 'alert@gmobile.mn',
             'body_html': html_body,
         })
+        # html_body = """
+        #         <div style="font-family: Arial, sans-serif; padding: 20px;">
+        #             <h2>Gmobile Invoice Dashboard</h2>
+        #             <p>Энэ бол тест email.</p>
+        #             <ul>
+        #                 <li>Invoice A</li>
+        #                 <li>Invoice B</li>
+        #                 <li>Invoice C</li>
+        #             </ul>
+        #         </div>
+        #         """
+        #
+        # mail = self.env['mail.mail'].sudo().create({
+        #     'subject': 'Simple HTML Mail',
+        #     'email_to': 'nvipree441@gmail.com',
+        #     'email_from': 'alert@gmobile.mn',
+        #     'body_html': html_body,
+        # })
         _logger.info("Mail created: %s", mail.id)
         mail.send()
         return True
