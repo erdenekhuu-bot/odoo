@@ -1,0 +1,43 @@
+<templates xml:space="preserve">
+    <t t-name="gmobile_invoice.Dashboard">
+        <div class="dashboard-container">
+
+            <!-- Title -->
+            <div class="dashboard-title">
+                Gmobile Invoice Dashboard
+            </div>
+
+            <!-- Image -->
+            <img src="/gmobile_invoice/static/src/img/olsen.jpg" width="200"/>
+
+            <div class="dashboard-card">
+
+                <!-- Loading -->
+                <t t-if="state.loading">
+                    <div>⏳ Уншиж байна...</div>
+                </t>
+
+                <!-- Error -->
+                <t t-elif="state.error">
+                    <div style="color:red;">
+                        <t t-esc="state.error"/>
+                    </div>
+                </t>
+
+                <!-- Data -->
+                <t t-else="">
+                    <h3>Нийт: <t t-esc="state.total"/></h3>
+
+                    <ul class="dashboard-list">
+                        <t t-foreach="state.items.slice(0, 10)" t-as="item" t-key="item.id">
+                            <li>
+                                ✔ <t t-esc="item.title"/>
+                            </li>
+                        </t>
+                    </ul>
+                </t>
+
+            </div>
+        </div>
+    </t>
+</templates>

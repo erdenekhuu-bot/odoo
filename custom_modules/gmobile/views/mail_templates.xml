@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="gmobile_invoice_email_body">
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>Gmobile Invoice Dashboard</h2>
+            <p>Нийт: <strong><t t-esc="total"/></strong></p>
+
+            <t t-if="items">
+                <ul>
+                    <t t-foreach="items" t-as="item" t-key="item['id']">
+                        <li><t t-esc="item['title']"/></li>
+                    </t>
+                </ul>
+            </t>
+            <t t-else="">
+                <p>Өгөгдөл олдсонгүй.</p>
+            </t>
+        </div>
+    </template>
+</odoo>
