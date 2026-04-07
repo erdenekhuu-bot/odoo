@@ -32,7 +32,11 @@ class gmobile(models.AbstractModel):
                 'total': result.get('total', 0),
             }
         )
-        mail = self.env['mail.mail'].create({
+
+        if isinstance(html_body, bytes):
+            html_body = html_body.decode('utf-8')
+
+        mail = self.env['mail.mail'].sudo().create({
             'subject': 'Gmobile Invoice Dashboard',
             'email_to': 'erdenekhuu.e@gmobile.mn',
             'email_from': 'alert@gmobile.mn',
