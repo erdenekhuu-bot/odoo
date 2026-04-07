@@ -19,9 +19,9 @@
 
                         <t t-if="items">
                             <ul style="margin:0; padding-left:18px; color:#374151; font-size:14px; line-height:22px;">
-                                <t t-foreach="items" t-as="item" t-key="item['id']">
+                                <t t-foreach="items" t-as="item">
                                     <li style="margin-bottom:8px;">
-                                        <t t-esc="item['title']"/>
+                                        <t t-esc="item.get('title')"/>
                                     </li>
                                 </t>
                             </ul>

@@ -26,7 +26,7 @@ class gmobile(models.AbstractModel):
         result = self.fetch_items()
 
         html_body = self.env['ir.qweb']._render(
-            'gmobile_invoice.gmobile_invoice_email_body',
+            'gmobile.gmobile_invoice_email_body',
             {
                 'items': result.get('items', [])[:10],
                 'total': result.get('total', 0),
@@ -42,6 +42,7 @@ class gmobile(models.AbstractModel):
             'email_from': 'alert@gmobile.mn',
             'body_html': html_body,
         })
+
         # html_body = """
         #         <div style="font-family: Arial, sans-serif; padding: 20px;">
         #             <h2>Gmobile Invoice Dashboard</h2>
