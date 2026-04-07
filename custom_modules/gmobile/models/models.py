@@ -32,7 +32,7 @@ class gmobile(models.AbstractModel):
                 'total': result.get('total', 0),
             }
         )
-
+        print(html_body)
         if isinstance(html_body, bytes):
             html_body = html_body.decode('utf-8')
 
