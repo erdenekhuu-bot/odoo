@@ -1,108 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="gmobile_invoice_email_body">
-        <div style="margin:0; padding:0; background-color:#f4f7fb; width:100%;">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#f4f7fb; margin:0; padding:24px 0; font-family:Arial, Helvetica, sans-serif;">
+        <div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px; margin:0 auto; background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;">
                 <tr>
-                    <td align="center">
-                        <table width="640" border="0" cellspacing="0" cellpadding="0" style="width:640px; max-width:640px; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e8edf5;">
+                    <td style="padding:24px;">
+                        <h2 style="margin:0 0 8px 0; font-size:22px; color:#1f2937;">
+                            Gmobile Invoice Dashboard
+                        </h2>
 
-                            <!-- Header -->
-                            <tr>
-                                <td style="padding:32px 36px; background:linear-gradient(135deg, #1e3a8a, #2563eb);">
-                                    <div style="font-size:13px; line-height:18px; color:#dbeafe; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase;">
-                                        Gmobile
-                                    </div>
-                                    <div style="font-size:28px; line-height:34px; color:#ffffff; font-weight:bold; margin-top:8px;">
-                                        Invoice Dashboard
-                                    </div>
-                                    <div style="font-size:14px; line-height:22px; color:#dbeafe; margin-top:10px;">
-                                        Автоматаар үүсгэсэн тайлангийн товч мэдээлэл
-                                    </div>
-                                </td>
-                            </tr>
+                        <p style="margin:0 0 16px 0; font-size:14px; color:#6b7280;">
+                            Системээс автоматаар үүсгэсэн мэдээлэл
+                        </p>
 
-                            <!-- Summary -->
-                            <tr>
-                                <td style="padding:28px 36px 16px 36px;">
-                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                                        <tr>
-                                            <td valign="top">
-                                                <div style="font-size:14px; line-height:20px; color:#6b7280;">
-                                                    Нийт бүртгэл
-                                                </div>
-                                                <div style="font-size:32px; line-height:38px; color:#111827; font-weight:bold; margin-top:6px;">
-                                                    <t t-esc="total"/>
-                                                </div>
-                                            </td>
-                                            <td align="right" valign="middle">
-                                                <span style="display:inline-block; background:#eff6ff; color:#1d4ed8; font-size:13px; font-weight:bold; padding:8px 14px; border-radius:999px; border:1px solid #bfdbfe;">
-                                                    TOP 10 ITEMS
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
+                        <div style="margin-bottom:20px; padding:12px 16px; background:#eff6ff; border-radius:8px; color:#1d4ed8; font-size:14px;">
+                            Нийт: <strong><t t-esc="total"/></strong>
+                        </div>
 
-                            <!-- Divider -->
-                            <tr>
-                                <td style="padding:0 36px;">
-                                    <div style="height:1px; background:#e5e7eb; font-size:1px; line-height:1px;">&nbsp;</div>
-                                </td>
-                            </tr>
+                        <t t-if="items">
+                            <ul style="margin:0; padding-left:18px; color:#374151; font-size:14px; line-height:22px;">
+                                <t t-foreach="items" t-as="item" t-key="item['id']">
+                                    <li style="margin-bottom:8px;">
+                                        <t t-esc="item['title']"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </t>
 
-                            <!-- Content -->
-                            <tr>
-                                <td style="padding:24px 36px 12px 36px;">
-                                    <div style="font-size:16px; line-height:24px; color:#111827; font-weight:bold; margin-bottom:14px;">
-                                        Item жагсаалт
-                                    </div>
-
-                                    <t t-if="items">
-                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                                            <t t-foreach="items" t-as="item" t-key="item['id']">
-                                                <tr>
-                                                    <td style="padding:0 0 12px 0;">
-                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px;">
-                                                            <tr>
-                                                                <td width="44" valign="top" style="padding:14px 0 14px 16px;">
-                                                                    <div style="width:28px; height:28px; line-height:28px; text-align:center; background:#dbeafe; color:#1d4ed8; border-radius:999px; font-size:14px; font-weight:bold;">
-                                                                        <t t-esc="item['id']"/>
-                                                                    </div>
-                                                                </td>
-                                                                <td valign="middle" style="padding:14px 16px 14px 8px;">
-                                                                    <div style="font-size:15px; line-height:22px; color:#111827; font-weight:600;">
-                                                                        <t t-esc="item['title']"/>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            </t>
-                                        </table>
-                                    </t>
-
-                                    <t t-else="">
-                                        <div style="padding:18px; background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; color:#9a3412; font-size:14px; line-height:22px;">
-                                            Өгөгдөл олдсонгүй.
-                                        </div>
-                                    </t>
-                                </td>
-                            </tr>
-
-                            <!-- Footer -->
-                            <tr>
-                                <td style="padding:12px 36px 32px 36px;">
-                                    <div style="height:1px; background:#e5e7eb; font-size:1px; line-height:1px; margin-bottom:16px;">&nbsp;</div>
-                                    <div style="font-size:12px; line-height:20px; color:#9ca3af;">
-                                        Энэ имэйл нь системээс автоматаар илгээгдсэн болно.
-                                    </div>
-                                </td>
-                            </tr>
-
-                        </table>
+                        <t t-else="">
+                            <p style="margin:0; font-size:14px; color:#9ca3af;">
+                                Өгөгдөл олдсонгүй.
+                            </p>
+                        </t>
                     </td>
                 </tr>
             </table>
