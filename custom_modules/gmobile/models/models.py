@@ -38,7 +38,7 @@ class gmobile(models.AbstractModel):
 
         mail = self.env['mail.mail'].sudo().create({
             'subject': 'Gmobile Invoice Dashboard',
-            'email_to': 'doljinsuren.kh@gmobile.mn',
+            'email_to': 'erdenekhuu.e@gmobile.mn',
             'email_from': 'alert@gmobile.mn',
             'body_html': html_body,
         })
