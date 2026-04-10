@@ -5,7 +5,7 @@
     'maintainer': 'erdenee',
     'category': 'Website',
     'description': "Зөвхөн нэхэмжлэл үүсгэх зориулалттай модул",
-    'depends': ['account','web','mail'],
+    'depends': ['account','web','mail','mass_mailing'],
     'data': [
         'views/templates.xml',
         'views/menu.xml',
