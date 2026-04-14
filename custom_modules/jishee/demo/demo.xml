@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Demo Record 1 -->
+        <record id="jishee_demo_1" model="jishee.table">
+            <field name="name">Бат</field>
+            <field name="age">28</field>
+            <field name="career">Программист</field>
+            <field name="description">Backend developer</field>
+            <field name="about">Сайн дулаан, хариуцлагатай, шинэ технологи сонирхдог.</field>
+            <field name="profile" type="base64" file="jishee/demo/static/src/img/racoon.png"/>
+            <field name="start_date">2026-04-15 09:00:00</field>
+            <field name="end_date">2026-04-15 17:00:00</field>
+        </record>
+
+        <!-- Demo Record 2 -->
+        <record id="jishee_demo_2" model="jishee.table">
+            <field name="name">Сараа</field>
+            <field name="age">24</field>
+            <field name="career">Дизайнер</field>
+            <field name="description">UI/UX Designer</field>
+            <field name="about">Creative designer with 3 years experience in Figma and Adobe tools.</field>
+            <field name="profile" type="base64" file="jishee/demo/static/src/img/racoon.png"/>
+            <field name="start_date">2026-04-12 09:00:00</field>
+            <field name="end_date">2026-04-12 17:00:00</field>
+        </record>
+
+        <!-- Demo Record 3 -->
+        <record id="jishee_demo_3" model="jishee.table">
+            <field name="name">Энх</field>
+            <field name="age">35</field>
+            <field name="career">Менежер</field>
+            <field name="description">Project Manager</field>
+            <field name="about">10+ жил туршлагатай төсөл удирдагч.</field>
+            <field name="profile" type="base64" file="jishee/demo/static/src/img/racoon.png"/>
+            <field name="start_date">2026-04-15 09:00:00</field>
+            <field name="end_date">2026-04-15 17:00:00</field>
+        </record>
+
+    </data>
+</odoo>

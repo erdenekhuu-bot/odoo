@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Jishee List View -->
+    <record id="view_jishee_list" model="ir.ui.view">
+        <field name="name">jishee.table.list</field>
+        <field name="model">jishee.table</field>
+        <field name="arch" type="xml">
+            <list string="Жишээ жагсаалт">
+                <field name="profile" widget="image" nolabel="1" class="oe_avatar" options="{'size': [80, 80]}"/>
+                <field name="name"/>
+                <field name="age"/>
+                <field name="career"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Jishee Form View -->
+    <record id="view_jishee_form" model="ir.ui.view">
+        <field name="name">jishee.table.form</field>
+        <field name="model">jishee.table</field>
+        <field name="arch" type="xml">
+            <form string="Жишээ бүртгэл">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="age"/>
+                        <field name="career"/>
+                        <field name="description"/>
+                        <field name="about"/>
+                    </group>
+                    <group>
+                        <field name="profile" widget="image" class="oe_avatar" options="{'size': [200, 200]}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_jishee" model="ir.actions.act_window">
+        <field name="name">Жишээ загвар</field>
+        <field name="res_model">jishee.table</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_jishee_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_jishee_form')})]"/>
+    </record>
+    <record id="action_jishee1" model="ir.actions.act_window">
+        <field name="name">Жишээ загвар</field>
+        <field name="res_model">jishee.table</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+     <record id="action_jishee_template_client" model="ir.actions.client">
+        <field name="name">Мэйлийн загвар</field>
+        <field name="tag">reload</field>
+        <field name="params" eval="{'template': 'jishee.sample_template'}"/>
+    </record>
+
+     <record id="action_mail_from_window" model="ir.actions.server">
+        <field name="name">Send Invoice Mail</field>
+        <field name="model_id" ref="base.model_ir_ui_menu"/>
+        <field name="state">code</field>
+        <field name="code">env['jishee.table'].send_custom_page_mail()</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+   <menuitem id="jishee_menu" name="Jishee zagvar" sequence="5"/>
+<!--    <menuitem-->
+<!--        id="menu_jishee_under_email_marketing"-->
+<!--        name="Single bill"-->
+<!--        parent="mass_mailing.mass_mailing_menu_root"-->
+<!--        action="action_jishee1"-->
+<!--        sequence="110" />-->
+    <menuitem id="sub_jishee_menu"
+              name="Жишээ жагсаалт"
+              parent="jishee_menu"
+              action="action_jishee"
+              sequence="10"/>
+
+    <menuitem id="template_sub_menu" name="Мэйлийн загвар" parent="jishee_menu" action="action_mail_from_window" sequence="11"/>
+
+</odoo>
