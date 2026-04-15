@@ -2,6 +2,7 @@
 from odoo import models, fields, api
 import requests
 import logging
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -32,7 +33,14 @@ class gmobile(models.AbstractModel):
                 'total': result.get('total', 0),
             }
         )
-        print(html_body)
+        pdf_content = b"Test attachment content"
+        attachment = self.env['ir.attachment'].create({
+            'name': 'dashboard_report.pdf',
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content),
+            'mimetype': 'application/pdf',
+        })
+
         if isinstance(html_body, bytes):
             html_body = html_body.decode('utf-8')
 
@@ -41,6 +49,7 @@ class gmobile(models.AbstractModel):
             'email_to': 'erdenekhuu.e@gmobile.mn',
             'email_from': 'alert@gmobile.mn',
             'body_html': html_body,
+            'attachment_ids': [(4, attachment.id)],
         })
 
         # html_body = """
