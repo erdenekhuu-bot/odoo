@@ -19,7 +19,7 @@ env['jishee.jishee.table'].custom_demostration()
     <menuitem id="sub_jishee_menu"
               name="Жишээ жагсаалт"
               parent="jishee_menu"
-              action="action_jishee"
+              action="action_trigger_pdf"
               sequence="10"/>
 
     <menuitem id="template_sub_menu" name="Мэйлийн загвар" parent="jishee_menu" action="action_mail_from_window" sequence="11"/>
