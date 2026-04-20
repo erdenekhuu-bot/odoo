@@ -53,18 +53,21 @@ class NewModule(models.Model):
 
     @api.model
     def custom_demostration(self):
-        pdf_content = HTML(
-            filename=str(self.env['ir.qweb']._render('jishee.attachment_pdf_invoice'))
-        ).write_pdf()
+        html_content = self.env['ir.qweb']._render('jishee.attachment_pdf_invoice', {})
+
+        if isinstance(html_content, bytes):
+            html_content = html_content.decode('utf-8')
+
+        pdf_content = HTML(string=html_content).write_pdf()
+
         attachment = self.env['ir.attachment'].create({
             'name': 'dashboard_report.pdf',
             'type': 'binary',
             'datas': base64.b64encode(pdf_content),
             'mimetype': 'application/pdf',
         })
-        html_body="Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе"
-        if isinstance(html_body, bytes):
-            html_body = html_body.decode('utf-8')
+
+        html_body = "<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>"
 
         mail = self.env['mail.mail'].sudo().create({
             'subject': 'Gmobile Invoice Dashboard',
@@ -73,6 +76,7 @@ class NewModule(models.Model):
             'body_html': html_body,
             'attachment_ids': [(4, attachment.id)],
         })
+
         _logger.info("Mail created: %s", mail.id)
         mail.send()
         return True
