@@ -32,10 +32,10 @@
  psycopg2==2.9.9
  pyopenssl==24.1.0
  PyPDF2==2.12.1
- #pypiwin32
+ pypiwin32
  pyserial==3.5
  python-dateutil==2.8.2
- python-ldap==3.4.4
+ #python-ldap==3.4.4
  python-stdnum==1.19
  pytz  
  pyusb==1.2.1

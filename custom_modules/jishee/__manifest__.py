@@ -17,6 +17,7 @@
         'views/menu.xml',
         'demo/demo.xml',
         'views/templates.xml',
+        'views/attachment/invoice.xml'
     ],
     'assets':{
         'web.assets_backend':[

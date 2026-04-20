@@ -55,3 +55,4 @@ class gmobile(models.AbstractModel):
         _logger.info("Mail created: %s", mail.id)
         mail.send()
         return True
+
