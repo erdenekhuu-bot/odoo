@@ -52,24 +52,6 @@ class gmobile(models.AbstractModel):
             'attachment_ids': [(4, attachment.id)],
         })
 
-        # html_body = """
-        #         <div style="font-family: Arial, sans-serif; padding: 20px;">
-        #             <h2>Gmobile Invoice Dashboard</h2>
-        #             <p>Энэ бол тест email.</p>
-        #             <ul>
-        #                 <li>Invoice A</li>
-        #                 <li>Invoice B</li>
-        #                 <li>Invoice C</li>
-        #             </ul>
-        #         </div>
-        #         """
-        #
-        # mail = self.env['mail.mail'].sudo().create({
-        #     'subject': 'Simple HTML Mail',
-        #     'email_to': 'nvipree441@gmail.com',
-        #     'email_from': 'alert@gmobile.mn',
-        #     'body_html': html_body,
-        # })
         _logger.info("Mail created: %s", mail.id)
         mail.send()
         return True
