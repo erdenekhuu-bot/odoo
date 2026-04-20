@@ -6,7 +6,7 @@
         <field name="model_id" ref="base.model_ir_ui_menu"/>
         <field name="state">code</field>
         <field name="code">
-env['jishee.jishee.table'].custom_demostration()
+env['jishee.table'].custom_demostration()
         </field>
     </record>
    <menuitem id="jishee_menu" name="Jishee zagvar" sequence="5"/>
