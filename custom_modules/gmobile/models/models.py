@@ -46,8 +46,8 @@ class gmobile(models.AbstractModel):
 
         mail = self.env['mail.mail'].sudo().create({
             'subject': 'Gmobile Invoice Dashboard',
-            'email_to': 'erdenekhuu.e@gmobile.mn',
-            'email_from': 'alert@gmobile.mn',
+            'email_to': self.env['ir.config_parameter'].sudo().get_param('customer.customer.mail'),
+            'email_from': self.env['ir.config_parameter'].sudo().get_param('main.mail'),
             'body_html': html_body,
             'attachment_ids': [(4, attachment.id)],
         })

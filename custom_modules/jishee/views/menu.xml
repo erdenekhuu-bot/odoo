@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+
+    <record id="action_trigger_pdf" model="ir.actions.server">
+        <field name="name">Send Invoice Mail with Attacgnebt</field>
+        <field name="model_id" ref="base.model_ir_ui_menu"/>
+        <field name="state">code</field>
+        <field name="code">
+env['jishee.jishee.table'].custom_demostration()
+        </field>
+    </record>
    <menuitem id="jishee_menu" name="Jishee zagvar" sequence="5"/>
 <!--    <menuitem-->
 <!--        id="menu_jishee_under_email_marketing"-->
