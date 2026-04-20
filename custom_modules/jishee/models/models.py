@@ -51,6 +51,7 @@ class NewModule(models.Model):
         mail.send()
         return True
 
+    @api.model
     def custom_demostration(self):
         pdf_content = HTML(
             filename=str(self.env['ir.qweb']._render('jishee.attachment_pdf_invoice'))
