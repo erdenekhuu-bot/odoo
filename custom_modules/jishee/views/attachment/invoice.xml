@@ -263,7 +263,7 @@
               <div class="invoice">
       <header class="invoice-header">
         <h1>20**.** САРЫН ТӨЛБӨРИЙН НЭХЭМЖЛЭХ</h1>
-        <img src="images/logo.png" alt="gmobile logo" class="logo" />
+          <img t-att-src="'%s/jishee/static/src/img/banner.png' % base_url"/>
       </header>
 
       <main class="invoice-main">
@@ -423,17 +423,17 @@
           <div class="app-block">
             <h2>My gmobile аппликейшн татах</h2>
             <div class="qr-row">
-                <img src="/jishee/static/src/img/appstoreqr.png"/>
-                <img src="/jishee/static/src/img/playstoreqr.png"/>
+                <img t-att-src="'%s/jishee/static/src/img/appstoreqr.png' % base_url"/>
+                <img t-att-src="'%s/jishee/static/src/img/playstoreqr.png' % base_url"/>
             </div>
           </div>
 
           <div class="guide-block">
             <h2>My gmobile аппликейшнээр төлбөр төлөх заавар</h2>
             <div class="guide-images">
-                <img src="/jishee/static/src/img/screen1.jpg" width="200"/>
-                <img src="/jishee/static/src/img/screen2.jpg" width="200"/>
-                <img src="/jishee/static/src/img/screen3.jpg" width="200"/>
+                <img t-att-src="'%s/jishee/static/src/img/screen1.jpg' % base_url" width="200"/>
+                <img t-att-src="'%s/jishee/static/src/img/screen2.jpg' % base_url" width="200"/>
+                <img t-att-src="'%s/jishee/static/src/img/screen3.jpg' % base_url" width="200"/>
             </div>
           </div>
 

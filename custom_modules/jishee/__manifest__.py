@@ -22,7 +22,6 @@
     'assets':{
         'web.assets_backend':[
             'jishee/static/src/img/*',
-
         ]
     },
     'qweb': [

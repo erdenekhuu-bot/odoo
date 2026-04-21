@@ -53,12 +53,13 @@ class NewModule(models.Model):
 
     @api.model
     def custom_demostration(self):
+        base_url=self.env['ir.config_parameter'].get_param('web.base.url')
         html_content = self.env['ir.qweb']._render('jishee.attachment_pdf_invoice', {})
 
         if isinstance(html_content, bytes):
             html_content = html_content.decode('utf-8')
 
-        pdf_content = HTML(string=html_content).write_pdf()
+        pdf_content = HTML(string=html_content,base_url=base_url).write_pdf()
 
         attachment = self.env['ir.attachment'].create({
             'name': 'dashboard_report.pdf',
