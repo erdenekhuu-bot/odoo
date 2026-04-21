@@ -54,7 +54,9 @@ class NewModule(models.Model):
     @api.model
     def custom_demostration(self):
         base_url=self.env['ir.config_parameter'].get_param('web.base.url')
-        html_content = self.env['ir.qweb']._render('jishee.attachment_pdf_invoice', {})
+        html_content = self.env['ir.qweb']._render('jishee.attachment_pdf_invoice', {
+        'base_url': base_url,
+    })
 
         if isinstance(html_content, bytes):
             html_content = html_content.decode('utf-8')
