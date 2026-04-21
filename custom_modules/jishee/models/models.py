@@ -68,13 +68,13 @@ class NewModule(models.Model):
         })
 
         html_body = "<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>"
-
-        mail = self.env['mail.mail'].sudo().create({
-            'subject': 'Gmobile Invoice Dashboard',
-            'email_to': self.env['ir.config_parameter'].sudo().get_param('customer.customer.mail'),
-            'email_from': self.env['ir.config_parameter'].sudo().get_param('main.mail'),
+        mail = self.env['mail.mail'].create({
+            'subject': 'Gmobile төлбөрийн нэхэмжлэл',
+            'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
+            'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
             'body_html': html_body,
             'attachment_ids': [(4, attachment.id)],
+
         })
 
         _logger.info("Mail created: %s", mail.id)

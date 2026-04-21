@@ -66,19 +66,234 @@
                 }
             </style>
 
-            <t t-call="web.external_layout">
-                <div class="page">
-                    <header class="invoice-header">
-                        <h1>20**.** САРЫН ТӨЛБӨРИЙН НЭХЭМЖЛЭХ</h1>
-                        <img src="/jishee/static/src/img/banner.png" class="logo"/>
-                    </header>
+              <div class="invoice">
+      <header class="invoice-header">
+        <h1>20**.** САРЫН ТӨЛБӨРИЙН НЭХЭМЖЛЭХ</h1>
+        <img src="images/logo.png" alt="gmobile logo" class="logo" />
+      </header>
 
-                    <main class="invoice-main">
-                        <section class="left-panel">1</section>
-                        <section class="right-panel">2</section>
-                    </main>
-                </div>
-            </t>
+      <main class="invoice-main">
+        <!-- LEFT -->
+        <section class="left-panel">
+          <div class="">
+            <div class="info-row">
+              <span>Нэхэмжлэхийн дугаар</span>
+              <strong>83915749</strong>
+            </div>
+            <div class="info-row">
+              <span>Хамрагдах хугацаа</span>
+              <strong>2026/02/01-2026/03/01</strong>
+            </div>
+            <div class="info-row">
+              <span>Төлбөрийн нэхэмжилсэн хугацаа</span>
+              <strong>2026/03/08</strong>
+            </div>
+            <div class="info-row">
+              <span>Төлбөр хийх эцсийн хугацаа</span>
+              <strong>2026/03/20</strong>
+            </div>
+            <div class="info-row">
+              <span>Хэрэглэгчийн нэр</span>
+              <strong>Бат Дорж</strong>
+            </div>
+            <div class="info-row">
+              <span>Гэрээний дугаар</span>
+              <strong>3619755</strong>
+            </div>
+            <div class="info-row">
+              <span>Утасны дугаар</span>
+              <strong>98100000</strong>
+            </div>
+          </div>
+
+          <div class="table-section">
+            <div class="section-title">
+              <span>ХЭМЖЭЭ/ХУГАЦАА</span>
+              <span>ДҮН</span>
+            </div>
+
+            <div class="table-body">
+              <div class="table-row bold">
+                <span>БАГЦАД ДАГАЛДАХ ЭРХ:</span>
+                <span></span>
+              </div>
+              <div class="table-row">
+                <span>Сүлээн дахь яриа</span>
+                <span></span>
+              </div>
+              <div class="table-row">
+                <span>Сүлжээ харгалзахгүй яриа</span>
+                <span>хязгааргүй</span>
+                <span>5,5000.00</span>
+              </div>
+              <div class="table-row">
+                <span>Дата</span>
+                <span>30G</span>
+              </div>
+              <div class="table-row">
+                <span>Мессеж</span>
+                <span></span>
+              </div>
+
+              <div class="table-row total">
+                <span>ДҮН</span>
+                <span>5,500.00</span>
+              </div>
+              <div class="table-row total">
+                <span>НЭМЭЛТ ХЭРЭГЛЭЭ</span>
+                <span>5,500.00</span>
+              </div>
+              <div class="table-row">
+                <span>Сүлжээн дахь яриа</span>
+                <span>01:09:44</span>
+                <span>0,0</span>
+              </div>
+              <div class="table-row">
+                <span>Бусад сүлжээн дахь яриа</span>
+                <span>01:09:44</span>
+                <span>0,0</span>
+              </div>
+              <div class="table-row">
+                <span>Тусгай дугаарын яриа</span>
+                <span>5,500.00</span>
+              </div>
+              <div class="table-row">
+                <span>Сүлжээн дахь мессеж</span>
+                <span>28</span>
+                <span>5.000.00</span>
+              </div>
+              <div class="table-row">
+                <span>Дата</span>
+                <span>45299.59 MB</span>
+                <span>0.00</span>
+              </div>
+              <div class="table-row">
+                <span>Нэмэлт дата багц</span>
+                <span>0.00</span>
+              </div>
+              <div class="table-row">
+                <span>Бусад хэрэглээ</span>
+                <span>0.00</span>
+              </div>
+              <div class="table-row">
+                <span>Дуудлага хадгалах үйлчилгээ</span>
+                <span>0.00</span>
+              </div>
+              <div class="table-row">
+                <span>Gtone үйлчилгээ</span>
+                <span>0.00</span>
+              </div>
+              <div class="table-row total">
+                <span>ДҮН</span>
+                <span>5,500.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-box">
+            <div class="section-title single">ТУХАЙН САРЫН ТӨЛБӨР:</div>
+            <div class="table-row">
+              <span>Татвар тооцоогүй дүн</span>
+              <span>10,800.00</span>
+            </div>
+            <div class="table-row">
+              <span>НӨАТ 10%</span>
+              <span>500.00</span>
+            </div>
+            <div class="table-row total">
+              <span>ДҮН</span>
+              <span>11,300.00</span>
+            </div>
+          </div>
+
+          <div class="summary-box">
+            <div class="section-title single">ТӨЛБӨР ЗОХИХ ДҮН:</div>
+            <div class="table-row">
+              <span>Тухайн сарын төлбөр</span>
+              <span>11,300.00</span>
+            </div>
+            <div class="table-row">
+              <span>Өмнөх сарын үлдэгдэл төлбөр</span>
+              <span>-14,042.7</span>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <span>НИЙТ ТӨЛБӨР:</span>
+            <span>-2,286.27</span>
+          </div>
+        </section>
+
+        <!-- RIGHT -->
+        <section class="right-panel">
+          <div class="app-block">
+            <h2>My gmobile аппликейшн татах</h2>
+            <div class="qr-row">
+              <img src="images/appstoreqr.png" alt="appstore qr" />
+              <img src="images/playstoreqr.png" alt="playstore qr" />
+            </div>
+          </div>
+
+          <div class="guide-block">
+            <h2>My gmobile аппликейшнээр төлбөр төлөх заавар</h2>
+            <div class="guide-images">
+              <img src="images/screen1.jpg" alt="screen 1" width="200" />
+              <img src="images/screen2.jpg" alt="screen 2" width="200" />
+              <img src="images/screen3.jpg" alt="screen 3" width="200" />
+            </div>
+          </div>
+
+          <div class="bank-block">
+            <h2>Төлбөр төлөх банкны данс</h2>
+            <div class="bank-table">
+              <div class="bank-head">
+                <span>Харилцах данс:</span>
+                <span>Данс</span>
+              </div>
+              <div class="bank-row">
+                <span>Голомт банк</span>
+                <span>MN240015001501115008</span>
+              </div>
+              <div class="bank-row">
+                <span>Төрийн банк</span>
+                <span>MN960034100000223318</span>
+              </div>
+              <div class="bank-row">
+                <span>Худалдаа хөгжлийн банк</span>
+                <span>MN170004000499129061</span>
+              </div>
+            </div>
+
+            <div class="bank-extra">
+              <div class="bank-row">
+                <span>Автомат данс</span>
+                <span></span>
+              </div>
+              <div class="bank-row">
+                <span>Хаан банк</span>
+                <span>MN740004005038006208</span>
+              </div>
+              <div class="bank-row">
+                <span>Хүлээн авагч</span>
+                <span>Жимобайл ХХК</span>
+              </div>
+              <div class="bank-row">
+                <span>Гүйлгээний утга</span>
+                <span>Утасны дугаараа заавал бичихийг анхаарна уу</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="invoice-footer">
+        <p>Жимобайл ХХК</p>
+        <p>
+          Улаанбаатар хот, Сүхбаатар дүүрэг, 6-р хороо, НҮБ-ийн гудамж, Бага
+          тойруу-14, МТ байр
+        </p>
+      </footer>
+    </div>
         </t>
     </template>
 </odoo>
