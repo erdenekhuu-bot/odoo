@@ -1,0 +1,493 @@
+<odoo>
+    <template id="pdfbody">
+        <t t-call="web.html_container">
+            <style>
+               @page {
+                  size: A4 portrait;
+                  margin: 7mm 6mm 8mm 6mm;
+                }
+
+                @media print {
+                  * {
+                    box-sizing: border-box;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                  }
+
+                  html,
+                  body {
+                    background: #ffffff;
+                    color: #111111;
+                    font-family: Arial, Helvetica, sans-serif;
+                  }
+
+                  .invoice {
+                    width: 198mm;
+                    min-height: 281mm;
+                    position: relative;
+                  }
+
+                  .invoice-header {
+                    display: grid;
+                    grid-template-columns: 1fr 34mm;
+                    align-items: start;
+                    column-gap: 6mm;
+                    border-bottom: 1mm solid #e0a51b;
+                    padding: 0 0 4mm 0;
+                    margin: 0 0 2.5mm 0;
+                  }
+
+                  .invoice-header h1 {
+                    margin: 1mm 0 0 0;
+                    font-size: 11.5pt;
+                    line-height: 1.05;
+                    font-weight: 700;
+                    letter-spacing: 0;
+                  }
+
+                  .logo {
+                    width: 31mm;
+                    height: auto;
+                    display: block;
+                    margin-left: auto;
+                    margin-top: -0.5mm;
+                  }
+
+                  .invoice-main {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    column-gap: 0;
+                    align-items: start;
+                  }
+
+                  .left-panel {
+                    padding-right: 6.5mm;
+                    border-right: 0.5mm solid #d9a321;
+                    min-height: 228mm;
+                  }
+
+                  .right-panel {
+                    padding-left: 6.5mm;
+                    min-height: 228mm;
+                  }
+
+                  .info-row {
+                    display: grid;
+                    grid-template-columns: 1fr 35mm;
+                    column-gap: 4mm;
+                    align-items: end;
+                    padding: 1.05mm 0;
+                    font-size: 8.8pt;
+                    line-height: 1.1;
+                  }
+
+                  .info-row span {
+                    font-weight: 400;
+                  }
+
+                  .info-row strong {
+                    font-weight: 700;
+                    text-align: right;
+                  }
+
+                  .table-section {
+                    margin-top: 4.2mm;
+                  }
+
+                  .section-title {
+                    background: #e0a51b !important;
+                    color: #111111 !important;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1.8mm 3.2mm 1.6mm 3.2mm;
+                    font-size: 8.6pt;
+                    line-height: 1;
+                    font-weight: 700;
+                  }
+
+                  .section-title.single {
+                    display: block;
+                  }
+
+                  .table-body {
+                    border-left: 0.25mm solid #dddddd;
+                    border-right: 0.25mm solid #dddddd;
+                    border-bottom: 0.25mm solid #dddddd;
+                    margin: 0;
+                    padding: 0;
+                  }
+
+                  .summary-box {
+                    border-left: 0.25mm solid #dddddd;
+                    border-right: 0.25mm solid #dddddd;
+                    border-bottom: 0.25mm solid #dddddd;
+                    margin-top: 5.2mm;
+                    padding: 0;
+                  }
+
+                  .table-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 1.7mm 3.5mm;
+                    font-size: 8.3pt;
+                    line-height: 1.15;
+                    border: none;
+                  }
+
+                  .table-row span:last-child {
+                    text-align: right;
+                    white-space: nowrap;
+                  }
+
+                  .table-row.bold {
+                    font-weight: 700;
+                    padding-top: 2.2mm;
+                    padding-bottom: 1.4mm;
+                  }
+
+                  .table-row.total {
+                    font-weight: 700;
+                    padding-top: 2mm;
+                    padding-bottom: 2mm;
+                  }
+
+                  .right-panel h2 {
+                    margin: 0 0 3mm 0;
+                    text-align: center;
+                    font-size: 8.8pt;
+                    line-height: 1.15;
+                    font-weight: 700;
+                  }
+
+                  .app-block {
+                    margin: 13mm 0 2mm 0;
+                  }
+
+                  .qr-row {
+                    display: flex;
+                    gap: 10;
+                    justify-items: center;
+                    margin-top: 1mm;
+                  }
+
+                  .qr-row img {
+                    width: 33mm;
+                    height: 33mm;
+                    object-fit: contain;
+                    display: block;
+                  }
+
+                  .guide-block {
+                    margin-top: 3mm;
+                  }
+
+                  .guide-images {
+                    /* display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    column-gap: 2.5mm;
+                    align-items: start; */
+                    display: flex;
+                    align-items: center;
+                    gap: 5;
+                  }
+
+                  .guide-images img {
+                    width: 100%;
+                    height: 48mm;
+                    object-fit: cover;
+                    display: block;
+                    border: none;
+                  }
+
+                  .bank-block {
+                    margin-top: 6mm;
+                  }
+
+                  .bank-table,
+                  .bank-extra {
+                    margin-top: 1.2mm;
+                  }
+
+                  .bank-head,
+                  .bank-row {
+                    display: grid;
+                    grid-template-columns: 33mm 1fr;
+                    column-gap: 4mm;
+                    padding: 0.9mm 0;
+                    font-size: 8.2pt;
+                    line-height: 1.15;
+                    align-items: start;
+                  }
+
+                  .bank-head {
+                    font-weight: 700;
+                    padding-top: 0;
+                    padding-bottom: 1mm;
+                  }
+
+                  .bank-row span:last-child,
+                  .bank-head span:last-child {
+                    text-align: left;
+                    word-break: break-word;
+                  }
+
+                  .invoice-footer {
+                    border-top: 0.25mm solid #d7d7d7;
+                    padding-top: 3mm;
+                    font-size: 7.9pt;
+                    line-height: 1.2;
+                  }
+
+                  img {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                  }
+
+                  .invoice-header,
+                  .left-panel,
+                  .right-panel,
+                  .table-section,
+                  .summary-box,
+                  .app-block,
+                  .guide-block,
+                  .bank-block,
+                  .invoice-footer {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                  }
+                }
+
+            </style>
+
+              <div class="invoice">
+                  <header class="invoice-header">
+                    <h1>20**.** САРЫН ТӨЛБӨРИЙН НЭХЭМЖЛЭХ</h1>
+                      <img t-att-src="'%s/jishee/static/src/img/banner.png' % base_url"/>
+                  </header>
+
+                  <main class="invoice-main">
+                    <!-- LEFT -->
+                    <section class="left-panel">
+                      <div class="">
+                        <div class="info-row">
+                          <span>Нэхэмжлэхийн дугаар</span>
+                          <strong>83915749</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Хамрагдах хугацаа</span>
+                          <strong>2026/02/01-2026/03/01</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Төлбөрийн нэхэмжилсэн хугацаа</span>
+                          <strong>2026/03/08</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Төлбөр хийх эцсийн хугацаа</span>
+                          <strong>2026/03/20</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Хэрэглэгчийн нэр</span>
+                          <strong>Бат Дорж</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Гэрээний дугаар</span>
+                          <strong>3619755</strong>
+                        </div>
+                        <div class="info-row">
+                          <span>Утасны дугаар</span>
+                          <strong>98100000</strong>
+                        </div>
+                      </div>
+
+                      <div class="table-section">
+                        <div class="section-title">
+                          <span>ХЭМЖЭЭ/ХУГАЦАА</span>
+                          <span>ДҮН</span>
+                        </div>
+
+                        <div class="table-body">
+                          <div class="table-row bold">
+                            <span>БАГЦАД ДАГАЛДАХ ЭРХ:</span>
+                            <span></span>
+                          </div>
+                          <div class="table-row">
+                            <span>Сүлээн дахь яриа</span>
+                            <span></span>
+                          </div>
+                          <div class="table-row">
+                            <span>Сүлжээ харгалзахгүй яриа</span>
+                            <span>хязгааргүй</span>
+                            <span>5,5000.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Дата</span>
+                            <span>30G</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Мессеж</span>
+                            <span></span>
+                          </div>
+
+                          <div class="table-row total">
+                            <span>ДҮН</span>
+                            <span>5,500.00</span>
+                          </div>
+                          <div class="table-row total">
+                            <span>НЭМЭЛТ ХЭРЭГЛЭЭ</span>
+                            <span>5,500.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Сүлжээн дахь яриа</span>
+                            <span>01:09:44</span>
+                            <span>0,0</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Бусад сүлжээн дахь яриа</span>
+                            <span>01:09:44</span>
+                            <span>0,0</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Тусгай дугаарын яриа</span>
+                            <span>5,500.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Сүлжээн дахь мессеж</span>
+                            <span>28</span>
+                            <span>5.000.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Дата</span>
+                            <span>45299.59 MB</span>
+                            <span>0.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Нэмэлт дата багц</span>
+                            <span>0.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Бусад хэрэглээ</span>
+                            <span>0.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Дуудлага хадгалах үйлчилгээ</span>
+                            <span>0.00</span>
+                          </div>
+                          <div class="table-row">
+                            <span>Gtone үйлчилгээ</span>
+                            <span>0.00</span>
+                          </div>
+                          <div class="table-row total">
+                            <span>ДҮН</span>
+                            <span>5,500.00</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="summary-box">
+                        <div class="section-title single">ТУХАЙН САРЫН ТӨЛБӨР:</div>
+                        <div class="table-row">
+                          <span>Татвар тооцоогүй дүн</span>
+                          <span>10,800.00</span>
+                        </div>
+                        <div class="table-row">
+                          <span>НӨАТ 10%</span>
+                          <span>500.00</span>
+                        </div>
+                        <div class="table-row total">
+                          <span>ДҮН</span>
+                          <span>11,300.00</span>
+                        </div>
+                      </div>
+
+                      <div class="summary-box">
+                        <div class="section-title single">ТӨЛБӨР ЗОХИХ ДҮН:</div>
+                        <div class="table-row">
+                          <span>Тухайн сарын төлбөр</span>
+                          <span>11,300.00</span>
+                        </div>
+                        <div class="table-row">
+                          <span>Өмнөх сарын үлдэгдэл төлбөр</span>
+                          <span>-14,042.7</span>
+                        </div>
+                      </div>
+
+                      <div class="section-title">
+                        <span>НИЙТ ТӨЛБӨР:</span>
+                        <span>-2,286.27</span>
+                      </div>
+                    </section>
+
+                    <!-- RIGHT -->
+                    <section class="right-panel">
+                      <div class="app-block">
+                        <h2>My gmobile аппликейшн татах</h2>
+                        <div class="qr-row">
+                            <img t-att-src="'%s/jishee/static/src/img/appstoreqr.png' % base_url"/>
+                            <img t-att-src="'%s/jishee/static/src/img/playstoreqr.png' % base_url"/>
+                        </div>
+                      </div>
+
+                      <div class="guide-block">
+                        <h2>My gmobile аппликейшнээр төлбөр төлөх заавар</h2>
+                        <div class="guide-images">
+                            <img t-att-src="'%s/jishee/static/src/img/screen1.jpg' % base_url" width="200"/>
+                            <img t-att-src="'%s/jishee/static/src/img/screen2.jpg' % base_url" width="200"/>
+                            <img t-att-src="'%s/jishee/static/src/img/screen3.jpg' % base_url" width="200"/>
+                        </div>
+                      </div>
+
+                      <div class="bank-block">
+                        <h2>Төлбөр төлөх банкны данс</h2>
+                        <div class="bank-table">
+                          <div class="bank-head">
+                            <span>Харилцах данс:</span>
+                            <span>Данс</span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Голомт банк</span>
+                            <span>MN240015001501115008</span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Төрийн банк</span>
+                            <span>MN960034100000223318</span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Худалдаа хөгжлийн банк</span>
+                            <span>MN170004000499129061</span>
+                          </div>
+                        </div>
+
+                        <div class="bank-extra">
+                          <div class="bank-row">
+                            <span>Автомат данс</span>
+                            <span></span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Хаан банк</span>
+                            <span>MN740004005038006208</span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Хүлээн авагч</span>
+                            <span>Жимобайл ХХК</span>
+                          </div>
+                          <div class="bank-row">
+                            <span>Гүйлгээний утга</span>
+                            <span>Утасны дугаараа заавал бичихийг анхаарна уу</span>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </main>
+
+                  <footer class="invoice-footer">
+                    <p>Жимобайл ХХК</p>
+                    <p>
+                      Улаанбаатар хот, Сүхбаатар дүүрэг, 6-р хороо, НҮБ-ийн гудамж, Бага
+                      тойруу-14, МТ байр
+                    </p>
+                  </footer>
+             </div>
+        </t>
+    </template>
+</odoo>
