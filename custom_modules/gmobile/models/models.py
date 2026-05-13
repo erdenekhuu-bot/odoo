@@ -3,6 +3,7 @@ from odoo import models, fields, api
 import requests
 import logging
 import base64
+import math
 
 _logger = logging.getLogger(__name__)
 

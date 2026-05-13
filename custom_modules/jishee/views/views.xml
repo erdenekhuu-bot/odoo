@@ -72,5 +72,4 @@
         <field name="state">code</field>
         <field name="code">env['jishee.table'].send_custom_page_mail()</field>
     </record>
-
 </odoo>
