@@ -2,10 +2,11 @@ from odoo import api, fields, models
 import psycopg2
 import logging
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 class GenerateInvoice(models.AbstractModel):
     _name = 'generate.invoice'
+
 
     @api.model
     def read_base(self):
@@ -15,25 +16,37 @@ class GenerateInvoice(models.AbstractModel):
             password=self.env["ir.config_parameter"].get_param("second.dbpassword"),
             host=self.env["ir.config_parameter"].get_param("second.dbhost"),
         )
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        html_content = self.env['ir.qweb']._render('jishee.attachment_pdf_invoice', {
+            'base_url': base_url,
+        })
+
+
+
         cursor = conn.cursor()
         query = """
-                select an.acc_number, b.billing_cycle_id, b.period_start, b.period_end, bi.item_type, bi.amount,an.email
-                from bill_item bi
-                left join bill b on bi.bill_id = b.id
-                left join acc_number an on b.acc_number_id = an.id
-                where substr(an.acc_number, 1, 2) = '98'
-                order by an.acc_number limit 500
+                SELECT 
+                    an.acc_number, 
+                    b.billing_cycle_id, 
+                    b.period_start, b.period_end, bi.item_type, bi.amount,an.email
+                FROM bill_item bi
+                    LEFT JOIN bill b on bi.bill_id = b.id
+                    LEFT JOIN acc_number an on b.acc_number_id = an.id
+                WHERE substr(an.acc_number, 1, 2) = '98'
+                ORDER by an.acc_number limit 500
             """
         cursor.execute(query)
         results = cursor.fetchall()
+
 
         data = []
         for row in results:
             partner = self.env['res.partner'].search([('complete_name', '=', row[0])], limit=1).exists()
             if partner:
-                logger.info("partner found: %s", partner.id)
+                _logger.info("partner found: %s", partner.id)
+
             else:
-                logger.info("partner not found: %s", row[0])
+                _logger.info("partner not found: %s", row[0])
             data.append({
                 'acc_number': row[0],
                 'billing_cycle_id': row[1],
@@ -47,12 +60,10 @@ class GenerateInvoice(models.AbstractModel):
 
         cursor.close()
         conn.close()
-        logger.info("Task Ended")
+        _logger.info("Task Ended")
         return data
 
-    @api.model
-    def read_billing(self):
-        return True
+
 
     def execution(self):
         result = self.read_billing()
