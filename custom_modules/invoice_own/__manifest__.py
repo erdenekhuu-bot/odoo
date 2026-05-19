@@ -20,6 +20,7 @@
     },
     'data':[
         'views/pdf_template.xml',
+        'views/pdf_attachment.xml'
     ],
     'installable': True,
     'application': True,

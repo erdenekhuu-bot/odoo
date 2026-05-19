@@ -113,7 +113,7 @@ class GenerateInvoice(models.AbstractModel):
             return False
 
         html_content = self.env['ir.qweb']._render(
-            'invoice_own.extendedbdftemplate',
+            'invoice_own.extendedbdftemplateattachment',
             {
                 "invoices": [data],
                 "invoice_date": invoice_date,
