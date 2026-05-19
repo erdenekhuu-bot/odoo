@@ -1,0 +1,317 @@
+<odoo>
+    <template id="extendedbdftemplate" name="Invoice Own Template">
+        <t t-call="website.layout">
+            <main class="invoice-page">
+                <!-- Header -->
+                <header class="invoice-header">
+                    <h1 class="invoice-title" >
+                         <t t-esc="invoice_date"/> ТӨЛБӨРИЙН НЭХЭМЖЛЭЛ
+                    </h1>
+
+                    <img
+                        src="/invoice_own/static/src/img/logo.png"
+                        alt="gmobile"
+                        class="invoice-logo"
+                    />
+                </header>
+
+                <!-- Customer info -->
+                <section class="invoice-section invoice-center">
+                    <div class="invoice-info-grid">
+                        <div>
+                            <p>Нэхэмжлэлийн дугаар:</p>
+                            <p>Хамрагдах хугацаа:</p>
+                            <p>Төлбөрийг нэхэмжлэх хугацаа:</p>
+                            <p>Төлбөр хийх эцсийн хугацаа:</p>
+                            <p>Хэрэглэгчийн нэр:</p>
+                            <p>Гэрээний дугаар:</p>
+                            <p>Утасны дугаар:</p>
+                        </div>
+
+                        <div class="text-right">
+                            <p>83915749</p>
+                            <p>2026/02/01-2026/03/01</p>
+                            <p>2026/03/08</p>
+                            <p>2026/03/20</p>
+                            <p>Бат Дорж</p>
+                            <p>3619755</p>
+                            <p>98100000</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Main table header -->
+                <section class="invoice-section">
+                    <div class="invoice-orange-grid text-center">
+                        <div></div>
+                        <div>ХЭМЖЭЭ/ХУГАЦАА</div>
+                        <div>ДҮН</div>
+                    </div>
+                </section>
+
+                <!-- Package section -->
+                <section class="invoice-section-small invoice-center">
+                    <div class="invoice-detail-box">
+<!--                        <h2 class="invoice-subtitle">БАГЦАД ДАГАЛДАХ ЭРХ:</h2>-->
+                            <t t-foreach="invoices" t-as="invoice">
+                                <div class="invoice-table-grid">
+                                    <t t-foreach="invoice.get('items', [])" t-as="item">
+                                        <p>
+                                            <t t-esc="item.get('item_type')"/>
+                                        </p>
+                                        <p></p>
+                                        <p class="text-right">
+                                            <t t-esc="item.get('amount')"/>
+                                        </p>
+                                    </t>
+                                </div>
+                            </t>
+<!--                        <div class="invoice-table-grid">-->
+<!--                            <p>Сүлжээндээ ярих</p>-->
+<!--                            <p></p>-->
+<!--                            <p></p>-->
+
+<!--                            <p>Бусад сүлжээнд ярих</p>-->
+<!--                            <p class="text-center">хязгааргүй</p>-->
+<!--                            <p class="text-right">5,500.00</p>-->
+
+<!--                            <p>Сүлжээ харгалзахгүй яриа</p>-->
+<!--                            <p class="text-center">30GB</p>-->
+<!--                            <p></p>-->
+
+<!--                            <p>Дата</p>-->
+<!--                            <p class="text-center">хязгааргүй</p>-->
+<!--                            <p></p>-->
+
+<!--                            <p>Мессеж</p>-->
+<!--                            <p></p>-->
+<!--                            <p></p>-->
+
+<!--                            <p class="font-bold">Дүн</p>-->
+<!--                            <p></p>-->
+<!--                            <p></p>-->
+<!--                        </div>-->
+
+
+
+<!--                        <h2 class="invoice-subtitle invoice-subtitle-space">-->
+<!--                            НЭМЭЛТ ХЭРЭГЛЭЭ-->
+<!--                        </h2>-->
+
+<!--                        <div class="invoice-table-grid">-->
+<!--                            <p>Сүлжээндээ ярих</p>-->
+<!--                            <p class="text-center">01:49:44</p>-->
+<!--                            <p class="text-right">0.00</p>-->
+
+<!--                            <p>Бусад сүлжээнд ярих</p>-->
+<!--                            <p class="text-center">00:23:24</p>-->
+<!--                            <p class="text-right">0.00</p>-->
+
+<!--                            <p>Тусгай дугаарын яриа</p>-->
+<!--                            <p></p>-->
+<!--                            <p></p>-->
+
+<!--                            <p>Сүлжээндээ мессеж</p>-->
+<!--                            <p class="text-center">1</p>-->
+<!--                            <p></p>-->
+
+<!--                            <p>Бусад сүлжээнд мессеж</p>-->
+<!--                            <p class="text-center">28</p>-->
+<!--                            <p class="text-right">5,000.00</p>-->
+
+<!--                            <p>Дата</p>-->
+<!--                            <p class="text-center">45299.59 MB</p>-->
+<!--                            <p class="text-right">0.00</p>-->
+
+<!--                            <p>Нэмэлт дата багц</p>-->
+<!--                            <p></p>-->
+<!--                            <p class="text-right">0.00</p>-->
+
+<!--                            <p>Бусад хэрэглээ</p>-->
+<!--                            <p></p>-->
+<!--                            <p class="text-right">0.00</p>-->
+
+<!--                            <p>Дуудлага хадгалах үйлчилгээ</p>-->
+<!--                            <p></p>-->
+<!--                            <p class="text-right">0.0</p>-->
+
+<!--                            <p>Gtone үйлчилгээ</p>-->
+<!--                            <p></p>-->
+<!--                            <p class="text-right">0.0</p>-->
+
+<!--                            <p class="font-bold">Дүн</p>-->
+<!--                            <p></p>-->
+<!--                            <p class="text-right">5,308.00</p>-->
+<!--                        </div>-->
+                    </div>
+                </section>
+
+                <!-- Monthly payment -->
+                <section class="invoice-section">
+                    <div class="invoice-orange-title">
+                        ТУХАЙН САРЫН ТӨЛБӨР:
+                    </div>
+
+                    <div class="invoice-section-small invoice-center">
+                        <div class="invoice-table-grid invoice-detail-box">
+                            <p>Татвар тооцоогүй дүн</p>
+                            <p></p>
+                            <p class="text-right">10,808.00</p>
+
+                            <p>НӨАТ /10%/</p>
+                            <p></p>
+                            <p class="text-right">500.00</p>
+
+                            <p class="font-bold">Дүн</p>
+                            <p></p>
+                            <p class="text-right font-bold">11,308.00</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payable amount -->
+                <section class="invoice-section">
+                    <div class="invoice-orange-title">
+                        ТӨЛБӨР ЗОХИХ ДҮН
+                    </div>
+
+                    <div class="invoice-section-small invoice-center">
+                        <div class="invoice-table-grid invoice-detail-box">
+                            <p>Тухайн сарын төлбөр</p>
+                            <p></p>
+                            <p class="text-right">11,308.00</p>
+
+                            <p>Өмнөх сарын үлдэгдэл төлбөр</p>
+                            <p></p>
+                            <p class="text-right">-14,094.27</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Total -->
+                <section class="invoice-section">
+                    <div class="invoice-orange-grid invoice-total">
+                        <div>НИЙТ ТӨЛБӨР</div>
+                        <div></div>
+                        <div class="text-right">-2,786.27</div>
+                    </div>
+                </section>
+
+                <!-- Images -->
+                <section class="invoice-images-section">
+                    <div>
+                        <p class="text-center invoice-image-title">
+                            My gmobile аппликейшнээр төлбөр төлөх заавар
+                        </p>
+
+                        <div class="invoice-phone-images">
+                            <img src="/invoice_own/static/src/img/whitescreen.png" alt="" class="phone-img"/>
+                            <img src="/invoice_own/static/src/img/whitescreen3.png" alt="" class="phone-img"/>
+                            <img src="/invoice_own/static/src/img/whitescreen2.png" alt="" class="phone-img"/>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-center invoice-image-title">
+                            My gmobile аппликейшн татах
+                        </p>
+
+                        <div class="invoice-qr-images">
+                            <img src="/invoice_own/static/src/img/appstoreqr.png" alt="" class="qr-img"/>
+                            <img src="/invoice_own/static/src/img/playstoreqr.png" alt="" class="qr-img"/>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bank accounts -->
+                <section class="invoice-bank-section">
+                    <h2 class="invoice-bank-title">
+                        Төлбөр төлөх банкны данс
+                    </h2>
+
+                    <div class="invoice-bank-grid">
+                        <div class="text-right">
+                            <p class="font-bold">Харилцах данс:</p>
+                            <p>Голомт банк</p>
+                            <p>Төрийн банк</p>
+                            <p>Худалдаа хөгжлийн банк</p>
+
+                            <div class="spacer-24"></div>
+
+                            <p class="font-bold">Автомат данс:</p>
+                            <p>Хаан банк</p>
+
+                            <div class="spacer-32"></div>
+
+                            <p class="font-bold">Хүлээн авагч:</p>
+                            <p>Гүйлгээний утга</p>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="hidden-placeholder">.</p>
+                            <p>MN240015001501115008</p>
+                            <p>MN960034100000223318</p>
+                            <p>MN170004000499129061</p>
+
+                            <div class="spacer-24"></div>
+
+                            <p class="hidden-placeholder">.</p>
+                            <p>MN740004005038006208</p>
+
+                            <div class="spacer-32"></div>
+
+                            <p>Жимобайл ХХК</p>
+                            <p>Утасны дугаараа заавал бичихийг анхаарна уу.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+        </t>
+    </template>
+</odoo>
+
+<!--<odoo>-->
+<!--    <template id="extendedbdftemplate" name="Invoice Own Template">-->
+<!--        <t t-call="website.layout">-->
+
+<!--            <main class="invoice-page">-->
+
+<!--                <t t-foreach="invoices" t-as="invoice">-->
+
+<!--                    <section class="invoice-block">-->
+<!--                        <h2>-->
+<!--                            Дугаар:-->
+<!--                            <t t-esc="invoice['acc_number']"/>-->
+<!--                        </h2>-->
+
+<!--                        <table border="1" style="width:100%; border-collapse: collapse;">-->
+<!--                            <thead>-->
+<!--                                <tr>-->
+<!--                                    <th>Item type</th>-->
+<!--                                    <th>Amount</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+
+<!--                            <tbody>-->
+<!--                                <t t-foreach="invoice['items']" t-as="item">-->
+<!--                                    <tr>-->
+<!--                                        <td>-->
+<!--                                            <t t-esc="item['item_type']"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="text-align: right;">-->
+<!--                                            <t t-esc="item['amount']"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </t>-->
+<!--                            </tbody>-->
+<!--                        </table>-->
+<!--                    </section>-->
+
+<!--                </t>-->
+
+<!--            </main>-->
+
+<!--        </t>-->
+<!--    </template>-->
+<!--</odoo>-->
