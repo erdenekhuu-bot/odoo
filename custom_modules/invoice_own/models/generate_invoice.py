@@ -2,7 +2,7 @@ from odoo import api, fields, models
 import psycopg2
 import logging
 import threading
-from weasyprint import HTML
+# from weasyprint import HTML
 import datetime
 import base64
 
@@ -71,21 +71,21 @@ class GenerateInvoice(models.AbstractModel):
             for f in row_dict.get('items', []):
                 f['item_type'] = self.ITEM_TYPE_NAMES.get(f['item_type'], '')
 
-            contact_result = self.create_mailing_contact(data=row_dict)
+            # contact_result = self.create_mailing_contact(data=row_dict)
 
             mailing_id = False
 
-            if contact_result:
-                mailing_id = self.create_mailing(
-                    contact_result["contact_id"],
-                    contact_result["attachment_id"]
-                )
+            # if contact_result:
+            #     mailing_id = self.create_mailing(
+            #         contact_result["contact_id"],
+            #         contact_result["attachment_id"]
+            #     )
 
             data.append({
                 'email': row_dict.get('email'),
                 'acc_number': acc_number,
                 'items': row_dict.get('items', []),
-                'contact_result': contact_result,
+                # 'contact_result': contact_result,
                 'mailing_id': mailing_id,
             })
 
@@ -96,56 +96,57 @@ class GenerateInvoice(models.AbstractModel):
 
     @api.model
     def create_mailing_contact(self, data: dict):
-        acc_number = data.get('acc_number')
-        email = data.get('email')
-        invoice_date = datetime.date.today().strftime("%Y/%m/%d")
-
-        if not email:
-            return False
-
-        partner = self.env['res.partner'].sudo().search([
-            '|',
-            ('email', '=', email),
-            ('complete_name', '=', acc_number),
-        ], limit=1)
-
-        if not partner:
-            return False
-
-        html_content = self.env['ir.qweb']._render(
-            'invoice_own.extendedbdftemplateattachment',
-            {
-                "invoices": [data],
-                "invoice_date": invoice_date,
-            }
-        )
-
-        if isinstance(html_content, bytes):
-            html_content = html_content.decode('utf-8')
-
-        pdf_content = HTML(string=html_content).write_pdf()
-
-        attachment = self.env['ir.attachment'].sudo().create({
-            'name': f'invoice_{acc_number}.pdf',
-            'type': 'binary',
-            'datas': base64.b64encode(pdf_content),
-            'mimetype': 'application/pdf',
-        })
-
-        contact = self.env['mailing.contact'].sudo().search([
-            ('email', '=', email)
-        ], limit=1)
-
-        if not contact:
-            contact = self.env['mailing.contact'].sudo().create({
-                'name': partner.complete_name or partner.name or acc_number,
-                'email': email,
-            })
-
-        return {
-            "contact_id": contact.id,
-            "attachment_id": attachment.id,
-        }
+        # acc_number = data.get('acc_number')
+        # email = data.get('email')
+        # invoice_date = datetime.date.today().strftime("%Y/%m/%d")
+        #
+        # if not email:
+        #     return False
+        #
+        # partner = self.env['res.partner'].sudo().search([
+        #     '|',
+        #     ('email', '=', email),
+        #     ('complete_name', '=', acc_number),
+        # ], limit=1)
+        #
+        # if not partner:
+        #     return False
+        #
+        # html_content = self.env['ir.qweb']._render(
+        #     'invoice_own.extendedbdftemplateattachment',
+        #     {
+        #         "invoices": [data],
+        #         "invoice_date": invoice_date,
+        #     }
+        # )
+        #
+        # if isinstance(html_content, bytes):
+        #     html_content = html_content.decode('utf-8')
+        #
+        # pdf_content = HTML(string=html_content).write_pdf()
+        #
+        # attachment = self.env['ir.attachment'].sudo().create({
+        #     'name': f'invoice_{acc_number}.pdf',
+        #     'type': 'binary',
+        #     'datas': base64.b64encode(pdf_content),
+        #     'mimetype': 'application/pdf',
+        # })
+        #
+        # contact = self.env['mailing.contact'].sudo().search([
+        #     ('email', '=', email)
+        # ], limit=1)
+        #
+        # if not contact:
+        #     contact = self.env['mailing.contact'].sudo().create({
+        #         'name': partner.complete_name or partner.name or acc_number,
+        #         'email': email,
+        #     })
+        #
+        # return {
+        #     "contact_id": contact.id,
+        #     "attachment_id": attachment.id,
+        # }
+        return True
 
     @api.model
     def create_mailing(self, contact_id, attachment_id):
