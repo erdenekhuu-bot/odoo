@@ -179,5 +179,6 @@ class GenerateInvoice(models.AbstractModel):
             'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
         })
         mailing.action_send_mail()
+        _logger.info("Mail sent: %s",mailing.id)
         return True
 
