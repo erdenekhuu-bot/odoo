@@ -1,22 +1,16 @@
 <odoo>
-    <!-- Browser дээр харах preview -->
-    <template id="extendedbdftemplateattachment" name="Invoice Preview Template">
-        <t t-call="website.layout">
-            <t t-call="invoice_own.invoice_body_template"/>
-        </t>
-    </template>
-
-    <!-- PDF үүсгэх body template -->
-    <template id="invoice_pdf_template" name="Invoice PDF Template">
+    <template id="extendedbdftemplateattachment" name="Invoice PDF Attachment Template">
         <html>
             <head>
                 <meta charset="utf-8"/>
+
                 <style>
                     body {
                         margin: 0;
                         padding: 0;
                         font-family: Arial, sans-serif;
                         color: #4b4b4b;
+                        background: #ffffff;
                     }
 
                     .invoice-page {
@@ -24,7 +18,6 @@
                         margin: 0 auto;
                         padding: 32px 40px;
                         font-size: 13px;
-                        background: #ffffff;
                     }
 
                     .invoice-header {
@@ -46,10 +39,6 @@
                         width: 150px;
                     }
 
-                    .invoice-section {
-                        margin-top: 20px;
-                    }
-
                     .invoice-section-small {
                         margin-top: 8px;
                     }
@@ -57,6 +46,10 @@
                     .invoice-center {
                         display: flex;
                         justify-content: center;
+                    }
+
+                    .invoice-detail-box {
+                        width: 70%;
                     }
 
                     .invoice-table-grid {
@@ -69,62 +62,45 @@
                         margin: 0;
                     }
 
-                    .invoice-detail-box {
-                        width: 70%;
-                    }
-
                     .text-right {
                         text-align: right;
-                    }
-
-                    .text-center {
-                        text-align: center;
-                    }
-
-                    .font-bold {
-                        font-weight: bold;
                     }
                 </style>
             </head>
 
             <body>
-                <t t-call="invoice_own.invoice_body_template"/>
-            </body>
-        </html>
-    </template>
+                <main class="invoice-page">
+                    <header class="invoice-header">
+                        <h1 class="invoice-title">
+                            <t t-esc="invoice_date"/> ТӨЛБӨРИЙН НЭХЭМЖЛЭЛ
+                        </h1>
 
-    <!-- Гол invoice body: preview болон PDF 2-ууланд shared -->
-    <template id="invoice_body_template" name="Invoice Body Template">
-        <main class="invoice-page">
-            <header class="invoice-header">
-                <h1 class="invoice-title">
-                    <t t-esc="invoice_date"/> ТӨЛБӨРИЙН НЭХЭМЖЛЭЛ
-                </h1>
+                        <img
+                            src="/invoice_own/static/src/img/logo.png"
+                            alt="gmobile"
+                            class="invoice-logo"
+                        />
+                    </header>
 
-                <img
-                    src="/invoice_own/static/src/img/logo.png"
-                    alt="gmobile"
-                    class="invoice-logo"
-                />
-            </header>
-
-            <section class="invoice-section-small invoice-center">
-                <div class="invoice-detail-box">
-                    <t t-foreach="invoices" t-as="invoice">
-                        <div class="invoice-table-grid">
-                            <t t-foreach="invoice.get('items', [])" t-as="item">
-                                <p>
-                                    <t t-esc="item.get('item_type')"/>
-                                </p>
-                                <p></p>
-                                <p class="text-right">
-                                    <t t-esc="item.get('amount')"/>
-                                </p>
+                    <section class="invoice-section-small invoice-center">
+                        <div class="invoice-detail-box">
+                            <t t-foreach="invoices" t-as="invoice">
+                                <div class="invoice-table-grid">
+                                    <t t-foreach="invoice.get('items', [])" t-as="item">
+                                        <p>
+                                            <t t-esc="item.get('item_type')"/>
+                                        </p>
+                                        <p></p>
+                                        <p class="text-right">
+                                            <t t-esc="item.get('amount')"/>
+                                        </p>
+                                    </t>
+                                </div>
                             </t>
                         </div>
-                    </t>
-                </div>
-            </section>
-        </main>
+                    </section>
+                </main>
+            </body>
+        </html>
     </template>
 </odoo>
