@@ -6,7 +6,8 @@
         name="Single bill"
         parent="mass_mailing.mass_mailing_menu_root"
         action="action_jishee2"
-        sequence="110" />
+        sequence="110"
+      />
 
 
     <record id="action_jishee2" model="ir.actions.act_window">
@@ -54,8 +55,7 @@
                 <field name="bylling_cycle_id"/>
                 <field name="period_start"/>
                 <field name="period_end"/>
-                <button
-                        name="execution_something"
+                <button name="execution_something"
                         string="PDF"
                         type="object"
                         class="btn-primary"/>
