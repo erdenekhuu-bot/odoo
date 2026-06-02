@@ -12,7 +12,7 @@
         'static/src/img/whitescreen2.png',
         'static/src/img/whitescreen3.png',
     ],
-    'depends': ['base', 'web', 'website'],
+    'depends': ['base', 'web', 'website','mass_mailing'],
     'assets':{
         'web.assets_frontend':[
             'invoice_own/static/src/css/style.css',
@@ -21,7 +21,8 @@
     'data':[
         'views/pdf_template.xml',
         'views/pdf_attachment.xml',
-        'views/menu.xml'
+        'views/menu.xml',
+        'security/ir.model.access.csv'
     ],
     'installable': True,
     'application': True,
