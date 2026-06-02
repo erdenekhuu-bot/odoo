@@ -30,7 +30,6 @@ class GenerateInvoice(models.AbstractModel):
             password=self.env["ir.config_parameter"].get_param("second.dbpassword"),
             host=self.env["ir.config_parameter"].get_param("second.dbhost"),
         )
-
         cursor = conn.cursor()
         query = """
                SELECT 
@@ -71,28 +70,28 @@ class GenerateInvoice(models.AbstractModel):
             for f in row_dict.get('items', []):
                 f['item_type'] = self.ITEM_TYPE_NAMES.get(f['item_type'], '')
 
-            # contact_result = self.create_mailing_contact(data=row_dict)
+            contact_result = self.create_mailing_contact(data=row_dict)
 
             mailing_id = False
 
-            # if contact_result:
-            #     mailing_id = self.create_mailing(
-            #         contact_result["contact_id"],
-            #         contact_result["attachment_id"]
-            #     )
+            if contact_result:
+                mailing_id = self.create_mailing(
+                    contact_result["contact_id"],
+                    contact_result["attachment_id"]
+                )
 
-            data.append({
-                'email': row_dict.get('email'),
-                'acc_number': acc_number,
-                'items': row_dict.get('items', []),
-                # 'contact_result': contact_result,
-                'mailing_id': mailing_id,
-            })
+            # data.append({
+            #     'email': row_dict.get('email'),
+            #     'acc_number': acc_number,
+            #     'items': row_dict.get('items', []),
+            #     'contact_result': contact_result,
+            #     'mailing_id': mailing_id,
+            # })
 
         cursor.close()
         conn.close()
         _logger.info("Query Ended")
-        return data
+        return True
 
     @api.model
     def create_mailing_contact(self, data: dict):
@@ -179,7 +178,7 @@ class GenerateInvoice(models.AbstractModel):
             'user_id':agent.id,
             'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
         })
-        mailing.action_send_mail()
+        # mailing.action_send_mail()
         _logger.info("Mail sent: %s",mailing.id)
         return True
 

@@ -8,12 +8,12 @@ class ReadBase(http.Controller):
     def index(self, **kw):
         invoices = request.env["generate.invoice"].read_base()
         invoice_date=datetime.date.today().strftime("%Y/%m/%d")
-        return request.render("invoice_own.extendedbdftemplate",{"invoices": invoices,"invoice_date":invoice_date})
-        # return Response(
-        #     json.dumps(invoices),
-        #     content_type='application/json;charset=utf-8',
-        #     status=200
-        # )
+        #return request.render("invoice_own.extendedbdftemplate",{"invoices": invoices,"invoice_date":invoice_date})
+        return Response(
+            json.dumps(invoices),
+            content_type='application/json;charset=utf-8',
+            status=200
+        )
 
 
 class TemplateController(http.Controller):

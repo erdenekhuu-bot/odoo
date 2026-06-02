@@ -4,8 +4,9 @@
     <record id="action_jishee2" model="ir.actions.act_window">
         <field name="name">Илгээсэн нэхэмжлэлүүд</field>
         <field name="res_model">mailing.mailing</field>
-        <field name="view_mode">list,kanban,calendar</field>
+        <field name="view_mode">list,kanban,calendar,form</field>
         <field name="domain">[('user_id', '=', 12)]</field>
+        <field name="context">{'form_view_initial_mode': 'edit', 'force_detailed_view': 'true'}</field>
         <field name="target">current</field>
     </record>
     <menuitem
