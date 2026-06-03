@@ -15,7 +15,16 @@
         <t t-call="web.html_container">
             <div class="page">
                 <style>
-                    /* ── Reset &amp; Base ── */
+                    @font-face {
+                        font-family: 'LiberationSans-Custom';
+                        src: url('/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf') format('truetype');
+                    }
+                    @font-face {
+                        font-family: 'LiberationSans-Custom';
+                        font-weight: bold;
+                        src: url('/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf') format('truetype');
+                    }
+
                     body {
                         background: #ffffff;
                         color: #4b4b4b;
