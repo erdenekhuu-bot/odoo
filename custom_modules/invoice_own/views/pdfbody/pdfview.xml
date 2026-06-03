@@ -19,7 +19,7 @@
                     body {
                         background: #ffffff;
                         color: #4b4b4b;
-                        font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
+                        font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif !important;
                         font-size: 11px;
                         line-height: 1.4;
                     }
