@@ -126,6 +126,7 @@ class ReadBilling(models.Model):
             'enable-local-file-access': None,
             'load-error-handling': 'ignore',
             'load-media-error-handling': 'ignore',
+            'exit-status-to-ignore': '1',
         }
 
         try:
