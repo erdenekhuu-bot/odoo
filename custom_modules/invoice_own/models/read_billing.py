@@ -153,7 +153,7 @@ class ReadBilling(models.Model):
             'attachment_ids': [(4, attachment.id)],
         })
         mail.send()
-        _logger.info("Executed non error", exc_info=True)
+        _logger.info("********** Executed without error *********", exc_info=True)
         return {
             'type': 'ir.actions.act_url',
             # 'url': f'/web/content/{attachment.id}?download=true',
