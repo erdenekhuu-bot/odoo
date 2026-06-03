@@ -117,7 +117,7 @@ class ReadBilling(models.Model):
             'logo_b64': logo_b64,
             'app_b64': app_b64,
             'qr_b64': qr_b64,
-            'lang': 'mn_MN',
+            'lang': 'en_US',
         }
 
         # html_content = self.env['ir.qweb']._render(
