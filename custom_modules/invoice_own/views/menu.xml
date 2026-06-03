@@ -50,7 +50,7 @@
              id="sync_billing_users"
               name="Synchronization"
               sequence="10"
-              action="action_sync_list"
+              action="action_billing_read_window"
      />
 
 
