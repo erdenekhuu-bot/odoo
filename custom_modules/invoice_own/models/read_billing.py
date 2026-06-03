@@ -155,6 +155,7 @@ class ReadBilling(models.Model):
         # email_campaign.with_context(mass_mailing_test_addresses=[test_email]).action_send_mail()
         mail = self.env['mail.mail'].create({
             'subject': 'Gmobile төлбөрийн нэхэмжлэл',
+            'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
             'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
             'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
             'attachment_ids': [(4, attachment.id)],
