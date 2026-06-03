@@ -126,7 +126,7 @@ class ReadBilling(models.Model):
 
         try:
             pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(context_data)._render_qweb_pdf(
-                'invoice_own.pdfbody',
+                'invoice_own.report_billing_pdf',  # Энд report-ийн ID байх ёстой
                 res_ids=self.ids
             )
         except Exception as e:

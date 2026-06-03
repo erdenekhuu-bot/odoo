@@ -73,8 +73,8 @@
                         </div>
                         <div class="col-6 text-right" style="text-align: right;">
                             <!-- ЗАСВАР: Context-оос логог аюулгүй унших -->
-                            <t t-if="context.get('logo_b64')">
-                                <img t-att-src="'data:image/png;base64,%s' % context.get('logo_b64')" style="width: 110px; max-height: 50px;" alt="Logo"/>
+                             <t t-if="env.context.get('logo_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('logo_b64')" style="width: 110px; max-height: 50px;" alt="Logo"/>
                             </t>
                         </div>
                     </div>
@@ -164,15 +164,15 @@
                         <div class="col-6 text-center" style="text-align: center;">
                             <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">Аппликейшн татах</p>
                             <!-- ЗАСВАР: App Store PNG зураг харуулах хэсэг -->
-                            <t t-if="context.get('app_b64')">
-                                <img t-att-src="'data:image/png;base64,%s' % context.get('app_b64')" style="width: 100px;" alt="App Store"/>
+                            <t t-if="env.context.get('app_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" style="width: 100px;" alt="App Store"/>
                             </t>
                         </div>
                         <div class="col-6 text-center" style="text-align: center;">
                             <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">QR Төлбөр</p>
                             <!-- ЗАСВАР: QR Code PNG зураг харуулах хэсэг -->
-                            <t t-if="context.get('qr_b64')">
-                                <img t-att-src="'data:image/png;base64,%s' % context.get('qr_b64')" style="width: 80px;" alt="QR Code"/>
+                            <t t-if="env.context.get('qr_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')" style="width: 80px;" alt="QR Code"/>
                             </t>
                         </div>
                     </div>
