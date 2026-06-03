@@ -156,7 +156,6 @@ class ReadBilling(models.Model):
             'subject': 'Gmobile төлбөрийн нэхэмжлэл',
             'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
             'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
-            'body_html': html_content,
             'attachment_ids': [(4, attachment.id)],
         })
         mail.send()
