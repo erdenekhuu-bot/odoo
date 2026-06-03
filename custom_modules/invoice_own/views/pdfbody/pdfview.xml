@@ -28,6 +28,10 @@
                         src: url('/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf') format('truetype');
                     }
 
+                    * {
+                     font-family: 'LiberationSans-Custom', 'DejaVu Sans', Arial, sans-serif !important;
+                    }
+
                     body {
                         background: #ffffff;
                         color: #4b4b4b;
