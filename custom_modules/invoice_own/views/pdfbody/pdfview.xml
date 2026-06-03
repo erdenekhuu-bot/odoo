@@ -1,171 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- 1. PDF Тайланг системд албан ёсоор бүртгэх блок -->
+    <record id="report_billing_pdf" model="ir.actions.report">
+        <field name="name">Gmobile Billing PDF</field>
+        <field name="model">billing.read</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">invoice_own.pdfbody</field>
+        <field name="report_file">invoice_own.pdfbody</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <!-- 2. Үндсэн PDF загвар хуудас -->
     <template id="pdfbody">
         <t t-call="web.html_container">
-              <div class="page">
-                    <style>
-                        /* ── Reset &amp; Base ── */
-                        body {
-                            background: #ffffff;
-                            color: #4b4b4b;
-                            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                            font-size: 11px;
-                            line-height: 1.4;
-                        }
+            <div class="page">
+                <style>
+                    /* ── Reset &amp; Base ── */
+                    body {
+                        background: #ffffff;
+                        color: #4b4b4b;
+                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                        font-size: 11px;
+                        line-height: 1.4;
+                    }
 
-                        /* ── Layout Helpers (Wkhtmltopdf-д зориулсан) ── */
-                        .inv-header {
-                            border-bottom: 2px solid #f6b500;
-                            padding-bottom: 8px;
-                            margin-bottom: 15px;
-                        }
+                    /* ── Layout Helpers (Wkhtmltopdf-д зориулсан) ── */
+                    .inv-header {
+                        border-bottom: 2px solid #f6b500;
+                        padding-bottom: 8px;
+                        margin-bottom: 15px;
+                    }
 
-                        .inv-header h1 {
-                            font-size: 16px;
-                            font-weight: bold;
-                            color: #4a4a4a;
-                            margin: 0;
-                        }
+                    .inv-header h1 {
+                        font-size: 16px;
+                        font-weight: bold;
+                        color: #4a4a4a;
+                        margin: 0;
+                    }
 
-                        /* Banner Bars */
-                        .table-header-inner, .bar, .total-bar {
-                            background: #f7ad0b !important;
-                            border-radius: 6px;
-                            padding: 6px 12px;
-                            font-weight: bold;
-                            color: #333 !important;
-                            margin-top: 10px;
-                            margin-bottom: 10px;
-                        }
+                    /* Banner Bars */
+                    .table-header-inner, .bar, .total-bar {
+                        background: #f7ad0b !important;
+                        border-radius: 6px;
+                        padding: 6px 12px;
+                        font-weight: bold;
+                        color: #333 !important;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                    }
 
-                        /* Custom alignment classes */
-                        .text-right { text-align: right; }
-                        .text-center { text-align: center; }
-                        .font-bold { font-weight: bold; }
+                    /* Custom alignment classes */
+                    .text-right { text-align: right; }
+                    .text-center { text-align: center; }
+                    .font-bold { font-weight: bold; }
 
-                        /* Table spacing */
-                        .pdf-table {
-                            width: 100%;
-                            margin-bottom: 15px;
-                        }
-                        .pdf-table td, .pdf-table th {
-                            padding: 5px 0;
-                        }
-                    </style>
+                    /* Table spacing */
+                    .pdf-table {
+                        width: 100%;
+                        margin-bottom: 15px;
+                    }
+                    .pdf-table td, .pdf-table th {
+                        padding: 5px 0;
+                    }
+                </style>
 
-                    <div class="container-fluid invoice-wrap">
+                <div class="container-fluid invoice-wrap">
 
-                        <!-- ── Header ── -->
-                        <div class="row inv-header align-items-center">
-                            <div class="col-6">
-                                <h1>НЭХЭМЖЛЭХ</h1>
-                            </div>
-                            <div class="col-6 text-right">
-                                <img t-att-src="'data:image/png;base64,%s' % logo_b64" style="width: 110px; max-height: 50px;" alt="Logo"/>
-                            </div>
+                    <!-- ── Header ── -->
+                    <div class="row inv-header align-items-center">
+                        <div class="col-6">
+                            <h1>НЭХЭМЖЛЭХ</h1>
                         </div>
-
-                        <!-- ── Customer info ── -->
-                        <div class="row justify-content-center" style="margin-bottom: 15px;">
-                            <div class="col-8">
-                                <table class="pdf-table">
-                                    <tr>
-                                        <td class="font-bold">Харилцагчийн нэр:</td>
-                                        <td class="text-right">Жон Дое</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Регистрийн дугаар:</td>
-                                        <td class="text-right">ХА00000000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Гэрээний дугаар:</td>
-                                        <td class="text-right">CON-2026-001</td>
-                                    </tr>
-                                </table>
-                            </div>
+                        <div class="col-6 text-right" style="text-align: right;">
+                            <!-- ЗАСВАР: Context-оос логог аюулгүй унших -->
+                            <t t-if="context.get('logo_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % context.get('logo_b64')" style="width: 110px; max-height: 50px;" alt="Logo"/>
+                            </t>
                         </div>
-
-                        <!-- ── Table header bar ── -->
-                        <div class="row justify-content-center">
-                            <div class="col-8 table-header-inner">
-                                <div class="row">
-                                    <div class="col-6">Бараа / Үйлчилгээ</div>
-                                    <div class="col-3 text-center">Тоо ширхэг</div>
-                                    <div class="col-3 text-right">Үнэ</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ── Package / usage rows ── -->
-                        <div class="row justify-content-center">
-                            <div class="col-8">
-                                <table class="pdf-table">
-                                    <tr class="rows">
-                                        <td class="col-6 font-bold">Интернет багц - 50Мбпс</td>
-                                        <td class="col-3 text-center">1</td>
-                                        <td class="col-3 text-right">50,000 ₮</td>
-                                    </tr>
-                                    <tr class="rows">
-                                        <td class="col-6 font-bold">Нэмэлт IP хаяг</td>
-                                        <td class="col-3 text-center">2</td>
-                                        <td class="col-3 text-right">10,000 ₮</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ── Total bar ── -->
-                        <div class="row justify-content-center">
-                            <div class="col-8 total-bar">
-                                <div class="row">
-                                    <div class="col-6">Нийт төлөх дүн</div>
-                                    <div class="col-6 text-right">60,000 ₮</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ── Bank section ── -->
-                        <div class="row justify-content-center" style="border-bottom: 2px solid #f7ad0b; padding-bottom: 15px; margin-top: 20px;">
-                            <div class="col-8">
-                                <div class="text-center font-bold" style="font-size: 13px; margin-bottom: 10px;">БАНКНЫ ДАНСНЫ МЭДЭЭЛЭЛ</div>
-                                <table class="pdf-table">
-                                    <tr>
-                                        <td class="font-bold">Хаан Банк:</td>
-                                        <td class="text-right font-bold">5000000000 (Компани нэр)</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-bold">Голомт Банк:</td>
-                                        <td class="text-right font-bold">1100000000 (Компани нэр)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Гүйлгээний утга:</td>
-                                        <td class="text-right">Гэрээний эсвэл Нэхэмжлэхийн дугаар</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ── App instruction section ── -->
-                        <div class="row align-items-center" style="margin-top: 15px;">
-                            <div class="col-6 text-center">
-                                <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">Аппликейшн татах</p>
-                                <div style="display: inline-block; margin-right: 5px;">
-                                    <span style="display:inline-block; width:50px; height:50px; background:#ccc; line-height:50px; font-size:8px;">App Store</span>
-                                </div>
-                                <div style="display: inline-block;">
-                                    <span style="display:inline-block; width:50px; height:50px; background:#ccc; line-height:50px; font-size:8px;">Play Store</span>
-                                </div>
-                            </div>
-                            <div class="col-6 text-center">
-                                <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">QR Төлбөр</p>
-                                <div style="display: inline-block;">
-                                    <span style="display:inline-block; width:50px; height:50px; background:#ccc; line-height:50px; font-size:8px;">QR Code</span>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
+
+                    <!-- ── Customer info ── -->
+                    <div class="row justify-content-center" style="margin-bottom: 15px;">
+                        <div class="col-8">
+                            <table class="pdf-table">
+                                <tr>
+                                    <td class="font-bold">Харилцагчийн нэр:</td>
+                                    <td class="text-right">Жон Дое</td>
+                                </tr>
+                                <tr>
+                                    <td>Регистрийн дугаар:</td>
+                                    <td class="text-right">ХА00000000</td>
+                                </tr>
+                                <tr>
+                                    <td>Гэрээний дугаар:</td>
+                                    <td class="text-right">CON-2026-001</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ── Table header bar ── -->
+                    <div class="row justify-content-center">
+                        <div class="col-8 table-header-inner">
+                            <div class="row">
+                                <div class="col-6">Бараа / Үйлчилгээ</div>
+                                <div class="col-3 text-center" style="text-align: center;">Тоо ширхэг</div>
+                                <div class="col-3 text-right" style="text-align: right;">Үнэ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Package / usage rows ── -->
+                    <div class="row justify-content-center">
+                        <div class="col-8">
+                            <table class="pdf-table">
+                                <tr class="rows">
+                                    <td class="col-6 font-bold">Интернет багц - 50Мбпс</td>
+                                    <td class="col-3 text-center" style="text-align: center;">1</td>
+                                    <td class="col-3 text-right" style="text-align: right;">50,000 ₮</td>
+                                </tr>
+                                <tr class="rows">
+                                    <td class="col-6 font-bold">Нэмэлт IP хаяг</td>
+                                    <td class="col-3 text-center" style="text-align: center;">2</td>
+                                    <td class="col-3 text-right" style="text-align: right;">10,000 ₮</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ── Total bar ── -->
+                    <div class="row justify-content-center">
+                        <div class="col-8 total-bar">
+                            <div class="row">
+                                <div class="col-6">Нийт төлөх дүн</div>
+                                <div class="col-6 text-right" style="text-align: right;">60,000 ₮</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Bank section ── -->
+                    <div class="row justify-content-center" style="border-bottom: 2px solid #f7ad0b; padding-bottom: 15px; margin-top: 20px;">
+                        <div class="col-8">
+                            <div class="text-center font-bold" style="font-size: 13px; margin-bottom: 10px; text-align: center;">БАНКНЫ ДАНСНЫ МЭДЭЭЛЭЛ</div>
+                            <table class="pdf-table">
+                                <tr>
+                                    <td class="font-bold">Хаан Банк:</td>
+                                    <td class="text-right font-bold" style="text-align: right;">5000000000 (Компани нэр)</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold">Голомт Банк:</td>
+                                    <td class="text-right font-bold" style="text-align: right;">1100000000 (Компани нэр)</td>
+                                </tr>
+                                <tr>
+                                    <td>Гүйлгээний утга:</td>
+                                    <td class="text-right" style="text-align: right;">Гэрээний эсвэл Нэхэмжлэхийн дугаар</td>
+                                endүү дугаар</tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ── App instruction section ── -->
+                    <div class="row align-items-center" style="margin-top: 15px;">
+                        <div class="col-6 text-center" style="text-align: center;">
+                            <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">Аппликейшн татах</p>
+                            <!-- ЗАСВАР: App Store PNG зураг харуулах хэсэг -->
+                            <t t-if="context.get('app_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % context.get('app_b64')" style="width: 100px;" alt="App Store"/>
+                            </t>
+                        </div>
+                        <div class="col-6 text-center" style="text-align: center;">
+                            <p class="font-bold" style="font-size: 10px; margin-bottom: 5px;">QR Төлбөр</p>
+                            <!-- ЗАСВАР: QR Code PNG зураг харуулах хэсэг -->
+                            <t t-if="context.get('qr_b64')">
+                                <img t-att-src="'data:image/png;base64,%s' % context.get('qr_b64')" style="width: 80px;" alt="QR Code"/>
+                            </t>
+                        </div>
+                    </div>
+
                 </div>
+            </div>
         </t>
     </template>
 </odoo>

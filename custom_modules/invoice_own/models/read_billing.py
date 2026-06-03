@@ -110,32 +110,28 @@ class ReadBilling(models.Model):
     def execution_something(self):
         _logger.info("Clicked")
         logo_b64 = self.get_image_base64('static/src/img/logo.png')
+        app_b64 = self.get_image_base64('static/src/img/appstoreqr.png')
+        qr_b64 = self.get_image_base64('static/src/img/playstoreqr.png')
 
-        html_content = self.env['ir.qweb']._render(
-            'invoice_own.pdfbody',
-            {'logo_b64 ': logo_b64}
-        )
-
-        if isinstance(html_content, bytes):
-            html_content = html_content.decode('utf-8')
-
-        # [ЗАСВАР 1]: from_file биш from_string ашиглах ёстой
-        # [ЗАСВАР 2]: Монгол үсэг алдаагүй гаргахын тулд encoding тохируулна
-        options = {
-            'encoding': "UTF-8",
-            'enable-local-file-access': None,
-            'load-error-handling': 'ignore',
-            'load-media-error-handling': 'ignore',
-            'exit-status-to-ignore': '1',
+        context_data = {
+            'logo_b64': logo_b64,
+            'app_b64': app_b64,
+            'qr_b64': qr_b64,
         }
 
+        # html_content = self.env['ir.qweb']._render(
+        #     'invoice_own.pdfbody',
+        #     {'render_values ': self}
+        # )
+
         try:
-            pdf_content = pdfkit.from_string(html_content, False, options=options)
+            pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(context_data)._render_qweb_pdf(
+                'invoice_own.pdfbody',
+                res_ids=self.ids
+            )
         except Exception as e:
-            _logger.warning("PDFKit үүсгэх явцад анхааруулга гарлаа: %s", str(e))
-            # Хэрэв ямар нэгэн байдлаар гацвал pdf_content үүссэн эсэхийг баталгаажуулах
-            if 'pdf_content' not in locals():
-                raise IOError(f"PDF файл үүсгэж чадсангүй: {e}")
+            _logger.error("Odoo PDF үүсгэхэд алдаа гарлаа: %s", str(e))
+            raise UserError(f"PDF үүсгэж чадсангүй: {e}")
 
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'invoice.pdf',
