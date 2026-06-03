@@ -108,8 +108,6 @@ class ReadBilling(models.Model):
 
     def execution_something(self):
         _logger.info("Clicked")
-        test_email = self.env['ir.config_parameter'].sudo().get_param("temp.contact")
-
 
         html_content = self.env['ir.qweb']._render(
             'invoice_own.extendedbdftemplateattachment',
