@@ -61,7 +61,7 @@
                                 <h1>НЭХЭМЖЛЭХ</h1>
                             </div>
                             <div class="col-6 text-right">
-                                <img src="invoice_own/static/src/img/logo.png" style="width: 110px; max-height: 50px;" alt="Logo"/>
+                                <img t-att-src="'data:image/png;base64,%s' % logo_b64" style="width: 110px; max-height: 50px;" alt="Logo"/>
                             </div>
                         </div>
 
