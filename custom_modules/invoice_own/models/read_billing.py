@@ -3,9 +3,8 @@ import logging
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 import psycopg2
-import requests
 import base64
-from weasyprint import HTML
+import pdfkit
 
 _logger = logging.getLogger(__name__)
 
@@ -109,24 +108,57 @@ class ReadBilling(models.Model):
 
     def execution_something(self):
         _logger.info("Clicked")
+        test_email = self.env['ir.config_parameter'].sudo().get_param("temp.contact")
+
+
         html_content = self.env['ir.qweb']._render(
             'invoice_own.extendedbdftemplateattachment',
-
+            {'docs': self}
         )
+
         if isinstance(html_content, bytes):
             html_content = html_content.decode('utf-8')
-        pdf_content = HTML(string=html_content).write_pdf()
+
+        # [ЗАСВАР 1]: from_file биш from_string ашиглах ёстой
+        # [ЗАСВАР 2]: Монгол үсэг алдаагүй гаргахын тулд encoding тохируулна
+        options = {
+            'encoding': "UTF-8",
+            'enable-local-file-access': None  # Зураг эсвэл CSS уншихад хэрэг болно
+        }
+
+        pdf_content = pdfkit.from_string(html_content, False, options=options)
+
         attachment = self.env['ir.attachment'].sudo().create({
-            'name': f'invoice.pdf',
+            'name': 'invoice.pdf',
             'type': 'binary',
-            'datas': base64.b64encode(pdf_content),
+            'datas': base64.b64encode(pdf_content).decode('utf-8'),
+            'res_model': self._name,
+            'res_id': self.id,
             'mimetype': 'application/pdf',
         })
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        download_url = f"/web/content/{attachment.id}?download=true"
+
+        # email_campaign = self.env['mailing.mailing'].sudo().create({
+        #     'name': 'Тест Нэхэмжлэх Захидал',
+        #     'subject': 'Таны нэхэмжлэх бэлэн боллоо (Тест)',
+        #     'body_html': html_content,
+        #     'mailing_type': 'mail',
+        #     'attachment_ids': [(4, attachment.id)],
+        #     'mailing_model_id': self.env.ref('mass_mailing.model_mailing_contact').id,
+        #     'reply_to': self.env.company.email or test_email,
+        # })
+        # email_campaign.with_context(mass_mailing_test_addresses=[test_email]).action_send_mail()
+        mail = self.env['mail.mail'].create({
+            'subject': 'Gmobile төлбөрийн нэхэмжлэл',
+            'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
+            'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
+            'body_html': html_content,
+            'attachment_ids': [(4, attachment.id)],
+        })
+        mail.send()
+        _logger.info("Executed non error", exc_info=True)
         return {
             'type': 'ir.actions.act_url',
-            'url': base_url + download_url,
+            # 'url': f'/web/content/{attachment.id}?download=true',
             'target': 'new',
         }
 
