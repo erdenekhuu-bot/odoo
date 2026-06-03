@@ -110,7 +110,7 @@ class ReadBilling(models.Model):
         _logger.info("Clicked")
 
         html_content = self.env['ir.qweb']._render(
-            'invoice_own.extendedbdftemplateattachment',
+            'invoice_own.pdfbody',
             {'docs': self}
         )
 
