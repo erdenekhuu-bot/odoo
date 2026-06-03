@@ -5,6 +5,8 @@ from odoo.exceptions import UserError
 import psycopg2
 import base64
 import pdfkit
+from odoo.modules.module import get_module_resource
+import os
 
 _logger = logging.getLogger(__name__)
 
@@ -20,12 +22,11 @@ class ReadBilling(models.Model):
     period_end = fields.Date('period_end', required=True)
     items = fields.Json('items', required=True)
 
-    @api.model
-    def create(self, vals):
-        return super(ReadBilling, self).create(vals)
 
     @api.model
     def sync_billing(self):
+
+
         db_name = self.env['ir.config_parameter'].sudo().get_param("second.base")
         db_user = self.env['ir.config_parameter'].sudo().get_param("second.dbuser")
         db_pass = self.env['ir.config_parameter'].sudo().get_param("second.dbpassword")
@@ -108,10 +109,11 @@ class ReadBilling(models.Model):
 
     def execution_something(self):
         _logger.info("Clicked")
+        logo_b64 = self.get_image_base64('static/src/img/logo.png')
 
         html_content = self.env['ir.qweb']._render(
             'invoice_own.pdfbody',
-            {'docs': self}
+            {'logo_b64 ': logo_b64}
         )
 
         if isinstance(html_content, bytes):
@@ -121,10 +123,18 @@ class ReadBilling(models.Model):
         # [ЗАСВАР 2]: Монгол үсэг алдаагүй гаргахын тулд encoding тохируулна
         options = {
             'encoding': "UTF-8",
-            'enable-local-file-access': None  # Зураг эсвэл CSS уншихад хэрэг болно
+            'enable-local-file-access': None,
+            'load-error-handling': 'ignore',
+            'load-media-error-handling': 'ignore',
         }
 
-        pdf_content = pdfkit.from_string(html_content, False, options=options)
+        try:
+            pdf_content = pdfkit.from_string(html_content, False, options=options)
+        except Exception as e:
+            _logger.warning("PDFKit үүсгэх явцад анхааруулга гарлаа: %s", str(e))
+            # Хэрэв ямар нэгэн байдлаар гацвал pdf_content үүссэн эсэхийг баталгаажуулах
+            if 'pdf_content' not in locals():
+                raise IOError(f"PDF файл үүсгэж чадсангүй: {e}")
 
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'invoice.pdf',
@@ -159,4 +169,11 @@ class ReadBilling(models.Model):
             # 'url': f'/web/content/{attachment.id}?download=true',
             'target': 'new',
         }
+
+    def get_image_base64(self,relative_path):
+        path = get_module_resource('invoice_own', relative_path)
+        if path and os.path.exists(path):
+            with open(path, 'rb') as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        return False
 
