@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_outside_new_model_tree" model="ir.ui.view">
+        <field name="name">outside.new.model.list</field>
+        <field name="model">outside.new.model</field>
+        <field name="arch" type="xml">
+            <list string="Outside Records">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="age"/>
+            </list>
+        </field>
+    </record>
+</odoo>

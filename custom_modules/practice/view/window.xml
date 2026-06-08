@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_outside_new_model" model="ir.actions.act_window">
+        <field name="name">Outside Profiles</field>
+        <field name="res_model">outside.new.model</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first outside profile!
+            </p>
+        </field>
+    </record>
+
+    <!-- 4. Menus Configuration -->
+    <!-- Root Menu Item: Appears on the main Odoo dashboard -->
+    <menuitem id="menu_outside_root"
+              name="Outside System"
+              sequence="10"/>
+
+    <!-- Categories Submenu -->
+    <menuitem id="menu_outside_management"
+              name="Management"
+              parent="menu_outside_root"
+              sequence="10"/>
+
+    <!-- Action Link Submenu (The clickable menu that loads the list) -->
+    <menuitem id="menu_outside_new_model"
+              name="Profiles"
+              parent="menu_outside_management"
+              action="action_outside_new_model"
+              sequence="10"/>
+</odoo>
