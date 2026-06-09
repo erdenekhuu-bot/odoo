@@ -20,6 +20,7 @@ class ReadBilling(models.Model):
     period_end = fields.Date('Period End', required=True)
     items = fields.Json('Items', required=True)
     state = fields.Char('State', required=False)
+    subject_title=fields.Char('Subject Title', required=False)
 
     _sql_constraints = [
         (
@@ -231,3 +232,26 @@ class ReadBilling(models.Model):
             with open(path, 'rb') as image_file:
                 return base64.b64encode(image_file.read()).decode('utf-8')
         return False
+
+    def email_campaign_billing(self):
+        agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
+        marketing_list = self.env['mailing.list'].create({
+            'name': 'VIP Customers 2026',
+        })
+        self.env['mailing.contact'].create({
+            'name': 'John Doe',
+            'email': 'john.doe@example.com',
+            'list_ids': [(4, marketing_list.id)]
+        })
+        mailing_model = self.env['ir.model'].search([('model', '=', 'mailing.list')], limit=1)
+        mailing_campaign = self.env['mailing.mailing'].create({
+            'name': 'Welcome VIPs',
+            'subject': 'Welcome to our Exclusive Club!',
+            'mailing_model_id': mailing_model.id,
+            'contact_list_ids': [(4, marketing_list.id)],
+            'body_html': '<p>Hello, thank you for joining our VIP list!</p>',
+            'state': 'draft',
+            'user_id': agent.id,
+        })
+        mailing_campaign.action_put_in_queue()
+        return mailing_campaign
