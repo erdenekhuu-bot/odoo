@@ -33,7 +33,7 @@
 
      <menuitem
              id="sync_billing_users"
-             name="Billing read month"
+             name="Synchronization"
              sequence="10"
              action="action_billing_read_window"
      />
@@ -43,6 +43,7 @@
         <field name="model">billing.read</field>
         <field name="arch" type="xml">
             <list string="Billing Synchronization">
+                <field name="id"/>
                 <field name="acc_number"/>
                 <field name="email"/>
                 <field name="bylling_cycle_id"/>

@@ -163,13 +163,13 @@ class ReadBilling(models.Model):
 
     def execution_something(self):
         try:
+            self.ensure_one()
             logo_b64 = self.get_image_base64('static/src/img/logo.png')
             app_b64 = self.get_image_base64('static/src/img/appstoreqr.png')
             qr_b64 = self.get_image_base64('static/src/img/playstoreqr.png')
             screen1_b64 = self.get_image_base64('static/src/img/whitescreen.png')
             screen2_b64 = self.get_image_base64('static/src/img/whitescreen2.png')
             screen3_b64 = self.get_image_base64('static/src/img/whitescreen3.png')
-            agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
 
             pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
                 {
@@ -192,22 +192,28 @@ class ReadBilling(models.Model):
                 'res_id': self.id,
                 'mimetype': 'application/pdf',
             })
+            agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
             contact_list = self.env['mailing.list'].search([], limit=1)
-            email_campaign = self.env['mailing.mailing'].sudo().create({
-                'name': 'Тест Нэхэмжлэх Захидал',
-                'subject': 'Таны нэхэмжлэх бэлэн боллоо (Тест)',
-                'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
-                'mailing_type': 'mail',
-                'attachment_ids': [(4, attachment.id)],
-                'mailing_model_id': self.env.ref('mass_mailing.model_mailing_contact').id,
-                'contact_list_ids': [(4, contact_list.id)] if contact_list else [],
-                'reply_to': self.env['ir.config_parameter'].get_param('main.mail'),
-                'user_id': agent.id if agent else self.env.user.id,
-                'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
-            })
-            email_campaign.action_put_in_queue()
-            email_campaign.action_send_mail_cron()
-            return True
+            # email_campaign = self.env['mailing.mailing'].sudo().create({
+            #     'name': 'Тест Нэхэмжлэх Захидал',
+            #     'subject': 'Таны нэхэмжлэх бэлэн боллоо (Тест)',
+            #     'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
+            #     'mailing_type': 'mail',
+            #     'attachment_ids': [(4, attachment.id)],
+            #     'mailing_model_id': self.env.ref('mass_mailing.model_mailing_contact').id,
+            #     'contact_list_ids': [(4, contact_list.id)] if contact_list else [],
+            #     'reply_to': self.env['ir.config_parameter'].get_param('main.mail'),
+            #     'user_id': agent.id if agent else self.env.user.id,
+            #     'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
+            # })
+            # email_campaign.action_put_in_queue()
+            # email_campaign.action_send_mail_cron()
+            # return True
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/{attachment.id}',
+                'target': 'new',
+            }
         except Exception as e:
             raise UserError(f"PDF үүсгэж чадсангүй: {e}")
 
