@@ -33,7 +33,7 @@
 
      <menuitem
              id="sync_billing_users"
-             name="Single bill"
+             name="Billing read month"
              sequence="10"
              action="action_billing_read_window"
      />
