@@ -232,11 +232,9 @@ class ReadBilling(models.Model):
             'target': 'new',
         }
 
-
     def get_image_base64(self,relative_path):
         path = get_module_resource('invoice_own', relative_path)
         if path and os.path.exists(path):
             with open(path, 'rb') as image_file:
                 return base64.b64encode(image_file.read()).decode('utf-8')
         return False
-
