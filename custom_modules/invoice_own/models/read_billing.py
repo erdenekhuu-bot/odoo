@@ -192,23 +192,16 @@ class ReadBilling(models.Model):
                 'res_id': self.id,
                 'mimetype': 'application/pdf',
             })
-            agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
-            contact_list = self.env['mailing.list'].search([], limit=1)
-            # email_campaign = self.env['mailing.mailing'].sudo().create({
-            #     'name': 'Тест Нэхэмжлэх Захидал',
-            #     'subject': 'Таны нэхэмжлэх бэлэн боллоо (Тест)',
-            #     'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
-            #     'mailing_type': 'mail',
-            #     'attachment_ids': [(4, attachment.id)],
-            #     'mailing_model_id': self.env.ref('mass_mailing.model_mailing_contact').id,
-            #     'contact_list_ids': [(4, contact_list.id)] if contact_list else [],
-            #     'reply_to': self.env['ir.config_parameter'].get_param('main.mail'),
-            #     'user_id': agent.id if agent else self.env.user.id,
-            #     'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
-            # })
-            # email_campaign.action_put_in_queue()
-            # email_campaign.action_send_mail_cron()
-            # return True
+            # agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
+            # contact_list = self.env['mailing.list'].search([], limit=1)
+            mail = self.env['mail.mail'].create({
+                'subject': 'Gmobile төлбөрийн нэхэмжлэл',
+                'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
+                'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
+                'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
+                'attachment_ids': [(4, attachment.id)],
+            })
+            mail.send()
             return {
                 'type': 'ir.actions.act_url',
                 'url': f'/web/content/{attachment.id}',
