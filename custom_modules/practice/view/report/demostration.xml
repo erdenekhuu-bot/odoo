@@ -65,8 +65,8 @@
                     </div>
 
                     <img t-att-src="'/practice/static/description/appstoreqr.png'"
-     style="width: 110px; height: 110px;"
-     alt="App Store Static Asset"/>
+                     style="width: 110px; height: 110px;"
+                     alt="App Store Static Asset"/>
 
                 </div>
             </t>

@@ -1,8 +1,5 @@
 from odoo import api, models, fields, exceptions
 import logging
-from odoo.modules.module import get_module_resource
-import os
-import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -20,4 +17,3 @@ class OutSide(models.Model):
 
     def action_download_custom_pdf(self):
         return self.env.ref('practice.demo_report').report_action(self)
-

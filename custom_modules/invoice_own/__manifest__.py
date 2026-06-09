@@ -11,8 +11,7 @@
         ]
     },
     'data':[
-        'views/pdf_attachment.xml',
-        'views/pdfbody/pdfview.xml',
+        'views/pdfbody/final.xml',
         'views/menu.xml',
         'security/ir.model.access.csv'
     ],

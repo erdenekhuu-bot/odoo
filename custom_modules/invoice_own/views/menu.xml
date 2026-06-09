@@ -9,7 +9,6 @@
 <!--        sequence="110"-->
 <!--      />-->
 
-
     <record id="action_jishee2" model="ir.actions.act_window">
         <field name="name">Илгээсэн нэхэмжлэлүүд</field>
         <field name="res_model">mailing.mailing</field>
@@ -18,8 +17,6 @@
         <field name="context">{'form_view_initial_mode': 'edit', 'force_detailed_view': 'true'}</field>
         <field name="target">current</field>
     </record>
-
-
 
      <record id="action_sync_list" model="ir.actions.server">
         <field name="name">Гадаад баазаас өгөгдөл татах (Sync)</field>
@@ -31,7 +28,6 @@
             action = model.sync_billing()
         </field>
     </record>
-
 
 <!--     <menuitem id="sync_billing_users"-->
 <!--              name="Synchronization"-->
@@ -48,12 +44,10 @@
 
      <menuitem
              id="sync_billing_users"
-              name="Synchronization"
-              sequence="10"
-              action="action_billing_read_window"
+             name="Synchronization"
+             sequence="10"
+             action="action_billing_read_window"
      />
-
-
 
     <record id="view_billing_read_list" model="ir.ui.view">
         <field name="name">billing.read.list</field>
@@ -72,7 +66,5 @@
             </list>
         </field>
     </record>
-
-
 
 </odoo>
