@@ -13,7 +13,8 @@
     'data':[
         'views/pdfbody/final.xml',
         'views/menu.xml',
-        'security/ir.model.access.csv'
+        'security/ir.model.access.csv',
+        'cron_job/task.xml'
     ],
     'installable': True,
     'application': True,
