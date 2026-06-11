@@ -193,7 +193,7 @@ class ReadBilling(models.Model):
                 'res_id': self.id,
                 'mimetype': 'application/pdf',
             })
-            # agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
+            agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
             # contact_list = self.env['mailing.list'].search([], limit=1)
             mail = self.env['mail.mail'].create({
                 'subject': 'Gmobile төлбөрийн нэхэмжлэл',
@@ -201,6 +201,7 @@ class ReadBilling(models.Model):
                 'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
                 'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
                 'attachment_ids': [(4, attachment.id)],
+                'user_id': agent.id,
             })
             mail.send()
             return {
@@ -209,6 +210,7 @@ class ReadBilling(models.Model):
                 'target': 'new',
             }
         except Exception as e:
+            _logger.error("Failed to execute execution: %s", e)
             raise UserError(f"PDF үүсгэж чадсангүй: {e}")
 
         # email_campaign.with_context(mass_mailing_test_addresses=[test_email]).action_send_mail()
