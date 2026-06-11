@@ -201,7 +201,7 @@ class ReadBilling(models.Model):
                 'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
                 'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
                 'attachment_ids': [(4, attachment.id)],
-                'user_id': agent.id,
+
             })
             mail.send()
             return {
