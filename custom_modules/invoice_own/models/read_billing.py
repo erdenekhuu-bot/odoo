@@ -195,15 +195,15 @@ class ReadBilling(models.Model):
             })
             agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
             # contact_list = self.env['mailing.list'].search([], limit=1)
-            mail = self.env['mail.mail'].create({
-                'subject': 'Gmobile төлбөрийн нэхэмжлэл',
-                'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
-                'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
-                'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
-                'attachment_ids': [(4, attachment.id)],
-
-            })
-            mail.send()
+            # mail = self.env['mail.mail'].create({
+            #     'subject': 'Gmobile төлбөрийн нэхэмжлэл',
+            #     'body_html': '<p>Эрхэм хэрэглэгч танд энэ өдрийн мэнд хүргэе</p>',
+            #     'email_to': self.env['ir.config_parameter'].get_param('customer.customer.mail'),
+            #     'email_from': self.env['ir.config_parameter'].get_param('main.mail'),
+            #     'attachment_ids': [(4, attachment.id)],
+            #
+            # })
+            # mail.send()
             return {
                 'type': 'ir.actions.act_url',
                 'url': f'/web/content/{attachment.id}',
@@ -236,24 +236,57 @@ class ReadBilling(models.Model):
         return False
 
     def email_campaign_billing(self):
+        # agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
+        # marketing_list = self.env['mailing.list'].create({
+        #     'name': 'VIP Customers 2026',
+        # })
+        # self.env['mailing.contact'].create({
+        #     'name': 'John Doe',
+        #     'email': 'john.doe@example.com',
+        #     'list_ids': [(4, marketing_list.id)]
+        # })
         agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
-        marketing_list = self.env['mailing.list'].create({
-            'name': 'VIP Customers 2026',
+        marketing_list=self.env['mailing.list'].search([('name','=','Hello')])
+        self.env['mailing.contact'].search([('email','=','erdenekhuu.e@gmobile.mn')])
+        mailing_model = self.env['ir.model'].search([('model', '=', 'mailing.list')], limit=20)
+        logo_b64 = self.get_image_base64('static/src/img/logo.png')
+        app_b64 = self.get_image_base64('static/src/img/appstoreqr.png')
+        qr_b64 = self.get_image_base64('static/src/img/playstoreqr.png')
+        screen1_b64 = self.get_image_base64('static/src/img/whitescreen.png')
+        screen2_b64 = self.get_image_base64('static/src/img/whitescreen2.png')
+        screen3_b64 = self.get_image_base64('static/src/img/whitescreen3.png')
+
+        pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
+            {
+                'logo_b64': logo_b64,
+                'app_b64': app_b64,
+                'qr_b64': qr_b64,
+                'screen1_b64': screen1_b64,
+                'screen2_b64': screen2_b64,
+                'screen3_b64': screen3_b64,
+            }
+        )._render_qweb_pdf(
+            'invoice_own.final_report_pdf',
+            res_ids=self.ids
+        )
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': 'invoice.pdf',
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content).decode('utf-8'),
+            'res_model': self._name,
+            'res_id': self.id,
+            'mimetype': 'application/pdf',
         })
-        self.env['mailing.contact'].create({
-            'name': 'John Doe',
-            'email': 'john.doe@example.com',
-            'list_ids': [(4, marketing_list.id)]
-        })
-        mailing_model = self.env['ir.model'].search([('model', '=', 'mailing.list')], limit=1)
         mailing_campaign = self.env['mailing.mailing'].create({
-            'name': 'Welcome VIPs',
+            'name': 'Billing sent',
             'subject': 'Welcome to our Exclusive Club!',
             'mailing_model_id': mailing_model.id,
             'contact_list_ids': [(4, marketing_list.id)],
             'body_html': '<p>Hello, thank you for joining our VIP list!</p>',
             'state': 'draft',
             'user_id': agent.id,
+            'attachment_ids': [(4, attachment.id)],
         })
         mailing_campaign.action_put_in_queue()
+        _logger.info("Mail sent: %s", mailing_campaign.id,mailing_campaign.state)
         return mailing_campaign
