@@ -235,44 +235,77 @@ class ReadBilling(models.Model):
                 return base64.b64encode(image_file.read()).decode('utf-8')
         return False
 
+    @api.model
     def email_campaign_billing(self):
-        marketing_list = self.env['mailing.list'].search([
-            ('name', '=', 'Hello')
-        ], limit=1)
+        # Зөвхөн эдгээр email рүү илгээнэ
+        target_emails = [
+            'erdenekhuu.e@gmobile.mn',
+            # 'second.person@gmobile.mn',
+            # 'third.person@gmobile.mn',
+        ]
 
-        if not marketing_list:
-            raise UserError('"Hello" нэртэй mailing list олдсонгүй.')
+        MailingContact = self.env['mailing.contact'].sudo()
+        contacts = MailingContact.browse()
 
-        # contacts = self.env['mailing.contact'].search([
-        #     ('list_ids', 'in', marketing_list.id),
-        #     ('email', '!=', False),
-        # ])
-        contacts=self.env['mailing.contact'].search([('email', '=', 'erdenekhuu.e@gmobile.mn')])
+        missing_emails = []
+
+        # Email бүрээс зөвхөн нэг contact сонгоно
+        for email in target_emails:
+            contact = MailingContact.search([
+                ('email', '=ilike', email.strip()),
+                ('is_blacklisted', '=', False),
+            ], limit=1)
+
+            if contact:
+                contacts |= contact
+            else:
+                missing_emails.append(email)
+
+        if missing_emails:
+            raise UserError(
+                'Дараах email хаягтай Mailing Contact олдсонгүй '
+                'эсвэл blacklist-д байна:\n%s'
+                % '\n'.join(missing_emails)
+            )
 
         if not contacts:
-            raise UserError('"Hello" mailing list дотор хүлээн авагч байхгүй байна.')
+            raise UserError('Илгээх Mailing Contact сонгогдоогүй байна.')
 
-        agent = self.env['res.users'].search([
+        agent = self.env['res.users'].sudo().search([
             ('login', '=', 'bot@gmobile.mn')
         ], limit=1)
 
-        # Recipient model нь mailing.contact байна
+        # Recipient model: mailing.contact
         mailing_model = self.env['ir.model']._get('mailing.contact')
 
-        # Cron үед self хоосон учраас PDF үүсгэх billing record-оо тодорхой хайна
+        # Өмнө queue-д орсон эсвэл илгээгдсэн record-ийг дахин сонгохгүй
         billing = self.search([
-            ('state', '!=', 'sent')
+            ('state', 'not in', ['queued', 'sent'])
         ], order='id desc', limit=1)
 
         if not billing:
-            raise UserError('PDF үүсгэх billing record олдсонгүй.')
+            raise UserError(
+                'PDF үүсгэх, илгээх боломжтой billing record олдсонгүй.'
+            )
 
-        logo_b64 = self.get_image_base64('static/src/img/logo.png')
-        app_b64 = self.get_image_base64('static/src/img/appstoreqr.png')
-        qr_b64 = self.get_image_base64('static/src/img/playstoreqr.png')
-        screen1_b64 = self.get_image_base64('static/src/img/whitescreen.png')
-        screen2_b64 = self.get_image_base64('static/src/img/whitescreen2.png')
-        screen3_b64 = self.get_image_base64('static/src/img/whitescreen3.png')
+        logo_b64 = self.get_image_base64(
+            'static/src/img/logo.png'
+        )
+        app_b64 = self.get_image_base64(
+            'static/src/img/appstoreqr.png'
+        )
+        qr_b64 = self.get_image_base64(
+            'static/src/img/playstoreqr.png'
+        )
+        screen1_b64 = self.get_image_base64(
+            'static/src/img/whitescreen.png'
+        )
+        screen2_b64 = self.get_image_base64(
+            'static/src/img/whitescreen2.png'
+        )
+        screen3_b64 = self.get_image_base64(
+            'static/src/img/whitescreen3.png'
+        )
 
         pdf_content, _ = (
             self.env['ir.actions.report']
@@ -294,38 +327,61 @@ class ReadBilling(models.Model):
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'invoice.pdf',
             'type': 'binary',
-            'datas': base64.b64encode(pdf_content),
+            'datas': base64.b64encode(
+                pdf_content
+            ).decode('utf-8'),
             'res_model': billing._name,
             'res_id': billing.id,
             'mimetype': 'application/pdf',
         })
 
-        # Нэг л campaign үүснэ
-        mailing_campaign = self.env['mailing.mailing'].sudo().create({
+        mailing_campaign = self.env[
+            'mailing.mailing'
+        ].sudo().create({
             'name': 'Billing sent',
-            'subject': billing.subject_title or 'Gmobile төлбөрийн нэхэмжлэл',
+
+            'subject': (
+                    billing.subject_title
+                    or 'Gmobile төлбөрийн нэхэмжлэл'
+            ),
+
             'mailing_model_id': mailing_model.id,
 
-            # Зөвхөн Hello list-ийн хүмүүс рүү
-            'contact_list_ids': [(6, 0, marketing_list.ids)],
+            # Зөвхөн дээр сонгосон contact record-ууд
+            'mailing_domain': repr([
+                ('id', 'in', contacts.ids),
+                ('is_blacklisted', '=', False),
+            ]),
 
             'body_html': """
                 <p>Сайн байна уу?</p>
-                <p>Төлбөрийн нэхэмжлэлийг хавсралтаар хүргүүлж байна.</p>
+                <p>
+                    Төлбөрийн нэхэмжлэлийг хавсралтаар
+                    хүргүүлж байна.
+                </p>
             """,
 
             'user_id': agent.id or self.env.user.id,
-            'attachment_ids': [(4, attachment.id)],
+
+            'attachment_ids': [
+                (4, attachment.id)
+            ],
         })
 
-        # Нэг удаа queue-д оруулна
+        # Нэг mailing.mailing record queue-д оруулна
         mailing_campaign.action_put_in_queue()
 
+        # Cron дахин ажиллах үед ижил billing-ийг дахин илгээхгүй
+        billing.write({
+            'state': 'queued'
+        })
+
         _logger.info(
-            "Billing campaign queue-д орлоо. "
-            "Campaign ID: %s, recipients: %s",
+            'Billing campaign queue-д орлоо. '
+            'Campaign ID: %s, Contact IDs: %s, Emails: %s',
             mailing_campaign.id,
-            len(contacts),
+            contacts.ids,
+            ', '.join(contacts.mapped('email')),
         )
 
         return True
