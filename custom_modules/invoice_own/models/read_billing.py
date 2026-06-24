@@ -236,19 +236,37 @@ class ReadBilling(models.Model):
         return False
 
     def email_campaign_billing(self):
-        # agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
-        # marketing_list = self.env['mailing.list'].create({
-        #     'name': 'VIP Customers 2026',
-        # })
-        # self.env['mailing.contact'].create({
-        #     'name': 'John Doe',
-        #     'email': 'john.doe@example.com',
-        #     'list_ids': [(4, marketing_list.id)]
-        # })
-        agent = self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')], limit=1)
-        marketing_list=self.env['mailing.list'].search([('name','=','Hello')])
-        self.env['mailing.contact'].search([('email','=','erdenekhuu.e@gmobile.mn')])
-        mailing_model = self.env['ir.model'].search([('model', '=', 'mailing.list')], limit=20)
+        marketing_list = self.env['mailing.list'].search([
+            ('name', '=', 'Hello')
+        ], limit=1)
+
+        if not marketing_list:
+            raise UserError('"Hello" нэртэй mailing list олдсонгүй.')
+
+        # contacts = self.env['mailing.contact'].search([
+        #     ('list_ids', 'in', marketing_list.id),
+        #     ('email', '!=', False),
+        # ])
+        contacts=self.env['mailing.contact'].search([('email', '=', 'erdenekhuu.e@gmobile.mn')])
+
+        if not contacts:
+            raise UserError('"Hello" mailing list дотор хүлээн авагч байхгүй байна.')
+
+        agent = self.env['res.users'].search([
+            ('login', '=', 'bot@gmobile.mn')
+        ], limit=1)
+
+        # Recipient model нь mailing.contact байна
+        mailing_model = self.env['ir.model']._get('mailing.contact')
+
+        # Cron үед self хоосон учраас PDF үүсгэх billing record-оо тодорхой хайна
+        billing = self.search([
+            ('state', '!=', 'sent')
+        ], order='id desc', limit=1)
+
+        if not billing:
+            raise UserError('PDF үүсгэх billing record олдсонгүй.')
+
         logo_b64 = self.get_image_base64('static/src/img/logo.png')
         app_b64 = self.get_image_base64('static/src/img/appstoreqr.png')
         qr_b64 = self.get_image_base64('static/src/img/playstoreqr.png')
@@ -256,37 +274,58 @@ class ReadBilling(models.Model):
         screen2_b64 = self.get_image_base64('static/src/img/whitescreen2.png')
         screen3_b64 = self.get_image_base64('static/src/img/whitescreen3.png')
 
-        pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
-            {
-                'logo_b64': logo_b64,
-                'app_b64': app_b64,
-                'qr_b64': qr_b64,
-                'screen1_b64': screen1_b64,
-                'screen2_b64': screen2_b64,
-                'screen3_b64': screen3_b64,
-            }
-        )._render_qweb_pdf(
-            'invoice_own.final_report_pdf',
-            res_ids=self.ids
+        pdf_content, _ = (
+            self.env['ir.actions.report']
+            .sudo()
+            .with_context(
+                logo_b64=logo_b64,
+                app_b64=app_b64,
+                qr_b64=qr_b64,
+                screen1_b64=screen1_b64,
+                screen2_b64=screen2_b64,
+                screen3_b64=screen3_b64,
+            )
+            ._render_qweb_pdf(
+                'invoice_own.final_report_pdf',
+                res_ids=billing.ids,
+            )
         )
+
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'invoice.pdf',
             'type': 'binary',
-            'datas': base64.b64encode(pdf_content).decode('utf-8'),
-            'res_model': self._name,
-            'res_id': self.id,
+            'datas': base64.b64encode(pdf_content),
+            'res_model': billing._name,
+            'res_id': billing.id,
             'mimetype': 'application/pdf',
         })
-        mailing_campaign = self.env['mailing.mailing'].create({
+
+        # Нэг л campaign үүснэ
+        mailing_campaign = self.env['mailing.mailing'].sudo().create({
             'name': 'Billing sent',
-            'subject': 'Welcome to our Exclusive Club!',
+            'subject': billing.subject_title or 'Gmobile төлбөрийн нэхэмжлэл',
             'mailing_model_id': mailing_model.id,
-            'contact_list_ids': [(4, marketing_list.id)],
-            'body_html': '<p>Hello, thank you for joining our VIP list!</p>',
-            'state': 'draft',
-            'user_id': agent.id,
+
+            # Зөвхөн Hello list-ийн хүмүүс рүү
+            'contact_list_ids': [(6, 0, marketing_list.ids)],
+
+            'body_html': """
+                <p>Сайн байна уу?</p>
+                <p>Төлбөрийн нэхэмжлэлийг хавсралтаар хүргүүлж байна.</p>
+            """,
+
+            'user_id': agent.id or self.env.user.id,
             'attachment_ids': [(4, attachment.id)],
         })
+
+        # Нэг удаа queue-д оруулна
         mailing_campaign.action_put_in_queue()
-        _logger.info("Mail sent: %s", mailing_campaign.id,mailing_campaign.state)
-        return mailing_campaign
+
+        _logger.info(
+            "Billing campaign queue-д орлоо. "
+            "Campaign ID: %s, recipients: %s",
+            mailing_campaign.id,
+            len(contacts),
+        )
+
+        return True
