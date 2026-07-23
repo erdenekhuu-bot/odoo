@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_billing_read,access.billing.read,model_billing_read,base.group_user,1,1,1,1
+access_billing_period,access.billing.period,model_billing_period,base.group_user,1,1,1,1
+access_billing_read_account,access.billing.read.account,model_billing_read_account,base.group_user,1,1,1,1
+access_billing_group,access.billing.group,model_billing_group,base.group_user,1,1,1,1

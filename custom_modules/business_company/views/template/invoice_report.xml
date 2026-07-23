@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="paperformat_non_margin" model="report.paperformat">
+        <field name="name">Zero Margin A4</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="final_report_pdf" model="ir.actions.report">
+        <field name="name">Custom PDF Report</field>
+        <field name="model">billing.read</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">business_company.demo_custom_template</field>
+        <field name="report_file">business_company.demo_custom_template</field>
+        <field name="binding_model_id" ref="model_billing_read"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_non_margin"/>
+    </record>
+
+    <template id="demo_custom_template">
+    <t t-call="web.html_container">
+        <meta charset="UTF-8" />
+        <div class="page" style="font-family: 'Arial', sans-serif; font-size: 12px; color: #333333; padding: 20px 50px;">
+            <table style="width: 100%; border-bottom: 2px solid #f6b500; padding-bottom: 5px; margin-bottom: 5px;">
+               <tr>
+                    <td style="text-align: left; vertical-align: middle; padding: 2px 0;">
+                       <h1 style="font-size: 16px; font-weight: bold; color: #4a4a4a; margin: 0;">
+                            <t t-out="env.context.get('datetimes')"/> САРЫН ТӨЛБӨРИЙН НЭХЭМЖЛЭЛ
+                        </h1>
+                    </td>
+                    <td style="text-align: right; vertical-align: middle; padding: 2px 0;">
+                      <img t-att-src="'data:image/png;base64,%s' % env.context.get('logo_b64')" width="140px" alt=""/>
+                    </td>
+                </tr>
+            </table>
+
+            <main>
+            <!--Хувийн мэдээлэл-->
+               <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 65%;
+                      margin: 0 auto 12px auto;
+                      border-collapse: collapse;
+                      border-spacing: 0 14px;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">Нэхэмжлэлийн дугаар:</td>
+                      <td style="padding: 3px 0; text-align: right;">
+                       <t t-out="env.context.get('profile').subs_id"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">Хамрагдах хугацаа:</td>
+                      <td style="padding: 3px 0; text-align: right">
+                        <t t-out="env.context.get('date_create')"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">
+                        Төлбөрийг нэхэмжлэх хугацаа:
+                      </td>
+                      <td style="padding: 3px 0; text-align: right">
+                          <t t-out="env.context.get('period_start')"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">
+                        Төлбөр хийх эцсийн хугацаа:
+                      </td>
+                      <td style="padding: 3px 0; text-align: right">
+                          <t t-out="env.context.get('period_end')"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">Хэрэглэгчийн нэр:</td>
+                      <td style="padding: 3px 0; text-align: right;">
+                        <t t-out="env.context.get('profile').cust_name"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">Гэрээний дугаар:</td>
+                      <td style="padding: 3px 0; text-align: right">
+                           <t t-out="env.context.get('profile').acc_id"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 3px 8px 1px 0">Утасны дугаар:</td>
+                      <td style="padding: 3px 0; text-align: right">
+                          <t t-out="env.context.get('profile').acc_number"/>
+                      </td>
+                    </tr>
+               </table>
+
+
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 100%;
+                      border-collapse: collapse;
+                      background: #fbb515;
+                      border-radius: 12px;
+                      overflow: hidden;
+                      margin-bottom: 5px;
+                    "
+                  >
+                    <tr>
+                      <td
+                        style="
+                          width: 55%;
+                          text-align: end;
+                          font-weight: bold;
+                        "
+                      >
+                        ХЭМЖЭЭ / ХУГАЦАА
+                      </td>
+                      <td
+                        style="
+                          width: 45%;
+                          text-align: center;
+                          font-weight: bold;
+                        "
+                      >
+                        ДҮН
+                      </td>
+                    </tr>
+              </table>
+
+                <!--Багц, хэрэглээ-->
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 68%;
+                      margin: 0 auto 10px auto;
+                      border-collapse: collapse;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td colspan="3" style="padding: 2px 0; font-weight: bold">
+                        БАГЦАД ДАГАЛДАХ ЭРХ:
+                      </td>
+                    </tr>
+                    <t t-foreach="env.context.get('head_data', [])" t-as="item">
+                        <tr>
+                            <td style="width: 43%; padding: 1px 0 1px 14px;">
+                                <span t-out="item.get('name', '')"/>
+                            </td>
+
+                            <td style="padding: 1px 0;">
+                                <span t-out="item.get('description', '')"/>
+                            </td>
+
+                            <td style="width: 18%; padding: 1px 0; text-align: center;">
+                                <span t-out="item.get('amount', 0)"/>
+                            </td>
+                        </tr>
+                    </t>
+                    <tr>
+                      <td colspan="3" style="padding: 3px 0 2px 0; font-weight: bold">
+                        НЭМЭЛТ ХЭРЭГЛЭЭ
+                      </td>
+                    </tr>
+                    <t t-foreach="env.context.get('data', [])" t-as="item">
+                        <tr>
+                          <td style="width: 43%; padding: 1px 0 1px 14px">
+                              <span t-out="item.get('item_type', '')"/>
+                          </td>
+                          <td style="padding: 1px 0;">
+                               <span t-out="item.get('limit', '')"/>
+                          </td>
+                          <td style="width: 18%; padding: 1px 0; text-align: center">
+                              <span t-out="item.get('amount', 0)"/>
+                          </td>
+                        </tr>
+                    </t>
+                  </table>
+
+                <!--Сарын төлбөр-->
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 100%;
+                      border-collapse: collapse;
+                      background: #fbb515;
+                      border-radius: 12px;
+                      overflow: hidden;
+                      margin-bottom: 5px;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 4px 13%; font-weight: bold">
+                        ТУХАЙН САРЫН ТӨЛБӨР:
+                      </td>
+                    </tr>
+                  </table>
+
+                <t t-set="total_amount"
+                   t-value="float(docs.env.context.get('total_amount'))"/>
+
+                <t t-set="before_tax" t-value="total_amount / 1.1"/>
+                <t t-set="vat_amount" t-value="total_amount * 0.1"/>
+
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 68%;
+                      margin: 0 auto 10px auto;
+                      border-collapse: collapse;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td style="width: 86%; padding: 1px 0 1px 14px">Татвар тооцоогүй дүн</td>
+                      <td style="padding: 1px 0;">
+                          <span t-out="'{:,.2f}'.format(before_tax)"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 86%; padding: 1px 0 1px 14px">НӨАТ /10%/</td>
+                      <td style="padding: 1px 0;">
+                          <span t-out="'{:,.2f}'.format(vat_amount)"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 86%; padding: 1px 0 1px 14px; font-weight: bold">Дүн</td>
+                      <td style="padding: 1px 0;">
+                           <span t-out="'{:,.2f}'.format(total_amount)"/>
+                      </td>
+                    </tr>
+                  </table>
+
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 100%;
+                      border-collapse: collapse;
+                      background: #fbb515;
+                      border-radius: 12px;
+                      overflow: hidden;
+                      margin-bottom: 5px;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 4px 13%; font-weight: bold">
+                        ТӨЛБӨР ЗОХИХ ДҮН
+                      </td>
+                    </tr>
+                  </table>
+
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 68%;
+                      margin: 0 auto 10px auto;
+                      border-collapse: collapse;
+                      font-size: 13px;
+                    "
+                  >
+                    <tr>
+                      <td style="width: 86%; padding: 1px 0 1px 14px">Тухайн сарын төлбөр</td>
+                      <td style="padding: 1px 0;">
+                          <span t-out="'{:,.2f}'.format(total_amount)"/>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="width: 86%; padding: 1px 0 1px 14px">Өмнөх сарын үлдэгдэл төлбөр</td>
+                      <td style="padding: 1px 0;">0</td>
+                    </tr>
+                  </table>
+
+                <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 100%;
+                      border-collapse: collapse;
+                      background: #fbb515;
+                      border-radius: 12px;
+                      overflow: hidden;
+                      margin-bottom: 12px;
+                    "
+                  >
+                    <tr>
+                      <td style="padding: 4px 13%; font-weight: bold">НИЙТ ТӨЛБӨР</td>
+                      <td
+                        style="
+                          padding: 4px 15px;
+                          text-align: right;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        -2,786.27
+                      </td>
+                    </tr>
+                </table>
+                 <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="width: 100%; border-collapse: collapse; margin-bottom: 14px"
+                  >
+                    <tr>
+                      <td style="width: 52%; vertical-align: top">
+                        <table
+                          cellpadding="0"
+                          cellspacing="0"
+                          border="0"
+                          style="width: 100%; border-collapse: collapse"
+                        >
+                          <tr>
+                            <td
+                              style="
+                                padding: 0 0 8px 0;
+                                text-align: center;
+                                font-weight: bold;
+                              "
+                            >
+                              My gmobile аппликейшнаар төлбөр төлөх заавар
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center">
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="120px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="120px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="120px" alt=""/>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+
+                      <td style="width: 48%; padding: 0 0 0 10px; vertical-align: top">
+                        <table
+                          cellpadding="0"
+                          cellspacing="0"
+                          border="0"
+                          style="width: 100%; border-collapse: collapse"
+                        >
+                          <tr>
+                            <td
+                              colspan="2"
+                              style="
+                                padding: 0 0 8px 0;
+                                text-align: center;
+                                font-weight: bold;
+                              "
+                            >
+                              My gmobile аппликейшн татах
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center">
+                              <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="150px" alt=""/>
+                            </td>
+                            <td style="text-align: center">
+                              <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')" width="150px" alt=""/>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+
+                    <table
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                        style="
+                          width: 50%;
+                          margin: 0 auto;
+                          border-collapse: collapse;
+                          font-size: 13px;
+                        "
+                      >
+                        <tr>
+                          <td
+                            colspan="2"
+                            style="
+                              padding: 0 0 7px 0;
+                              text-align: center;
+                              font-weight: bold;
+                              font-size: 14px;
+                            "
+                          >
+                            Төлбөр төлөх банкны данс
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                            Харилцах данс:
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 1px 0 1px 20px">Голомт банк</td>
+                          <td style="padding: 1px 0; text-align: right">
+                            MN240015001501115008
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 1px 0 1px 20px">Төрийн банк</td>
+                          <td style="padding: 1px 0; text-align: right">
+                            MN960034100000223318
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 1px 0 5px 20px">Худалдаа хөгжлийн банк</td>
+                          <td style="padding: 1px 0 5px 0; text-align: right">
+                            MN17000400049129061
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                            Автомат данс:
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 1px 0 1px 20px">Хаан банк</td>
+                          <td style="padding: 1px 0; text-align: right">
+                            MN740004005038006208
+                          </td>
+                        </tr>
+                      </table>
+                    <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 13px;">
+                        <tr>
+                            <td style="vertical-align: middle;">
+                                <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
+                            </td>
+                        </tr>
+                       <tr>
+                            <td style="vertical-align: middle;">
+                                <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">
+                                    Улаанбаатар хот,Сүхбаатар дүүрэг,6-р хороо,НҮБ-ийн гудамж,Бага тойруу-14,МТ байр
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+
+            </main>
+        </div>
+    </t>
+</template>
+</odoo>
