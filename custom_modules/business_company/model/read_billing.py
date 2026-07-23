@@ -295,6 +295,8 @@ class ReadBilling(models.Model):
             'mimetype': 'application/pdf',
             'public': True,
         })
+
+
         return {
             'type': 'ir.actions.act_url',
             'url': f'/web/content/{attachment.id}?download=false',
@@ -334,12 +336,172 @@ class ReadBilling(models.Model):
         ]
 
     def email_campaign_bills(self):
-        accounts=self.env['billing.read.account'].search([])
-        periods=self.env['billing.period'].search([])
         agent=self.env['res.users'].search([('login', '=', 'bot@gmobile.mn')])
+        billing_list=self.env['billing.read'].search([],limit=10)
+        mail_group = self.env['billing.group'].search([])
+        mailing_list = self.env["mailing.list"].sudo().search(
+            [("name", "=", "Billing Group")],
+            limit=1,
+        )
+        if not mailing_list:
+            mailing_list = self.env["mailing.list"].sudo().create({
+                "name": "Billing Customers",
+                "is_public": False,
+            })
+
+        return True
+
+    def generate_qweb(self,id):
         return True
 
     @api.model
     def signToSent(self):
         return True
+
+    @api.model
+    def email_campaign_bills(self):
+        """ Scheduled action-аар дуудагдаж, хэрэглэгч бүрт PDF нэхэмжлэл бүхий Email Mailing илгээнэ """
+
+        MailingList = self.env["mailing.list"].sudo()
+        MailingContact = self.env["mailing.contact"].sudo()
+        MailingMailing = self.env["mailing.mailing"].sudo()
+        BillingGroup = self.env["billing.group"].sudo()
+
+        # 1. Mailing List сонгох эсвэл шинээр үүсгэх
+        list_name = "Billing Customers"
+        mailing_list = MailingList.search([("name", "=", list_name)], limit=1)
+        if not mailing_list:
+            mailing_list = MailingList.create({
+                "name": list_name,
+                "is_public": False,
+            })
+
+        # 2. Идэвхтэй billing.group бичлэгүүдийг авах
+        mail_groups = BillingGroup.search([("name", "!=", False)])
+
+        created_mailings = 0
+        skipped_count = 0
+
+        for group in mail_groups:
+            email = (group.name or "").strip().lower()
+            acc_number = group.acc_number
+
+            # Email форматыг энгийнээр шалгах
+            if not email or "@" not in email or not acc_number:
+                skipped_count += 1
+                _logger.warning("Хүчингүй email эсвэл acc_number skipped: ID=%s, Name=%s", group.id, group.name)
+                continue
+
+            # 3. Mailing Contact үүсгэх/холбох
+            contact = MailingContact.search([("email", "=ilike", email)], limit=1)
+            if not contact:
+                contact = MailingContact.create({
+                    "name": email,
+                    "email": email,
+                    "list_ids": [(4, mailing_list.id)],
+                })
+            elif mailing_list not in contact.list_ids:
+                contact.write({"list_ids": [(4, mailing_list.id)]})
+
+            # 4. Тухайн Account-д зориулсан PDF тайлан үүсгэх
+            try:
+                attachment = self._generate_pdf_attachment_for_account(acc_number)
+            except Exception as e:
+                _logger.error("PDF үүсгэхэд алдаа гарлаа (acc_number: %s): %s", acc_number, str(e))
+                continue
+
+            if not attachment:
+                _logger.warning("Биллингийн мэдээлэл олдсонгүй (acc_number: %s)", acc_number)
+                continue
+
+            # 5. Тухайн хэрэглэгчид зориулсан бие даасан mailing.mailing үүсгэх
+            # Odoo 18 дээр mail_state/state талбаруудыг тохируулж байна
+            mailing = MailingMailing.create({
+                'subject': f'Нэхэмжлэлийн мэдээлэл - Данс: {acc_number}',
+                'body_html': f'<p>Сайн байна уу,</p><p>Таны дансны ({acc_number}) сарын нэхэмжлэл хавсралтаар очиж байна.</p>',
+                'mailing_type': 'mail',
+                'mailing_model_id': self.env['ir.model']._get_id('mailing.contact'),
+                'mailing_domain': [('id', '=', contact.id)],  # Зөвхөн энэ контактад илгээнэ
+                'attachment_ids': [(4, attachment.id)],  # PDF-ийг хавсаргах
+            })
+
+            # 6. Имэйлийг шууд одоо илгээх рүү шилжүүлэх
+            mailing.action_put_in_queue()
+            # Оруулсан даруйд нь шууд замын имэйлүүдийг илгээх
+            mailing.action_send_mail()
+
+            created_mailings += 1
+
+        _logger.info("Cron биллоос Имэйл кампанит ажил амжилттай дууслаа: Илгээсэн=%s, Алгассан=%s", created_mailings,
+                     skipped_count)
+        return True
+
+    def _generate_pdf_attachment_for_account(self, acc_number):
+        """ Дансны дугаараар нэхэмжлэлийн PDF файл бэлтгэж attachment үүсгэх туслах функц """
+        account = self.env['billing.read.account'].search([('acc_number', '=', acc_number)], limit=1)
+        if not account:
+            return False
+
+        billing = self.env['billing.period'].search([('acc_number_id', '=', account.id)], limit=1)
+        if not billing:
+            return False
+
+        bills = self.search([
+            ('acc_number', '=', acc_number),
+            ('period_start', '=', billing.period_start)
+        ], limit=1)
+
+        if not bills:
+            return False
+
+        # Тэгшитгэсэн төрлүүдийн тохиргоо (Шаардлагатай тогтмолуудаа тодорхойлно уу)
+        tagged_types = {}
+        selected_types = []
+        new_label = ""
+
+        head_data = self.generate_head_data(
+            [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
+            tagged_types
+        )
+        data = self.filter_items(bills.bill_items or [], selected_types, new_label)
+
+        date_obj = datetime.strptime(bills.period_start, '%Y-%m-%d')
+        year = date_obj.year
+        month = date_obj.month
+
+        # QWeb-ээр PDF-ийг render хийх
+        pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
+            {
+                'logo_b64': self.get_image_base64('static/img/logo.png'),
+                'app_b64': self.get_image_base64('static/img/appstoreqr.png'),
+                'qr_b64': self.get_image_base64('static/img/playstoreqr.png'),
+                'screen1_b64': self.get_image_base64('static/img/whitescreen.png'),
+                'screen2_b64': self.get_image_base64('static/img/whitescreen2.png'),
+                'screen3_b64': self.get_image_base64('static/img/whitescreen3.png'),
+                'datetimes': f"{year} ОНЫ {month}",
+                'profile': account,
+                'date_create': f"{billing.period_start.replace('-', '/')}-{billing.period_end.replace('-', '/')}",
+                'period_start': f"{billing.period_start.replace('-', '/')}",
+                'period_end': f"{billing.period_end.replace('-', '/')}",
+                'head_data': head_data,
+                'data': data,
+                'total_amount': bills.total_amount,
+            }
+        )._render_qweb_pdf(
+            'business_company.final_report_pdf',
+            res_ids=bills.ids
+        )
+
+        # Файлыг ir.attachment болгон хадгалах
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': f'invoice_{acc_number}.pdf',
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content).decode('utf-8'),
+            'res_model': 'billing.read',
+            'res_id': bills.id,
+            'mimetype': 'application/pdf',
+            'public': True,
+        })
+
+        return attachment
 
