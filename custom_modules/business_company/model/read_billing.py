@@ -911,10 +911,7 @@ class ReadBilling(models.Model):
         )
         agent_user_id = agent.id
 
-        mailing_list = MailingList.search(
-            [("name", "=", "Billing Customers Group")],
-            limit=1,
-        )
+        mailing_list = MailingList.search([("name", "=", "Billing Customers Group")],limit=1)
         if not mailing_list:
             mailing_list = MailingList.create({
                 "name": "Billing Customers Group",
@@ -1024,8 +1021,8 @@ class ReadBilling(models.Model):
                         "attachment_ids": [
                             (4, attachment.id)
                         ],
-                        'email_from': config.get_param("default.mail.from"),
-                        'reply_to': config.get_param('default.mail.reply_to')
+                        'email_from': config.get_param("main.mail"),
+                        'reply_to': config.get_param('main.mail')
                     })
 
                     mailing.action_put_in_queue()
