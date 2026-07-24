@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-<record id="view_billing_read_list" model="ir.ui.view">
+    <record id="view_billing_read_list" model="ir.ui.view">
         <field name="name">billing.read.list</field>
         <field name="model">billing.read</field>
         <field name="arch" type="xml">
@@ -11,7 +11,7 @@
                 <field name="period_end"/>
                 <field name="total_amount"/>
                 <field name="state"/>
-                <button string="export pdf" name="click_btn" type="object" class="btn-primary"/>
+                <button string="export pdf" name="action_test_email_campaign_bills" type="object" class="btn-primary"/>
             </list>
         </field>
     </record>
