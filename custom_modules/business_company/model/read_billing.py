@@ -898,6 +898,7 @@ class ReadBilling(models.Model):
         return attachment
 
     def _email_campaign_bills(self, limit=None):
+        config = self.env["ir.config_parameter"].sudo()
         MailingList = self.env["mailing.list"].sudo()
         MailingContact = self.env["mailing.contact"].sudo()
         MailingMailing = self.env["mailing.mailing"].sudo()
@@ -1026,6 +1027,7 @@ class ReadBilling(models.Model):
                         "attachment_ids": [
                             (4, attachment.id)
                         ],
+                        'email_from': config.get_param("default.mail.from"),
                     })
 
                     mailing.action_put_in_queue()
