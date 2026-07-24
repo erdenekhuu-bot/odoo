@@ -931,9 +931,7 @@ class ReadBilling(models.Model):
         for billing_rec in billing_reads:
             try:
                 with self.env.cr.savepoint():
-                    acc_number = (
-                            billing_rec.acc_number or ""
-                    ).strip()
+                    acc_number = (billing_rec.acc_number or "").strip()
 
                     if not acc_number:
                         skipped_count += 1
@@ -957,7 +955,6 @@ class ReadBilling(models.Model):
                         continue
 
                     email = (group.name or "").strip().lower()
-                    print(email)
                     if not email or "@" not in email:
                         skipped_count += 1
 
@@ -1028,6 +1025,7 @@ class ReadBilling(models.Model):
                             (4, attachment.id)
                         ],
                         'email_from': config.get_param("default.mail.from"),
+                        'reply_to': config.get_param('default.mail.reply_to')
                     })
 
                     mailing.action_put_in_queue()
