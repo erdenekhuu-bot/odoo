@@ -30,10 +30,8 @@ class ReadAccount(models.Model):
     @api.model
     def sync_billing_account(self):
         connection = None
-
         try:
             connection = self._get_connection()
-
             with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute("""
                     SELECT 
