@@ -5,6 +5,9 @@ from odoo.exceptions import UserError
 import base64
 from datetime import date,datetime
 from odoo.tools import file_open
+import logging
+
+_logger = logging.getLogger(__name__)
 
 selected_types = [
             'LOCAL_CALL',
@@ -59,7 +62,6 @@ class ReadBilling(models.Model):
     other_call_limit = fields.Char(string='Other Call Limit')
     all_call_limit = fields.Char(string='All Call Limit')
     bill_items = fields.Json(string='Bill Items')
-    state=fields.Char(string='State')
     email_title=fields.Char(string='Email Title',default="")
 
     def _get_connection(self):

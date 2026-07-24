@@ -5,8 +5,12 @@
         <field name="model">billing.read</field>
         <field name="arch" type="xml">
             <list string="Billing Synchronization">
+                <field name="acc_number"/>
                 <field name="bill_id"/>
                 <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="total_amount"/>
+                <field name="state"/>
                 <button string="export pdf" name="click_btn" type="object" class="btn-primary"/>
             </list>
         </field>
