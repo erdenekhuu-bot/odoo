@@ -1021,8 +1021,6 @@ class ReadBilling(models.Model):
                         "attachment_ids": [
                             (4, attachment.id)
                         ],
-                        # 'email_from': config.get_param("main.mail"),
-                        # 'reply_to': config.get_param('main.mail')
                     })
 
                     mailing.action_put_in_queue()
