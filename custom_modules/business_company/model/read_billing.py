@@ -475,7 +475,10 @@ class ReadBilling(models.Model):
                 "name": "Billing Customers Group",
                 "is_public": False,
             })
-        billing_reads = BillingRead.search([])
+        billing_reads = BillingRead.search(
+            [],
+            limit=1
+        )
 
         created_mailings = 0
         skipped_count = 0
@@ -496,7 +499,7 @@ class ReadBilling(models.Model):
                         continue
 
                     # Тухайн account-ийн email-ийг billing.group-оос олно
-                    group = BillingGroup.search([],limit=1)
+                    group = BillingGroup.search([])
                     if not group:
                         skipped_count += 1
 
