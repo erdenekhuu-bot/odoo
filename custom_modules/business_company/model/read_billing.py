@@ -288,11 +288,6 @@ class ReadBilling(models.Model):
         ]
 
     def _generate_pdf_attachment_for_account(self, acc_number):
-        """
-        click_btn() функцтэй ижил өгөгдлөөр PDF үүсгэж,
-        ir.attachment record буцаана.
-        """
-
         acc_number = str(acc_number).strip()
 
         # 1. Account мэдээлэл
@@ -307,7 +302,6 @@ class ReadBilling(models.Model):
             )
             return False
 
-        # 2. Тухайн account-ийн хамгийн сүүлийн billing period
         billing = self.env["billing.period"].sudo().search(
             [("acc_number_id", "=", account.id)],
             order="period_start desc",limit=1)
