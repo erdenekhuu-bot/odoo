@@ -565,7 +565,7 @@ class ReadBilling(models.Model):
                         ),
                         "body_html": (
                             f"<p><b>{config.get_param("mail.subject")}</b></p>"
-                            f"<p>Таны {acc_number} дараа төлбөрт дугаарын {year} оны {month}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна"
+                            f"<p>Таны {acc_number} дараа төлбөрт дугаарын {year} оны {month}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна "
                             "нэхэмжлэл хавсралтаар очиж байна.</p>"
                         ),
                         "mailing_type": "mail",
