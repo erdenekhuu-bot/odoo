@@ -752,9 +752,7 @@ class ReadBilling(models.Model):
         # 2. Тухайн account-ийн хамгийн сүүлийн billing period
         billing = self.env["billing.period"].sudo().search(
             [("acc_number_id", "=", account.id)],
-            order="period_start desc",
-            limit=1,
-        )
+            order="period_start desc",limit=1)
 
         if not billing:
             _logger.warning(
@@ -1052,6 +1050,32 @@ class ReadBilling(models.Model):
     def action_test_email_campaign_bills(self):
         created, skipped = self._email_campaign_bills(limit=1)
 
+        if created:
+            message = (
+                f"{created} mailing амжилттай үүсэж queue-д орлоо."
+            )
+            notification_type = "success"
+        else:
+            message = (
+                f"Mailing үүссэнгүй. Алгассан: {skipped}. "
+                "Odoo log-ийг шалгана уу."
+            )
+            notification_type = "warning"
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Billing mailing test",
+                "message": message,
+                "type": notification_type,
+                "sticky": True,
+            },
+        }
+
+
+    def initiate_action_campaign_bills(self):
+        created, skipped = self._email_campaign_bills()
         if created:
             message = (
                 f"{created} mailing амжилттай үүсэж queue-д орлоо."

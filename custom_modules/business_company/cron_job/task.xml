@@ -32,7 +32,7 @@
             <field name="name">Initiate (Billing to email campaign)</field>
             <field name="model_id" ref="model_billing_read"/>
             <field name="state">code</field>
-            <field name="code">model.email_campaign_bills()</field>
+            <field name="code">model.initiate_action_campaign_bills()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">months</field>
             <field name="active">False</field>
