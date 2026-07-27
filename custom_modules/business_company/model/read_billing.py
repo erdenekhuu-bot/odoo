@@ -475,7 +475,7 @@ class ReadBilling(models.Model):
             })
         billing_reads = BillingRead.search(
             [],
-            limit=5
+            limit=1
         )
 
         created_mailings = 0
