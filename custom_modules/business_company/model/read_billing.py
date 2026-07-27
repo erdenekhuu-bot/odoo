@@ -499,7 +499,9 @@ class ReadBilling(models.Model):
                         continue
 
                     # Тухайн account-ийн email-ийг billing.group-оос олно
-                    group = BillingGroup.search([],limit=1)
+                    group = BillingGroup.search([
+                        ("acc_number", "=", acc_number),
+                    ])
                     if not group:
                         skipped_count += 1
 
