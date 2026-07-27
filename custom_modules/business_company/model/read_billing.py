@@ -326,7 +326,7 @@ class ReadBilling(models.Model):
         bills = self.sudo().search(
             [
                 ("acc_number", "=", acc_number),
-                ("period_start", "=", current_period_start),
+                # ("period_start", "=", current_period_start),
             ],
             limit=1,
         )
@@ -499,7 +499,7 @@ class ReadBilling(models.Model):
                         continue
 
                     # Тухайн account-ийн email-ийг billing.group-оос олно
-                    group = BillingGroup.search([])
+                    group = BillingGroup.search([],limit=1)
                     if not group:
                         skipped_count += 1
 
