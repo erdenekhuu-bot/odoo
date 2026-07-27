@@ -211,6 +211,7 @@
                         ТУХАЙН САРЫН ТӨЛБӨР:
                       </td>
                     </tr>
+
                   </table>
 
                 <t t-set="total_amount"
@@ -305,10 +306,12 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 12px;
+                       font-size: 13px;
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 13%; width: 60%; font-weight: bold">НИЙТ ТӨЛБӨР</td>
+                      <td style="padding: 4px 13%; width: 60%; font-weight: bold">
+                          НИЙТ ТӨЛБӨР</td>
                       <td
                         style="
                           padding: 4px 15px;
