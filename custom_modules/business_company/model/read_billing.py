@@ -485,6 +485,11 @@ class ReadBilling(models.Model):
             try:
                 with self.env.cr.savepoint():
                     acc_number = (billing_rec.acc_number or "").strip()
+                    period_start = fields.Date.to_date(
+                        billing_rec.period_start
+                    )
+                    year = period_start.year
+                    month = period_start.month
 
                     if not acc_number:
                         skipped_count += 1
@@ -560,7 +565,7 @@ class ReadBilling(models.Model):
                         ),
                         "body_html": (
                             f"<p><b>{config.get_param("mail.subject")}</b></p>"
-                            f"<p>Таны {acc_number} дараа төлбөрт дугаарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна"
+                            f"<p>Таны {acc_number} дараа төлбөрт дугаарын {year} оны {month}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна"
                             "нэхэмжлэл хавсралтаар очиж байна.</p>"
                         ),
                         "mailing_type": "mail",
