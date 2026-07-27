@@ -319,12 +319,13 @@ class ReadBilling(models.Model):
                 account.id,
             )
             return False
-
+        today = fields.Date.context_today(self)
+        current_period_start = today.replace(day=1).strftime("%Y-%m-%d")
         # 3. Billing read record
         bills = self.sudo().search(
             [
                 ("acc_number", "=", acc_number),
-                ("period_start", "=", billing.period_start),
+                ("period_start", "=", current_period_start),
             ],
             limit=1,
         )
