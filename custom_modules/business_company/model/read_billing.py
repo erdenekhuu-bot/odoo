@@ -485,12 +485,8 @@ class ReadBilling(models.Model):
             try:
                 with self.env.cr.savepoint():
                     acc_number = (billing_rec.acc_number or "").strip()
-                    period_start = fields.Date.to_date(
-                        billing_rec.period_start
-                    )
-                    year = period_start.year
-                    month = period_start.month
-                    print(year,month,billing_rec)
+                    year = billing_rec.period_start[:4]
+                    month =billing_rec.period_start[5:7]
 
                     if not acc_number:
                         skipped_count += 1
