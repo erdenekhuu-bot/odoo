@@ -28,4 +28,23 @@
              sequence="10"
              action="action_billing_read_window"
      />
+
+     <record id="action_single_bill_mailings" model="ir.actions.act_window">
+        <field name="name">Single Bill</field>
+        <field name="res_model">mailing.mailing</field>
+        <field name="view_mode">list,form</field>
+
+        <field
+            name="view_id"
+            ref="mass_mailing.view_mail_mass_mailing_tree"
+        />
+
+        <field name="domain">
+            [
+                ('user_id.login', '=', 'bot@gmobile.mn')
+            ]
+        </field>
+    </record>
+    <menuitem id="email_custom_filter_billing" name="Single Bill" parent="mass_mailing.mass_mailing_menu_root" sequence="101" action="action_single_bill_mailings"/>
+
 </odoo>
