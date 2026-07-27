@@ -490,6 +490,7 @@ class ReadBilling(models.Model):
                     )
                     year = period_start.year
                     month = period_start.month
+                    print(year,month,billing_rec)
 
                     if not acc_number:
                         skipped_count += 1
