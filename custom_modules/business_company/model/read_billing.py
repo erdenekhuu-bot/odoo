@@ -475,7 +475,7 @@ class ReadBilling(models.Model):
                 "name": "Billing Customers Group",
                 "is_public": False,
             })
-        billing_reads = BillingRead.search(['period_start','=','2026-06-01'],limit=1)
+        billing_reads = BillingRead.search([('period_start','=','2026-06-01')],limit=5)
 
         created_mailings = 0
         skipped_count = 0
