@@ -328,7 +328,7 @@ class ReadBilling(models.Model):
                 ("acc_number", "=", acc_number),
                 ("period_start", "=", current_period_start),
             ],
-            # limit=1,
+            limit=10,
         )
 
         if not bills:
@@ -526,7 +526,7 @@ class ReadBilling(models.Model):
 
                     contact = MailingContact.search(
                         [("email", "=ilike", email)],
-                        limit=1,
+                        limit=10,
                     )
 
                     if not contact:
