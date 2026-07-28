@@ -10,7 +10,6 @@
                 <field name="period_start"/>
                 <field name="period_end"/>
                 <field name="total_amount"/>
-                <field name="state"/>
                 <button string="export pdf" name="click_btn" type="object" class="btn-primary"/>
             </list>
         </field>
