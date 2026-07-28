@@ -637,7 +637,6 @@ class ReadBilling(models.Model):
 
         try:
             connection = self._get_connection()
-
             QUERY = """
                 SELECT
                     an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
