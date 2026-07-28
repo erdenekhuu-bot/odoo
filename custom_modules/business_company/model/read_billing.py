@@ -45,7 +45,6 @@ class ReadBilling(models.Model):
     bill_id = fields.Char(string='Bill ID', required=True, index=True)
     period_start = fields.Char(string='Period Start', required=True)
     period_end = fields.Char(string='Period End')
-    state = fields.Char(string='State')
     total_amount = fields.Float(string='Total Amount')
     package_name = fields.Char(string='Package Name')
     data_limit = fields.Char(string='Data Limit')
@@ -56,6 +55,11 @@ class ReadBilling(models.Model):
     all_call_limit = fields.Char(string='All Call Limit')
     bill_items = fields.Json(string='Bill Items')
     email_title = fields.Char(string='Email Title', default="")
+
+    _sql_constraints = [
+        ('acc_bill_uniq', 'unique(acc_number, bill_id)',
+         'A billing record already exists for this account and bill ID.'),
+    ]
 
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
@@ -72,8 +76,6 @@ class ReadBilling(models.Model):
         conn.commit()
         return conn
 
-    #old
-    @api.model
     def sync_billing_read(self):
         accounts = self.env['billing.read.account'].sudo().search([('acc_number', '!=', False)])
         periods = self.env['billing.period'].sudo().search([('period_start', '!=', False)])
@@ -92,100 +94,35 @@ class ReadBilling(models.Model):
                 },
             }
 
-        # sql_query = """
-        #     SELECT
-        #         an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-        #         b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
-        #         p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-        #         p.own_network_limit, p.other_call_limit, p.all_call_limit,
-        #         json_agg(
-        #             json_build_object(
-        #                 'item_group_type', bi.item_group_type,
-        #                 'item_type', bi.item_type,
-        #                 'limit', bi.limit,
-        #                 'amount', bi.amount,
-        #                 'charge', bi.charge,
-        #                 'description', bi.description
-        #             )
-        #             ORDER BY bi.item_group_type, bi.item_type
-        #         ) AS bill_items
-        #     FROM acc_number an
-        #     JOIN bill b ON b.acc_number_id = an.id
-        #     JOIN bill_item bi ON bi.bill_id = b.id
-        #     JOIN packages p ON an.acc_number::text = p.acc_number::text
-        #     WHERE an.acc_number::text IN %s
-        #       AND b.period_start::text IN %s
-        #     GROUP BY
-        #         an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-        #         b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
-        #         p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-        #         p.own_network_limit, p.other_call_limit, p.all_call_limit;
-        # """
-
-        sql_query="""
+        sql_query = """
             SELECT
-        an.subs_id,
-        an.acct_id,
-        an.acc_number,
-        an.cust_name,
-        an.email,
-        b.bill_id,
-        b.period_start,
-        b.period_end,
-        b.state,
-        b.total_amount,
-        p.package_name,
-        p.data_limit,
-        p.data_nemelt,
-        p.sms_limit,
-        p.own_network_limit,
-        p.other_call_limit,
-        p.all_call_limit,
-        (
-            SELECT json_agg(
-                json_build_object(
-                    'item_group_type', bi.item_group_type,
-                    'item_type', bi.item_type,
-                    'limit', bi.limit,
-                    'amount', bi.amount,
-                    'charge', bi.charge,
-                    'description', bi.description
-                )
-                ORDER BY bi.item_group_type, bi.item_type
-            )
-            FROM bill_item bi
-            WHERE bi.bill_id = b.id
-        ) AS bill_items
-    FROM acc_number an
-    LEFT JOIN LATERAL (
-        SELECT 
-            id AS bill_id, 
-            period_start, 
-            period_end, 
-            state, 
-            total_amount, 
-            id
-        FROM bill
-        WHERE acc_number_id = an.id
-          AND period_start = CAST(%s AS DATE)
-          AND period_start::text IN %s
-        LIMIT 1
-    ) b ON TRUE
-    LEFT JOIN LATERAL (
-        SELECT 
-            package_name,
-            data_limit,
-            data_nemelt,
-            sms_limit,
-            own_network_limit,
-            other_call_limit,
-            all_call_limit
-        FROM packages
-        WHERE acc_number = an.acc_number
-        LIMIT 1
-    ) p ON TRUE
-    WHERE an.acc_number::text IN %s
-         """
+                an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+                b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
+                p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+                p.own_network_limit, p.other_call_limit, p.all_call_limit,
+                json_agg(
+                    json_build_object(
+                        'item_group_type', bi.item_group_type,
+                        'item_type', bi.item_type,
+                        'limit', bi.limit,
+                        'amount', bi.amount,
+                        'charge', bi.charge,
+                        'description', bi.description
+                    )
+                    ORDER BY bi.item_group_type, bi.item_type
+                ) AS bill_items
+            FROM acc_number an
+            JOIN bill b ON b.acc_number_id = an.id
+            JOIN bill_item bi ON bi.bill_id = b.id
+            JOIN packages p ON an.acc_number::text = p.acc_number::text
+            WHERE an.acc_number::text IN %s
+              AND b.period_start::text IN %s
+            GROUP BY
+                an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+                b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
+                p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+                p.own_network_limit, p.other_call_limit, p.all_call_limit;
+        """
 
         connection = None
         try:
@@ -665,32 +602,6 @@ class ReadBilling(models.Model):
 
         return created_mailings, skipped_count
 
-    def action_test_email_campaign_bills(self):
-        created, skipped = self._email_campaign_bills(limit=1)
-
-        if created:
-            message = (
-                f"{created} mailing амжилттай үүсэж queue-д орлоо."
-            )
-            notification_type = "success"
-        else:
-            message = (
-                f"Mailing үүссэнгүй. Алгассан: {skipped}. "
-                "Odoo log-ийг шалгана уу."
-            )
-            notification_type = "warning"
-
-        return {
-            "type": "ir.actions.client",
-            "tag": "display_notification",
-            "params": {
-                "title": "Billing mailing test",
-                "message": message,
-                "type": notification_type,
-                "sticky": True,
-            },
-        }
-
     def initiate_action_campaign_bills(self):
         created, skipped = self._email_campaign_bills()
         if created:
@@ -715,3 +626,141 @@ class ReadBilling(models.Model):
                 "sticky": True,
             },
         }
+
+    @api.model
+    def read_all(self):
+        connection = None
+        synced = 0
+        errors = 0
+        dupes_seen = 0
+        start = time.time()
+
+        try:
+            connection = self._get_connection()
+
+            QUERY = """
+                SELECT
+                    an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+                    b.bill_id, b.period_start, b.period_end, b.total_amount,
+                    p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+                    p.own_network_limit, p.other_call_limit, p.all_call_limit,
+                    json_agg(
+                        json_build_object(
+                            'item_group_type', bi.item_group_type,
+                            'item_type', bi.item_type,
+                            'limit', bi.limit,
+                            'amount', bi.amount,
+                            'charge', bi.charge,
+                            'description', bi.description
+                        )
+                        ORDER BY bi.item_group_type, bi.item_type
+                    ) AS bill_items
+                FROM acc_number an
+                JOIN bill b ON b.acc_number_id = an.id
+                JOIN bill_item bi ON bi.bill_id = b.id
+                JOIN packages p ON an.acc_number = p.acc_number
+                GROUP BY
+                    an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+                    b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
+                    p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+                    p.own_network_limit, p.other_call_limit, p.all_call_limit;
+            """
+
+            cur = connection.cursor("billing_sync_cursor", cursor_factory=psycopg2.extras.RealDictCursor)
+            cur.itersize = 5000
+            cur.execute(QUERY)
+
+            Billing = self.env['billing.read'].sudo()
+
+            self.env.cr.execute("SELECT id, acc_number, bill_id FROM billing_read")
+            existing_map = {(r[1], r[2]): r[0] for r in self.env.cr.fetchall()}
+            _logger.info("Preloaded %d existing keys", len(existing_map))
+
+            to_create = []  # list of vals dicts
+            to_create_keys = []  # parallel list of keys, so we can map created ids back
+            to_update = []
+            BATCH = 2000
+
+            def flush():
+                nonlocal to_create, to_create_keys, to_update, synced
+                if to_create:
+                    created = Billing.create(to_create)
+                    # register newly created ids so later dupes in this run route to update
+                    for key, rec in zip(to_create_keys, created):
+                        existing_map[key] = rec.id
+                    synced += len(to_create)
+                    to_create = []
+                    to_create_keys = []
+                if to_update:
+                    for rec_id, vals in to_update:
+                        try:
+                            Billing.browse(rec_id).write(vals)
+                        except Exception:
+                            _logger.exception("write failed for id=%s", rec_id)
+                    synced += len(to_update)
+                    to_update = []
+                self.env.cr.commit()
+
+            for row in cur:
+                bill_id = row.get("bill_id")
+                acc_number = row.get("acc_number")
+                if not bill_id or not acc_number:
+                    errors += 1
+                    continue
+
+                vals = {
+                    "acc_number": acc_number,
+                    "bill_id": str(bill_id),
+                    "period_start": str(row["period_start"]) if row["period_start"] else False,
+                    "period_end": str(row["period_end"]) if row["period_end"] else False,
+                    "total_amount": row["total_amount"] or 0.0,
+                    "package_name": row["package_name"],
+                    "data_limit": row["data_limit"],
+                    "data_nemelt": row["data_nemelt"],
+                    "sms_limit": row["sms_limit"],
+                    "own_network_limit": row["own_network_limit"],
+                    "other_call_limit": row["other_call_limit"],
+                    "all_call_limit": row["all_call_limit"],
+                    "bill_items": row["bill_items"],
+                }
+
+                key = (acc_number, str(bill_id))
+                existing_id = existing_map.get(key)
+
+                if existing_id == "PENDING":
+                    # already queued in this same batch as a create -> route to update instead
+                    dupes_seen += 1
+                    # find it in to_create and move it to to_update once flushed;
+                    # simplest safe approach: just skip until next flush, then update
+                    to_update.append((None, vals))  # placeholder, resolved after flush
+                elif existing_id:
+                    to_update.append((existing_id, vals))
+                else:
+                    to_create.append(vals)
+                    to_create_keys.append(key)
+                    existing_map[key] = "PENDING"
+
+                if len(to_create) + len(to_update) >= BATCH:
+                    flush()
+                    elapsed = time.time() - start
+                    rate = synced / elapsed if elapsed else 0
+                    _logger.info(
+                        "...%d synced, %d dupes (%.1fs elapsed, %.0f rows/sec)",
+                        synced, dupes_seen, elapsed, rate
+                    )
+
+            flush()
+            cur.close()
+
+        except psycopg2.Error as error:
+            raise UserError(f"PostgreSQL error:\n{str(error)}") from error
+        finally:
+            if connection:
+                connection.close()
+
+        self.env.cr.commit()
+        _logger.info(
+            "Done. %d synced, %d errors, %d dupes seen, %.1fs total",
+            synced, errors, dupes_seen, time.time() - start
+        )
+        return True

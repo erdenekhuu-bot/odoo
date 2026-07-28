@@ -5,7 +5,7 @@
             <field name="name">Sync Billing From External DB</field>
             <field name="model_id" ref="model_billing_read"/>
             <field name="state">code</field>
-            <field name="code">model.sync_billing_read()</field>
+            <field name="code">model.read_all()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="active">False</field>
