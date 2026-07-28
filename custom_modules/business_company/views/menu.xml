@@ -22,7 +22,7 @@
         <field name="target">current</field>
     </record>
 
-     <menuitem
+    <menuitem
              id="sync_billing_users"
              name="Synchronization"
              sequence="10"
@@ -38,7 +38,6 @@
             name="view_id"
             ref="mass_mailing.view_mail_mass_mailing_tree"
         />
-
         <field name="domain">
             [
                 ('user_id.login', '=', 'bot@gmobile.mn')
@@ -46,5 +45,4 @@
         </field>
     </record>
     <menuitem id="email_custom_filter_billing" name="Single Bill" parent="mass_mailing.mass_mailing_menu_root" sequence="101" action="action_single_bill_mailings"/>
-
 </odoo>

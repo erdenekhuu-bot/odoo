@@ -6,6 +6,7 @@ import base64
 from datetime import date, datetime
 from odoo.tools import file_open
 import logging
+import time
 
 _logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class ReadBilling(models.Model):
 
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
-        return psycopg2.connect(
+        conn = psycopg2.connect(
             dbname=config.get_param("second.base"),
             user=config.get_param("second.dbuser"),
             password=config.get_param("second.dbpassword"),
@@ -66,140 +67,350 @@ class ReadBilling(models.Model):
             port=int(config.get_param("second.dbport", 5432)),
             connect_timeout=10,
         )
+        with conn.cursor() as c:
+            c.execute("SET statement_timeout = '300000';")
+        conn.commit()
+        return conn
 
-    @api.model
+    def _get_sync_pairs(self):
+        accounts = self.env['billing.read.account'].search([])
+        valid_acc_numbers = set(accounts.mapped('acc_number'))
+
+        if not valid_acc_numbers:
+            _logger.warning("No accounts found in billing.read.account")
+            return []
+
+        periods = self.env['billing.period'].search([
+            ('acc_number_id', 'in', list(valid_acc_numbers)),
+        ])
+
+        pairs = []
+        seen = set()
+        for p in periods:
+            if not p.acc_number_id or not p.period_start:
+                continue
+            key = (p.acc_number_id, p.period_start)
+            if key in seen:
+                continue
+            seen.add(key)
+            pairs.append(key)
+
+        _logger.info("Found %d (acc_number, period_start) pairs to sync", len(pairs))
+        return pairs
+
+    #new subquery
     def sync_billing_read(self):
-        accounts = self.env['billing.read.account'].sudo().search([('acc_number', '!=', False)])
-        periods = self.env['billing.period'].sudo().search([('period_start', '!=', False)])
-
-        acc_numbers = tuple(set(acc.acc_number for acc in accounts if acc.acc_number))
-        period_starts = tuple(set(p.period_start for p in periods if p.period_start))
-
-        if not acc_numbers or not period_starts:
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Sync Notice",
-                    "message": "billing.read.account эсвэл billing.period дээр шүүх дата олдсонгүй.",
-                    "type": "warning",
-                },
-            }
-
-        sql_query = """
+        query = """
             SELECT
-                an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-                b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
-                p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-                p.own_network_limit, p.other_call_limit, p.all_call_limit,
-                json_agg(
-                    json_build_object(
-                        'item_group_type', bi.item_group_type,
-                        'item_type', bi.item_type,
-                        'limit', bi.limit,
-                        'amount', bi.amount,
-                        'charge', bi.charge,
-                        'description', bi.description
+                an.subs_id,
+                an.acct_id,
+                an.acc_number,
+                an.cust_name,
+                an.email,
+                (
+                    SELECT b.bill_id
+                    FROM bill b
+                    WHERE b.acc_number_id = an.id
+                      AND b.period_start = CAST(%(pstart)s AS DATE)
+                ) AS bill_id,
+                (
+                    SELECT b.period_start
+                    FROM bill b
+                    WHERE b.acc_number_id = an.id
+                      AND b.period_start = CAST(%(pstart)s AS DATE)
+                ) AS period_start,
+                (
+                    SELECT b.period_end
+                    FROM bill b
+                    WHERE b.acc_number_id = an.id
+                      AND b.period_start = CAST(%(pstart)s AS DATE)
+                ) AS period_end,
+                (
+                    SELECT b.state
+                    FROM bill b
+                    WHERE b.acc_number_id = an.id
+                      AND b.period_start = CAST(%(pstart)s AS DATE)
+                ) AS state,
+                (
+                    SELECT b.total_amount
+                    FROM bill b
+                    WHERE b.acc_number_id = an.id
+                      AND b.period_start = CAST(%(pstart)s AS DATE)
+                ) AS total_amount,
+                (
+                    SELECT p.package_name
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS package_name,
+                (
+                    SELECT p.data_limit
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS data_limit,
+                (
+                    SELECT p.data_nemelt
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS data_nemelt,
+                (
+                    SELECT p.sms_limit
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS sms_limit,
+                (
+                    SELECT p.own_network_limit
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS own_network_limit,
+                (
+                    SELECT p.other_call_limit
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS other_call_limit,
+                (
+                    SELECT p.all_call_limit
+                    FROM packages p
+                    WHERE p.acc_number = an.acc_number
+                ) AS all_call_limit,
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'item_group_type', bi.item_group_type,
+                            'item_type', bi.item_type,
+                            'limit', bi.limit,
+                            'amount', bi.amount,
+                            'charge', bi.charge,
+                            'description', bi.description
+                        )
+                        ORDER BY bi.item_group_type, bi.item_type
                     )
-                    ORDER BY bi.item_group_type, bi.item_type
+                    FROM bill_item bi
+                    WHERE bi.bill_id = (
+                        SELECT b.id
+                        FROM bill b
+                        WHERE b.acc_number_id = an.id
+                          AND b.period_start = CAST(%(pstart)s AS DATE)
+                    )
                 ) AS bill_items
             FROM acc_number an
-            JOIN bill b ON b.acc_number_id = an.id
-            JOIN bill_item bi ON bi.bill_id = b.id
-            JOIN packages p ON an.acc_number::text = p.acc_number::text
-            WHERE an.acc_number::text IN %s
-              AND b.period_start::text IN %s
-            GROUP BY
-                an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-                b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
-                p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-                p.own_network_limit, p.other_call_limit, p.all_call_limit;
+            WHERE an.acc_number = %(accnum)s;
         """
 
-        connection = None
+        pairs = self._get_sync_pairs()
+        if not pairs:
+            return []
+
+        conn = self._get_connection()
+        start = time.time()
+        synced = []
+        errors = []
+
         try:
-            connection = self._get_connection()
-            with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-                cursor.execute(sql_query, (acc_numbers, period_starts))
-                existing_records = self.sudo().search([('bill_id', '!=', False)])
-                existing_map = {rec.bill_id: rec for rec in existing_records}
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                for i, (accnum, pstart) in enumerate(pairs, start=1):
 
-                created_count = 0
-                updated_count = 0
-                batch_size = 500
+                    # --- external query ---
+                    try:
+                        cur.execute(query, {"pstart": pstart, "accnum": accnum})
+                        row = cur.fetchone()
+                    except Exception:
+                        _logger.exception("Query failed for %s / %s", accnum, pstart)
+                        conn.rollback()
+                        errors.append((accnum, pstart))
+                        continue
 
-                while True:
-                    rows = cursor.fetchmany(batch_size)
-                    if not rows:
-                        break
+                    if not row or not row.get("bill_id"):
+                        _logger.warning("No bill found for %s / %s", accnum, pstart)
+                        continue
 
-                    to_create_vals = []
+                    vals = {
+                        "acc_number": row["acc_number"],
+                        "bill_id": row["bill_id"],
+                        "period_start": str(row["period_start"]) if row["period_start"] else False,
+                        "period_end": str(row["period_end"]) if row["period_end"] else False,
+                        "state": row["state"],
+                        "total_amount": row["total_amount"] or 0.0,
+                        "package_name": row["package_name"],
+                        "data_limit": row["data_limit"],
+                        "data_nemelt": row["data_nemelt"],
+                        "sms_limit": row["sms_limit"],
+                        "own_network_limit": row["own_network_limit"],
+                        "other_call_limit": row["other_call_limit"],
+                        "all_call_limit": row["all_call_limit"],
+                        "bill_items": row["bill_items"],
+                    }
 
-                    for row in rows:
-                        raw_bill_id = row.get("bill_id")
-                        if raw_bill_id is None or raw_bill_id == "":
-                            continue
+                    # --- Odoo write/create ---
+                    try:
+                        existing = self.search([
+                            ("acc_number", "=", accnum),
+                            ("period_start", "=", vals["period_start"]),
+                        ], limit=1)
 
-                        b_id = str(raw_bill_id)
-
-                        vals = {
-                            "acc_number": str(row["acc_number"]) if row.get("acc_number") is not None else False,
-                            "bill_id": b_id,
-                            "period_start": str(row["period_start"]) if row.get("period_start") is not None else False,
-                            "period_end": str(row["period_end"]) if row.get("period_end") is not None else False,
-                            "state": str(row["state"]) if row.get("state") is not None else False,
-                            "total_amount": float(row["total_amount"]) if row.get("total_amount") is not None else 0.0,
-                            "package_name": str(row["package_name"]) if row.get("package_name") is not None else False,
-                            "data_limit": str(row["data_limit"]) if row.get("data_limit") is not None else False,
-                            "data_nemelt": str(row["data_nemelt"]) if row.get("data_nemelt") is not None else False,
-                            "sms_limit": str(row["sms_limit"]) if row.get("sms_limit") is not None else False,
-                            "own_network_limit": str(row["own_network_limit"]) if row.get("own_network_limit") is not None else False,
-                            "other_call_limit": str(row["other_call_limit"]) if row.get("other_call_limit") is not None else False,
-                            "all_call_limit": str(row["all_call_limit"]) if row.get("all_call_limit") is not None else False,
-                            "bill_items": row.get("bill_items") if row.get("bill_items") is not None else False,
-                        }
-
-                        if b_id in existing_map:
-                            existing_map[b_id].write(vals)
-                            updated_count += 1
+                        if existing:
+                            existing.write(vals)
                         else:
-                            to_create_vals.append(vals)
-                            created_count += 1
+                            existing = self.create(vals)
 
-                    if to_create_vals:
-                        new_recs = self.sudo().create(to_create_vals)
-                        for rec in new_recs:
-                            existing_map[rec.bill_id] = rec
+                        synced.append(existing.id)
+                    except Exception:
+                        _logger.exception("Odoo write failed for %s / %s", accnum, pstart)
+                        errors.append((accnum, pstart))
+                        continue
 
-                    self.env.invalidate_all()
-
-            if created_count == 0 and updated_count == 0:
-                return {
-                    "type": "ir.actions.client",
-                    "tag": "display_notification",
-                    "params": {
-                        "title": "Sync Notice",
-                        "message": "Татах шаардлагатай нэхэмжлэх олдсонгүй.",
-                        "type": "warning",
-                    },
-                }
-
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Sync Completed",
-                    "message": f"Амжилттай дууслаа: {created_count} шинээр үүсч, {updated_count} шинэчлэгдэв.",
-                    "type": "success",
-                },
-            }
-
-        except psycopg2.Error as error:
-            raise UserError(f"PostgreSQL error:\n{str(error)}") from error
-
+                    # --- checkpoint ---
+                    if i % 100 == 0:
+                        self.env.cr.commit()
+                        _logger.info(
+                            "...%d/%d synced (%.1fs elapsed)",
+                            i, len(pairs), time.time() - start
+                        )
         finally:
-            if connection:
-                connection.close()
+            conn.close()
+
+        self.env.cr.commit()
+        _logger.info(
+            "Done. %d synced, %d errors, %.1fs total",
+            len(synced), len(errors), time.time() - start
+        )
+        if errors:
+            _logger.warning("Failed pairs: %s", errors)
+        return synced
+
+    #old
+    # @api.model
+    # def sync_billing_read(self):
+    #     accounts = self.env['billing.read.account'].sudo().search([('acc_number', '!=', False)])
+    #     periods = self.env['billing.period'].sudo().search([('period_start', '!=', False)])
+    #
+    #     acc_numbers = tuple(set(acc.acc_number for acc in accounts if acc.acc_number))
+    #     period_starts = tuple(set(p.period_start for p in periods if p.period_start))
+    #
+    #     if not acc_numbers or not period_starts:
+    #         return {
+    #             "type": "ir.actions.client",
+    #             "tag": "display_notification",
+    #             "params": {
+    #                 "title": "Sync Notice",
+    #                 "message": "billing.read.account эсвэл billing.period дээр шүүх дата олдсонгүй.",
+    #                 "type": "warning",
+    #             },
+    #         }
+    #
+    #     sql_query = """
+    #         SELECT
+    #             an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+    #             b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
+    #             p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+    #             p.own_network_limit, p.other_call_limit, p.all_call_limit,
+    #             json_agg(
+    #                 json_build_object(
+    #                     'item_group_type', bi.item_group_type,
+    #                     'item_type', bi.item_type,
+    #                     'limit', bi.limit,
+    #                     'amount', bi.amount,
+    #                     'charge', bi.charge,
+    #                     'description', bi.description
+    #                 )
+    #                 ORDER BY bi.item_group_type, bi.item_type
+    #             ) AS bill_items
+    #         FROM acc_number an
+    #         JOIN bill b ON b.acc_number_id = an.id
+    #         JOIN bill_item bi ON bi.bill_id = b.id
+    #         JOIN packages p ON an.acc_number::text = p.acc_number::text
+    #         WHERE an.acc_number::text IN %s
+    #           AND b.period_start::text IN %s
+    #         GROUP BY
+    #             an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
+    #             b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
+    #             p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
+    #             p.own_network_limit, p.other_call_limit, p.all_call_limit;
+    #     """
+    #
+    #     connection = None
+    #     try:
+    #         connection = self._get_connection()
+    #         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+    #             cursor.execute(sql_query, (acc_numbers, period_starts))
+    #             existing_records = self.sudo().search([('bill_id', '!=', False)])
+    #             existing_map = {rec.bill_id: rec for rec in existing_records}
+    #
+    #             created_count = 0
+    #             updated_count = 0
+    #             batch_size = 500
+    #
+    #             while True:
+    #                 rows = cursor.fetchmany(batch_size)
+    #                 if not rows:
+    #                     break
+    #
+    #                 to_create_vals = []
+    #
+    #                 for row in rows:
+    #                     raw_bill_id = row.get("bill_id")
+    #                     if raw_bill_id is None or raw_bill_id == "":
+    #                         continue
+    #
+    #                     b_id = str(raw_bill_id)
+    #
+    #                     vals = {
+    #                         "acc_number": str(row["acc_number"]) if row.get("acc_number") is not None else False,
+    #                         "bill_id": b_id,
+    #                         "period_start": str(row["period_start"]) if row.get("period_start") is not None else False,
+    #                         "period_end": str(row["period_end"]) if row.get("period_end") is not None else False,
+    #                         "state": str(row["state"]) if row.get("state") is not None else False,
+    #                         "total_amount": float(row["total_amount"]) if row.get("total_amount") is not None else 0.0,
+    #                         "package_name": str(row["package_name"]) if row.get("package_name") is not None else False,
+    #                         "data_limit": str(row["data_limit"]) if row.get("data_limit") is not None else False,
+    #                         "data_nemelt": str(row["data_nemelt"]) if row.get("data_nemelt") is not None else False,
+    #                         "sms_limit": str(row["sms_limit"]) if row.get("sms_limit") is not None else False,
+    #                         "own_network_limit": str(row["own_network_limit"]) if row.get("own_network_limit") is not None else False,
+    #                         "other_call_limit": str(row["other_call_limit"]) if row.get("other_call_limit") is not None else False,
+    #                         "all_call_limit": str(row["all_call_limit"]) if row.get("all_call_limit") is not None else False,
+    #                         "bill_items": row.get("bill_items") if row.get("bill_items") is not None else False,
+    #                     }
+    #
+    #                     if b_id in existing_map:
+    #                         existing_map[b_id].write(vals)
+    #                         updated_count += 1
+    #                     else:
+    #                         to_create_vals.append(vals)
+    #                         created_count += 1
+    #
+    #                 if to_create_vals:
+    #                     new_recs = self.sudo().create(to_create_vals)
+    #                     for rec in new_recs:
+    #                         existing_map[rec.bill_id] = rec
+    #
+    #                 self.env.invalidate_all()
+    #
+    #         if created_count == 0 and updated_count == 0:
+    #             return {
+    #                 "type": "ir.actions.client",
+    #                 "tag": "display_notification",
+    #                 "params": {
+    #                     "title": "Sync Notice",
+    #                     "message": "Татах шаардлагатай нэхэмжлэх олдсонгүй.",
+    #                     "type": "warning",
+    #                 },
+    #             }
+    #
+            # return {
+            #     "type": "ir.actions.client",
+            #     "tag": "display_notification",
+            #     "params": {
+            #         "title": "Sync Completed",
+            #         "message": f"Амжилттай дууслаа: {created_count} шинээр үүсч, {updated_count} шинэчлэгдэв.",
+            #         "type": "success",
+            #     },
+            # }
+    #
+    #     except psycopg2.Error as error:
+    #         raise UserError(f"PostgreSQL error:\n{str(error)}") from error
+    #
+    #     finally:
+    #         if connection:
+    #             connection.close()
 
     def click_btn(self):
         self.ensure_one()
@@ -619,7 +830,6 @@ class ReadBilling(models.Model):
                 "sticky": True,
             },
         }
-
 
     def initiate_action_campaign_bills(self):
         created, skipped = self._email_campaign_bills()
