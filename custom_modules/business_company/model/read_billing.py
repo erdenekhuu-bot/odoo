@@ -124,112 +124,67 @@ class ReadBilling(models.Model):
 
         sql_query="""
             SELECT
-                an.subs_id,
-                an.acct_id,
-                an.acc_number,
-                an.cust_name,
-                an.email,
-            
-                (
-                    SELECT b.bill_id
-                    FROM bill b
-                    WHERE b.acc_number_id = an.id
-                      AND b.period_start = CAST(:pstart AS DATE)
-                ) AS bill_id,
-            
-                (
-                    SELECT b.period_start
-                    FROM bill b
-                    WHERE b.acc_number_id = an.id
-                      AND b.period_start = CAST(:pstart AS DATE)
-                ) AS period_start,
-            
-                (
-                    SELECT b.period_end
-                    FROM bill b
-                    WHERE b.acc_number_id = an.id
-                      AND b.period_start = CAST(:pstart AS DATE)
-                ) AS period_end,
-            
-                (
-                    SELECT b.state
-                    FROM bill b
-                    WHERE b.acc_number_id = an.id
-                      AND b.period_start = CAST(:pstart AS DATE)
-                ) AS state,
-            
-                (
-                    SELECT b.total_amount
-                    FROM bill b
-                    WHERE b.acc_number_id = an.id
-                      AND b.period_start = CAST(:pstart AS DATE)
-                ) AS total_amount,
-            
-                (
-                    SELECT p.package_name
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS package_name,
-            
-                (
-                    SELECT p.data_limit
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS data_limit,
-            
-                (
-                    SELECT p.data_nemelt
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS data_nemelt,
-            
-                (
-                    SELECT p.sms_limit
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS sms_limit,
-            
-                (
-                    SELECT p.own_network_limit
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS own_network_limit,
-            
-                (
-                    SELECT p.other_call_limit
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS other_call_limit,
-            
-                (
-                    SELECT p.all_call_limit
-                    FROM packages p
-                    WHERE p.acc_number = an.acc_number
-                ) AS all_call_limit,
-            
-                (
-                    SELECT json_agg(
-                        json_build_object(
-                            'item_group_type', bi.item_group_type,
-                            'item_type', bi.item_type,
-                            'limit', bi.limit,
-                            'amount', bi.amount,
-                            'charge', bi.charge,
-                            'description', bi.description
-                        )
-                        ORDER BY bi.item_group_type, bi.item_type
-                    )
-                    FROM bill_item bi
-                    WHERE bi.bill_id = (
-                        SELECT b.id
-                        FROM bill b
-                        WHERE b.acc_number_id = an.id
-                          AND b.period_start::text IN %s
-                    )
-                ) AS bill_items
-            
-            FROM acc_number an
-            WHERE an.acc_number::text IN %s
+        an.subs_id,
+        an.acct_id,
+        an.acc_number,
+        an.cust_name,
+        an.email,
+        b.bill_id,
+        b.period_start,
+        b.period_end,
+        b.state,
+        b.total_amount,
+        p.package_name,
+        p.data_limit,
+        p.data_nemelt,
+        p.sms_limit,
+        p.own_network_limit,
+        p.other_call_limit,
+        p.all_call_limit,
+        (
+            SELECT json_agg(
+                json_build_object(
+                    'item_group_type', bi.item_group_type,
+                    'item_type', bi.item_type,
+                    'limit', bi.limit,
+                    'amount', bi.amount,
+                    'charge', bi.charge,
+                    'description', bi.description
+                )
+                ORDER BY bi.item_group_type, bi.item_type
+            )
+            FROM bill_item bi
+            WHERE bi.bill_id = b.id
+        ) AS bill_items
+    FROM acc_number an
+    LEFT JOIN LATERAL (
+        SELECT 
+            id AS bill_id, 
+            period_start, 
+            period_end, 
+            state, 
+            total_amount, 
+            id
+        FROM bill
+        WHERE acc_number_id = an.id
+          AND period_start = CAST(%s AS DATE)
+          AND period_start::text IN %s
+        LIMIT 1
+    ) b ON TRUE
+    LEFT JOIN LATERAL (
+        SELECT 
+            package_name,
+            data_limit,
+            data_nemelt,
+            sms_limit,
+            own_network_limit,
+            other_call_limit,
+            all_call_limit
+        FROM packages
+        WHERE acc_number = an.acc_number
+        LIMIT 1
+    ) p ON TRUE
+    WHERE an.acc_number::text IN %s
          """
 
         connection = None
