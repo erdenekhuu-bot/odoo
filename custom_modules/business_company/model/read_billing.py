@@ -300,8 +300,11 @@ class ReadBilling(models.Model):
 
     def _generate_pdf_attachment_for_account(self, acc_number):
         acc_number = str(acc_number).strip()
+        target_year = datetime.today().year
+        target_month = datetime.today().month - 1
+        start_date = f"{target_year}-{target_month:02d}-01"
+        last_day = calendar.monthrange(target_year, target_month)[1]
 
-        # 1. Account мэдээлэл
         account = self.env["billing.read.account"].sudo().search(
             [("acc_number", "=", acc_number)],
             limit=1,
@@ -313,30 +316,12 @@ class ReadBilling(models.Model):
             )
             return False
 
-        billing = self.env["billing.period"].sudo().search(
-            [("acc_number_id", "=", account.id)],
-            order="period_start desc",limit=1)
+        billing = self.env['billing.read'].search([
+            ('acc_number', '=', acc_number),
+            ('period_start', '=', start_date),
+        ], limit=1)
 
         if not billing:
-            _logger.warning(
-                "billing.period олдсонгүй: acc_number=%s account_id=%s",
-                acc_number,
-                account.id,
-            )
-            return False
-        today = fields.Date.context_today(self)
-        #current_period_start = today.replace(day=1).strftime("%Y-%m-%d")
-        current_period_start = "2026-06-01"
-        # 3. Billing read record
-        bills = self.sudo().search(
-            [
-                ("acc_number", "=", acc_number),
-                # ("period_start", "=", current_period_start),
-            ],
-            limit=1,
-        )
-
-        if not bills:
             _logger.warning(
                 "billing.read олдсонгүй: acc_number=%s period_start=%s",
                 acc_number,
@@ -344,34 +329,32 @@ class ReadBilling(models.Model):
             )
             return False
 
-        # 4. Report data
         head_data = self.generate_head_data(
             [
-                bills.own_network_limit,
-                bills.other_call_limit,
-                bills.all_call_limit,
-                bills.data_limit,
-                bills.sms_limit,
+                billing.own_network_limit,
+                billing.other_call_limit,
+                billing.all_call_limit,
+                billing.data_limit,
+                billing.sms_limit,
             ],
             tagged_types,
         )
-
         data = self.filter_items(
-            bills.bill_items or [],
+            billing.bill_items or [],
             selected_types,
             new_label,
         )
 
         try:
             date_obj = datetime.strptime(
-                bills.period_start,
+                billing.period_start,
                 "%Y-%m-%d",
             )
         except (ValueError, TypeError):
             _logger.exception(
                 "period_start формат буруу: billing_read_id=%s value=%s",
-                bills.id,
-                bills.period_start,
+                billing.id,
+                billing.period_start,
             )
             return False
 
@@ -407,7 +390,7 @@ class ReadBilling(models.Model):
             "period_end": billing.period_end.replace("-", "/"),
             "head_data": head_data,
             "data": data,
-            "total_amount": bills.total_amount,
+            "total_amount": billing.total_amount,
         }
 
         try:
@@ -417,7 +400,7 @@ class ReadBilling(models.Model):
                 .with_context(**context_data)
                 ._render_qweb_pdf(
                     "business_company.final_report_pdf",
-                    res_ids=[bills.id],
+                    res_ids=[billing.id],
                 )
             )
         except Exception:
@@ -425,7 +408,7 @@ class ReadBilling(models.Model):
                 "PDF render хийхэд алдаа гарлаа: "
                 "acc_number=%s billing_read_id=%s",
                 acc_number,
-                bills.id,
+                billing.id,
             )
             return False
 
@@ -445,7 +428,7 @@ class ReadBilling(models.Model):
             "type": "binary",
             "datas": base64.b64encode(pdf_content).decode("utf-8"),
             "res_model": "billing.read",
-            "res_id": bills.id,
+            "res_id": billing.id,
             "mimetype": "application/pdf",
             "public": False,
         })
@@ -468,6 +451,11 @@ class ReadBilling(models.Model):
         BillingGroup = self.env["billing.group"].sudo()
         BillingRead = self.env["billing.read"].sudo()
 
+        target_year = datetime.today().year
+        target_month = datetime.today().month - 1
+        start_date = f"{target_year}-{target_month:02d}-01"
+        last_day = calendar.monthrange(target_year, target_month)[1]
+
         agent = self.env["res.users"].sudo().search(
             [("login", "=", "bot@gmobile.mn")],
             limit=1,
@@ -480,8 +468,8 @@ class ReadBilling(models.Model):
                 "name": "Billing Customers Group",
                 "is_public": False,
             })
-        billing_reads = BillingRead.search([('period_start','=','2026-06-01')],limit=1)
 
+        billing_reads = BillingRead.search([('period_start','=',start_date)],limit=10)
         created_mailings = 0
         skipped_count = 0
 
@@ -500,7 +488,6 @@ class ReadBilling(models.Model):
                         )
                         continue
 
-                    # Тухайн account-ийн email-ийг billing.group-оос олно
                     group = BillingGroup.search([],limit=1)
                     if not group:
                         skipped_count += 1
