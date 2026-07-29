@@ -303,12 +303,8 @@ class ReadBilling(models.Model):
         target_year = datetime.today().year
         target_month = datetime.today().month - 1
         start_date = f"{target_year}-{target_month:02d}-01"
-        last_day = calendar.monthrange(target_year, target_month)[1]
 
-        account = self.env["billing.read.account"].sudo().search(
-            [("acc_number", "=", acc_number)],
-            limit=1,
-        )
+        account = self.env["billing.read.account"].sudo().search([("acc_number", "=", acc_number)],limit=1)
         if not account:
             _logger.warning(
                 "billing.read.account олдсонгүй: acc_number=%s",
@@ -339,25 +335,8 @@ class ReadBilling(models.Model):
             ],
             tagged_types,
         )
-        data = self.filter_items(
-            billing.bill_items or [],
-            selected_types,
-            new_label,
-        )
-
-        try:
-            date_obj = datetime.strptime(
-                billing.period_start,
-                "%Y-%m-%d",
-            )
-        except (ValueError, TypeError):
-            _logger.exception(
-                "period_start формат буруу: billing_read_id=%s value=%s",
-                billing.id,
-                billing.period_start,
-            )
-            return False
-
+        data = self.filter_items(billing.bill_items or [],selected_types,new_label)
+        date_obj = datetime.strptime(billing.period_start,"%Y-%m-%d")
         year = date_obj.year
         month = date_obj.month
 
@@ -412,13 +391,6 @@ class ReadBilling(models.Model):
             )
             return False
 
-        if not pdf_content:
-            _logger.error(
-                "PDF content хоосон байна: acc_number=%s",
-                acc_number,
-            )
-            return False
-
         # 5. Attachment үүсгэх
         attachment = self.env["ir.attachment"].sudo().create({
             "name": (
@@ -440,7 +412,6 @@ class ReadBilling(models.Model):
             acc_number,
             len(pdf_content),
         )
-
         return attachment
 
     def _email_campaign_bills(self, limit=None):
@@ -454,12 +425,8 @@ class ReadBilling(models.Model):
         target_year = datetime.today().year
         target_month = datetime.today().month - 1
         start_date = f"{target_year}-{target_month:02d}-01"
-        last_day = calendar.monthrange(target_year, target_month)[1]
 
-        agent = self.env["res.users"].sudo().search(
-            [("login", "=", "bot@gmobile.mn")],
-            limit=1,
-        )
+        agent = self.env["res.users"].sudo().search([("login", "=", "bot@gmobile.mn")],limit=1)
         agent_user_id = agent.id
 
         mailing_list = MailingList.search([("name", "=", "Billing Customers Group")],limit=1)
@@ -491,7 +458,6 @@ class ReadBilling(models.Model):
                     group = BillingGroup.search([],limit=1)
                     if not group:
                         skipped_count += 1
-
                         _logger.warning(
                             "billing.group олдсонгүй: "
                             "billing_read_id=%s, acc_number=%s",
@@ -538,7 +504,6 @@ class ReadBilling(models.Model):
 
                     if not attachment:
                         skipped_count += 1
-
                         _logger.warning(
                             "PDF attachment үүссэнгүй: "
                             "billing_read_id=%s, acc_number=%s",
@@ -567,9 +532,7 @@ class ReadBilling(models.Model):
                     })
 
                     mailing.action_put_in_queue()
-
                     created_mailings += 1
-
                     _logger.info(
                         "Mailing үүслээ: "
                         "mailing_id=%s, billing_read_id=%s, "
@@ -582,7 +545,6 @@ class ReadBilling(models.Model):
 
             except Exception:
                 skipped_count += 1
-
                 _logger.exception(
                     "Mailing боловсруулахад алдаа гарлаа: "
                     "billing_read_id=%s, acc_number=%s",
