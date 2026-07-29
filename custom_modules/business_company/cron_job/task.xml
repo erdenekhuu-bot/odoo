@@ -8,7 +8,7 @@
             <field name="code">model.read_all()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="nextcall">2026-07-28 18:30:00</field>
+            <field name="nextcall">2026-07-30 18:30:00</field>
             <field name="active" eval="True"/>
         </record>
         <record id="ir_cron_read_account" model="ir.cron">

@@ -53,7 +53,7 @@
                       margin: 0 auto 12px auto;
                       border-collapse: collapse;
                       border-spacing: 0 14px;
-                      font-size: 13px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -147,7 +147,7 @@
                       width: 64%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 13px;
+                      font-size: 14px;
 
                     "
                   >
@@ -203,7 +203,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 13px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -228,7 +228,7 @@
                       width: 64%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 13px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -262,7 +262,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 13px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -306,7 +306,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 12px;
-                       font-size: 13px;
+                       font-size: 14px;
                     "
                   >
                     <tr>
@@ -400,7 +400,7 @@
                           width: 50%;
                           margin: 0 auto;
                           border-collapse: collapse;
-                          font-size: 13px;
+                          font-size: 14px;
                         "
                       >
                         <tr>
@@ -453,7 +453,7 @@
                       </table>
             </main>
             <table style="margin: 50px;"></table>
-                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 13px;">
+            <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 14px;">
                         <tr>
                             <td style="vertical-align: middle;">
                                 <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>

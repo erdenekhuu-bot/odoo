@@ -7,6 +7,7 @@ from datetime import date, datetime
 from odoo.tools import file_open
 import logging
 import time
+import calendar
 
 _logger = logging.getLogger(__name__)
 
@@ -211,18 +212,20 @@ class ReadBilling(models.Model):
 
     def click_btn(self):
         self.ensure_one()
-        account = self.env['billing.read.account'].search(
-            [('acc_number', '=', self.acc_number)],
-            limit=1
-        )
-        billing = self.env['billing.period'].search([
-            ('acc_number_id', '=', account.id)],
-            limit=1
-        )
-        bills = self.env['billing.read'].search([('acc_number', '=', self.acc_number), ('period_start', '=', billing.period_start)], limit=1)
+        target_year = datetime.today().year
+        target_month = datetime.today().month-1
+        start_date = f"{target_year}-{target_month:02d}-01"
+        last_day = calendar.monthrange(target_year, target_month)[1]
+        end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
+
+        account=self.env['billing.read.account'].search([('acc_number', '=', self.acc_number)],limit=1)
+        bills = self.env['billing.read'].search([
+            ('acc_number', '=', self.acc_number),
+            ('period_start', '=', start_date),
+        ], limit=1)
         head_data = self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types)
         data = self.filter_items(bills.bill_items or [], selected_types, new_label)
-        date_obj = datetime.strptime(self.period_start, '%Y-%m-%d')
+        date_obj = datetime.strptime(start_date, '%Y-%m-%d')
         year = date_obj.year
         month = date_obj.month
         total_amount = bills.total_amount
@@ -236,9 +239,9 @@ class ReadBilling(models.Model):
                 'screen3_b64': self.get_image_base64('static/img/whitescreen3.png'),
                 'datetimes': f"{year} ОНЫ {month}",
                 'profile': account,
-                'date_create': f"{billing.period_start.replace('-', '/')}-{billing.period_end.replace('-', '/')}",
-                'period_start': f"{billing.period_start.replace('-', '/')}",
-                'period_end': f"{billing.period_end.replace('-', '/')}",
+                'date_create': f"{bills.period_start.replace('-', '/')}-{bills.period_end.replace('-', '/')}",
+                'period_start': f"{bills.period_start.replace('-', '/')}",
+                'period_end': f"{bills.period_end.replace('-', '/')}",
                 'head_data': head_data,
                 'data': data,
                 'total_amount': total_amount,
