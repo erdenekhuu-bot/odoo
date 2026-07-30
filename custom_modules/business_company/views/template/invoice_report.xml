@@ -345,7 +345,7 @@
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 15%; width: 59%; font-weight: bold; background-color: yellow;">
+                      <td style="padding: 4px 15%; width: 59%; font-weight: bold;">
                           НИЙТ ТӨЛБӨР</td>
                       <td
                         style="
@@ -353,7 +353,6 @@
                           width: 41%;
                           text-align: center;
                           font-weight: bold;
-                          background-color: pink;
                         "
                       >
                          <span t-out="'{:,.2f}'.format(total_amount)"/>
