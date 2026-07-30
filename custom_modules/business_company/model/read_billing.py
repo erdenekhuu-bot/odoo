@@ -336,7 +336,7 @@ class ReadBilling(models.Model):
             ],
             tagged_types,
         )
-        data = self.filter_items(billing.bill_items or [],selected_types,new_label)
+        data = [i for i in self.filter_items(billing.bill_items or [],selected_types,new_label) if i['amount'] > 0]
         date_obj = datetime.strptime(billing.period_start,"%Y-%m-%d")
         year = date_obj.year
         month = date_obj.month
