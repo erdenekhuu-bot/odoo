@@ -223,7 +223,8 @@ class ReadBilling(models.Model):
             ('acc_number', '=', self.acc_number),
             ('period_start', '=', start_date),
         ], limit=1)
-        head_data = [h for h in self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types) if h['amount'] > 0]
+
+        head_data = self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types)
         data = [i for i in self.filter_items(bills.bill_items or [], selected_types, new_label) if i['amount'] > 0]
         date_obj = datetime.strptime(start_date, '%Y-%m-%d')
         year = date_obj.year

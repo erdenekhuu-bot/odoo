@@ -79,7 +79,7 @@
                     border="0"
                     style="
                       width: 65%;
-                      margin: 0 auto 12px auto;
+                      margin: 12px auto;
                       border-collapse: collapse;
                       border-spacing: 0 14px;
                       font-size: 15px;
@@ -181,27 +181,25 @@
                       font-size: 15px;
                     "
                   >
-                    <t t-if="env.context.get('head_data', [])">
-                        <tr>
-                          <td colspan="2" style="padding: 2px 0; font-weight: bold;  background-color: yellow;">
+                    <tr>
+                          <td colspan="2" style="padding: 2px 0; font-weight: bold;">
                             БАГЦАД ДАГАЛДАХ ЭРХ:
                           </td>
                         </tr>
                         <t t-foreach="env.context.get('head_data', [])" t-as="item">
                             <tr>
-                                <td style="width: 50%; padding: 0 22px;  background-color: orange;">
-                                    <span t-out="item.get('name')"/>
+                                <td style="width: 50%; padding: 0 22px;">
+                                    <span t-out="item.get('name','')"/>
                                 </td>
-                                <td style="width: 25%; padding: 1px 0;  background-color: yellow;">
+                                <td style="width: 25%; padding: 1px 0;">
                                     <span t-out="item.get('description','')"/>
                                 </td>
 
-                                <td style="width: 25%; padding: 0 22px; text-align:end;  background-color: pink;">
-                                    <span t-out="item.get('amount')"/>
+                                <td style="width: 25%; padding: 0 22px; text-align:end;">
+                                    <span t-out="float(item.get('amount',0))"/>
                                 </td>
                             </tr>
                         </t>
-                    </t>
                     <t t-if="env.context.get('data', [])">
                         <tr t-if="len(env.context.get('data', [])) &gt; 0">
                           <td colspan="2" style="padding: 3px 0 2px 0; font-weight: bold">
@@ -240,6 +238,8 @@
                       overflow: hidden;
                       margin-bottom: 5px;
                       font-size: 15px;
+                      margin: 12px auto;
+
                     "
                   >
                     <tr>
@@ -345,7 +345,7 @@
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 15%; width: 59%; font-weight: bold">
+                      <td style="padding: 4px 15%; width: 59%; font-weight: bold; background-color: yellow;">
                           НИЙТ ТӨЛБӨР</td>
                       <td
                         style="
@@ -353,6 +353,7 @@
                           width: 41%;
                           text-align: center;
                           font-weight: bold;
+                          background-color: pink;
                         "
                       >
                          <span t-out="'{:,.2f}'.format(total_amount)"/>

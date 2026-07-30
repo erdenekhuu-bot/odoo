@@ -27,7 +27,6 @@
         </field>
     </record>
 
-
     <record id="action_billing_read_window" model="ir.actions.act_window">
         <field name="name">Төлбөрийн мэдээлэл (Billing)</field>
         <field name="res_model">billing.read</field>
