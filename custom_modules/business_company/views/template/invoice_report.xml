@@ -25,10 +25,39 @@
         <field name="paperformat_id" ref="paperformat_non_margin"/>
     </record>
 
-    <template id="demo_custom_template">
+   <template id="demo_custom_template">
     <t t-call="web.html_container">
         <meta charset="UTF-8" />
-        <div class="page" style="font-family: 'Arial', sans-serif; font-size: 12px; color: #333333; padding: 20px 50px;">
+        <style>
+            @page {
+                size: A4 portrait;
+                margin: 0mm;
+            }
+            body {
+                font-family: 'Arial', sans-serif;
+                font-size: 12px;
+                color: #333333;
+                margin: 0;
+                padding: 0;
+            }
+            .page-container {
+                position: relative;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 20px 50px 100px 50px; /* Bottom padding prevents text overlap with footer */
+            }
+            .footer-fixed {
+                position: fixed;
+                bottom: 15px;
+                left: 50px;
+                right: 50px;
+                width: calc(100% - 100px);
+                background: #ffffff;
+            }
+        </style>
+
+        <div class="page page-container">
+            <!-- Top Header Bar -->
             <table style="width: 100%; border-bottom: 2px solid #f6b500; padding-bottom: 5px; margin-bottom: 5px;">
                <tr>
                     <td style="text-align: left; vertical-align: middle; padding: 2px 0;">
@@ -456,21 +485,24 @@
                         </tr>
                       </table>
             </main>
-            <table style="margin: 40px;"></table>
-            <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 15px;">
-                        <tr>
-                            <td style="vertical-align: middle;">
-                                <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="vertical-align: middle;">
-                                <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">
-                                    Улаанбаатар хот,Сүхбаатар дүүрэг,6-р хороо,НҮБ-ийн гудамж,Бага тойруу-14,МТ байр
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
+
+            <!-- Locked Bottom Footer -->
+            <div class="footer-fixed">
+                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 15px;">
+                    <tr>
+                        <td style="vertical-align: middle;">
+                            <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;">
+                            <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">
+                                Улаанбаатар хот,Сүхбаатар дүүрэг,6-р хороо,НҮБ-ийн гудамж,Бага тойруу-14,МТ байр
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </t>
 </template>
