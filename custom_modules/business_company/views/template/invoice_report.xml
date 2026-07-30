@@ -53,7 +53,7 @@
                       margin: 0 auto 12px auto;
                       border-collapse: collapse;
                       border-spacing: 0 14px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -122,6 +122,7 @@
                           width: 61%;
                           text-align: end;
                           font-weight: bold;
+                          padding: 4px 12px;
                         "
                       >
                         ХЭМЖЭЭ / ХУГАЦАА
@@ -131,6 +132,7 @@
                           width: 39%;
                           text-align: center;
                           font-weight: bold;
+                          padding: 4px 0;
                         "
                       >
                         ДҮН
@@ -144,50 +146,55 @@
                     cellspacing="0"
                     border="0"
                     style="
-                      width: 64%;
+                      width: 70%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 14px;
-
+                      font-size: 15px;
                     "
                   >
-                    <tr>
-                      <td colspan="3" style="padding: 2px 0; font-weight: bold">
-                        БАГЦАД ДАГАЛДАХ ЭРХ:
-                      </td>
-                    </tr>
-                    <t t-foreach="env.context.get('head_data', [])" t-as="item">
+                    <t t-if="env.context.get('head_data', [])">
                         <tr>
-                            <td style="width: 50%; padding: 1px 0 1px 14px;">
-                                <span t-out="item.get('name', '')"/>
-                            </td>
-
-                            <td style="width: 25%; padding: 1px 0;">
-                                <span t-out="item.get('description', '')"/>
-                            </td>
-
-                            <td style="width: 25%;padding: 1px 0; text-align:end;">
-                                <span t-out="item.get('amount', 0) if item.get('amount', '') != 0 else ''"/>
-                            </td>
+                          <td colspan="2" style="padding: 2px 0; font-weight: bold;  background-color: yellow;">
+                            БАГЦАД ДАГАЛДАХ ЭРХ:
+                          </td>
                         </tr>
+                        <t t-foreach="env.context.get('head_data', [])" t-as="item">
+                            <tr>
+                                <td style="width: 50%; padding: 0 22px;  background-color: orange;">
+                                    <span t-out="item.get('name')"/>
+                                </td>
+                                <td style="width: 25%; padding: 1px 0;  background-color: yellow;">
+                                    <span t-out="item.get('description','')"/>
+                                </td>
+
+                                <td style="width: 25%; padding: 0 22px; text-align:end;  background-color: pink;">
+                                    <span t-out="item.get('amount')"/>
+                                </td>
+                            </tr>
+                        </t>
                     </t>
-                    <tr>
-                      <td colspan="3" style="padding: 3px 0 2px 0; font-weight: bold">
-                        НЭМЭЛТ ХЭРЭГЛЭЭ
-                      </td>
-                    </tr>
-                    <t t-foreach="env.context.get('data', [])" t-as="item">
-                        <tr>
-                          <td style="width: 50%; padding: 1px 0 1px 14px">
-                             <span t-out="item.get('item_type', '') if item.get('item_type', '') != 0 else ''"/>
-                          </td>
-                          <td style="width: 25%; padding: 1px 0;">
-                              <span t-out="item.get('limit', '') if item.get('limit', '') != 0 else ''"/>
-                          </td>
-                          <td style="width: 25%; padding: 1px 0; text-align: end">
-                              <span t-out="item.get('amount', 0) if item.get('amount', '') != 0 else ''"/>
+                    <t t-if="env.context.get('data', [])">
+                        <tr t-if="len(env.context.get('data', [])) &gt; 0">
+                          <td colspan="2" style="padding: 3px 0 2px 0; font-weight: bold">
+                            НЭМЭЛТ ХЭРЭГЛЭЭ
                           </td>
                         </tr>
+                        <t t-foreach="env.context.get('data', [])" t-as="item">
+                            <tr>
+                              <td style="width: 50%; padding: 0 22px;">
+                                 <span t-out="item.get('item_type')"/>
+                              </td>
+                              <td style="width: 25%; padding: 1px 0;">
+                                  <span
+                                    t-if="item.get('limit') not in (0, 0.0, '0', '0.0', '', None)"
+                                    t-out="item.get('limit')"
+                                />
+                              </td>
+                              <td style="width: 25%; padding: 0 22px; text-align: end;">
+                                  <span t-out="item.get('amount','')"/>
+                              </td>
+                            </tr>
+                        </t>
                     </t>
                   </table>
 
@@ -203,11 +210,11 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 13%; font-weight: bold">
+                      <td style="padding: 4px 15%; font-weight: bold">
                         ТУХАЙН САРЫН ТӨЛБӨР:
                       </td>
                     </tr>
@@ -216,7 +223,6 @@
 
                 <t t-set="total_amount"
                    t-value="float(docs.env.context.get('total_amount'))"/>
-
                 <t t-set="before_tax" t-value="total_amount / 1.1"/>
                 <t t-set="vat_amount" t-value="total_amount * 0.1"/>
 
@@ -225,27 +231,27 @@
                     cellspacing="0"
                     border="0"
                     style="
-                      width: 64%;
+                      width: 70%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="width: 86%; padding: 1px 0 1px 14px">Татвар тооцоогүй дүн</td>
-                      <td style="padding: 1px 0; text-align: end;">
+                      <td style="width: 80%; padding: 0 22px;">Татвар тооцоогүй дүн</td>
+                      <td style="padding: 1px 20px; text-align: end;">
                           <span t-out="'{:,.2f}'.format(before_tax)"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="width: 86%; padding: 1px 0 1px 14px;">НӨАТ /10%/</td>
-                      <td style="padding: 1px 0; text-align: end;">
+                      <td style="width: 80%; padding: 0 22px;">НӨАТ /10%/</td>
+                      <td style="padding: 1px 20px; text-align: end;">
                           <span t-out="'{:,.2f}'.format(vat_amount)"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="width: 86%; padding: 1px 0 1px 14px; font-weight: bold">Дүн</td>
-                      <td style="padding: 1px 0; text-align: end;">
+                      <td style="width: 80%; padding: 0 22px; font-weight: bold">Дүн</td>
+                      <td style="padding: 1px 20px; text-align: end;">
                            <span t-out="'{:,.2f}'.format(total_amount)"/>
                       </td>
                     </tr>
@@ -262,11 +268,11 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 13%; font-weight: bold">
+                      <td style="padding: 4px 15%; font-weight: bold">
                         ТӨЛБӨР ЗОХИХ ДҮН
                       </td>
                     </tr>
@@ -277,22 +283,22 @@
                     cellspacing="0"
                     border="0"
                     style="
-                      width: 64%;
+                      width: 65.5%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 13px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="width: 86%; padding: 1px 0 1px 14px">Тухайн сарын төлбөр</td>
+                      <td style="width: 80%; ">Тухайн сарын төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
                           <span t-out="'{:,.2f}'.format(total_amount)"/>
                       </td>
                     </tr>
-                    <tr>
-                      <td style="width: 86%; padding: 1px 0 1px 14px">Өмнөх сарын үлдэгдэл төлбөр</td>
-                      <td style="padding: 1px 0; text-align: end;"></td>
-                    </tr>
+<!--                    <tr>-->
+<!--                      <td style="width: 86%; padding: 1px 0 1px 14px">Өмнөх сарын үлдэгдэл төлбөр</td>-->
+<!--                      <td style="padding: 1px 0; text-align: end;"></td>-->
+<!--                    </tr>-->
                   </table>
 
                 <table
@@ -306,17 +312,16 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 12px;
-                       font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 13%; width: 60%; font-weight: bold">
+                      <td style="padding: 4px 15%; width: 59%; font-weight: bold">
                           НИЙТ ТӨЛБӨР</td>
                       <td
                         style="
-                          padding: 4px 15px;
-                          font-size: 13px;
-                          width: 40%;
+                          padding: 4px 0;
+                          width: 41%;
                           text-align: center;
                           font-weight: bold;
                         "
@@ -382,10 +387,9 @@
                           <tr>
                             <td style="text-align: center">
                               <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="170px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')"  style="padding: 4px;" width="150px" alt=""/>
                             </td>
-                            <td style="text-align: center">
-                              <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')" width="150px" alt=""/>
-                            </td>
+
                           </tr>
                         </table>
                       </td>
@@ -400,7 +404,7 @@
                           width: 50%;
                           margin: 0 auto;
                           border-collapse: collapse;
-                          font-size: 14px;
+                          font-size: 15px;
                         "
                       >
                         <tr>
@@ -453,7 +457,7 @@
                       </table>
             </main>
             <table style="margin: 40px;"></table>
-            <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 14px;">
+            <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 15px;">
                         <tr>
                             <td style="vertical-align: middle;">
                                 <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>

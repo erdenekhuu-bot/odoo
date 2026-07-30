@@ -14,6 +14,20 @@
             </list>
         </field>
     </record>
+
+    <record id="search_billing_read" model="ir.ui.view">
+        <field name="name">billing.read.search</field>
+        <field name="model">billing.read</field>
+        <field name="arch" type="xml">
+            <search string="Billing Synchronization Search">
+                <field name="acc_number"/>
+                <field name="bill_id"/>
+                <filter string="Account Number" name="group_by_acc_number" domain="[]" context="{'group_by': 'acc_number'}"/>
+            </search>
+        </field>
+    </record>
+
+
     <record id="action_billing_read_window" model="ir.actions.act_window">
         <field name="name">Төлбөрийн мэдээлэл (Billing)</field>
         <field name="res_model">billing.read</field>
