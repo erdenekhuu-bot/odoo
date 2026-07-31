@@ -3,7 +3,7 @@ from psycopg2.extras import RealDictCursor
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 import base64
-from datetime import date, datetime
+from datetime import datetime
 from odoo.tools import file_open
 import logging
 import time
@@ -225,8 +225,7 @@ class ReadBilling(models.Model):
         ], limit=1)
 
         head_data = self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types)
-        data = [i for i in self.filter_items(bills.bill_items or [], selected_types, new_label) if i['amount'] > 0]
-        # data=self.filter_items(bills.bill_items or [], selected_types, new_label)
+        data = self.filter_items(bills.bill_items or [], selected_types, new_label)
         date_obj = datetime.strptime(start_date, '%Y-%m-%d')
         year = date_obj.year
         month = date_obj.month

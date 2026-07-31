@@ -81,24 +81,24 @@
                       width: 65%;
                       margin: 2px auto;
                       border-collapse: collapse;
-                      border-spacing: 0 14px;
+                      border-spacing: 0 12px;
                       font-size: 15px;
                     "
                   >
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">Нэхэмжлэлийн дугаар:</td>
+                      <td style="padding: 3px 0 1px 0">Нэхэмжлэхийн дугаар:</td>
                       <td style="padding: 3px 0; text-align: right;">
                        <t t-out="env.context.get('profile').subs_id"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">Хамрагдах хугацаа:</td>
+                      <td style="padding: 3px 0 1px 0">Хамрагдах хугацаа:</td>
                       <td style="padding: 3px 0; text-align: right">
                         <t t-out="env.context.get('date_create')"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">
+                      <td style="padding: 3px 0 1px 0">
                         Төлбөрийг нэхэмжлэх хугацаа:
                       </td>
                       <td style="padding: 3px 0; text-align: right">
@@ -106,7 +106,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">
+                      <td style="padding: 3px 0 1px 0">
                         Төлбөр хийх эцсийн хугацаа:
                       </td>
                       <td style="padding: 3px 0; text-align: right">
@@ -114,19 +114,19 @@
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">Хэрэглэгчийн нэр:</td>
+                      <td style="padding: 3px 0 1px 0">Хэрэглэгчийн нэр:</td>
                       <td style="padding: 3px 0; text-align: right;">
                         <t t-out="env.context.get('profile').cust_name"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">Гэрээний дугаар:</td>
+                      <td style="padding: 3px 0 1px 0">Гэрээний дугаар:</td>
                       <td style="padding: 3px 0; text-align: right">
                            <t t-out="env.context.get('profile').acc_id"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 8px 1px 0">Утасны дугаар:</td>
+                      <td style="padding: 3px 0 1px 0">Утасны дугаар:</td>
                       <td style="padding: 3px 0; text-align: right">
                           <t t-out="env.context.get('profile').acc_number"/>
                       </td>
@@ -174,12 +174,7 @@
                     cellpadding="0"
                     cellspacing="0"
                     border="0"
-                    style="
-                      width: 70%;
-                      margin: 8px auto;
-                      border-collapse: collapse;
-                      font-size: 15px;
-                    "
+                    style="width: 70%; margin: 8px auto;border-collapse: collapse;font-size: 15px;"
                   >
                     <tr>
                           <td colspan="2" style="padding: 2px 0; font-weight: bold;">
@@ -432,9 +427,7 @@
                       width: 50%;
                       border-collapse: collapse;
                       font-size: 15px;
-                    "
-                    t-att-style="
-                      'width: 50%; margin: ' + ('2% auto;' if env.context.get('data', []) else '6% auto;') + ' border-collapse: collapse;'
+                      margin: 2% auto;
                     "
                   >
                     <tr>
