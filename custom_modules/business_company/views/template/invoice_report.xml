@@ -82,7 +82,7 @@
                       margin: 2px auto;
                       border-collapse: collapse;
                       border-spacing: 0 14px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -178,7 +178,7 @@
                       width: 70%;
                       margin: 8px auto;
                       border-collapse: collapse;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -237,7 +237,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 14px;
+                      font-size: 15px;
                       margin: 8px auto;
                     "
                   >
@@ -262,7 +262,7 @@
                       width: 70%;
                       margin: 0 auto 4px auto;
                       border-collapse: collapse;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -296,7 +296,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -314,7 +314,7 @@
                       width: 65.5%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -340,7 +340,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 8px;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                   >
                     <tr>
@@ -362,7 +362,7 @@
                     cellpadding="0"
                     cellspacing="0"
                     border="0"
-                    style="width: 100%; font-size: 14px; border-collapse: collapse;"
+                    style="width: 100%; font-size: 15px; border-collapse: collapse;"
                   >
                     <tr>
                       <td style="width: 52%; vertical-align: top;">
@@ -385,9 +385,9 @@
                           </tr>
                           <tr>
                             <td>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="140px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="140px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="140px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="145px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="145px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="145px" alt=""/>
                             </td>
                           </tr>
                         </table>
@@ -431,7 +431,7 @@
                     style="
                       width: 50%;
                       border-collapse: collapse;
-                      font-size: 14px;
+                      font-size: 15px;
                     "
                     t-att-style="
                       'width: 50%; margin: ' + ('2% auto;' if env.context.get('data', []) else '6% auto;') + ' border-collapse: collapse;'
@@ -490,7 +490,7 @@
 
             <!-- Locked Bottom Footer -->
             <div class="footer-fixed">
-                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 4px; font-size: 14px;">
+                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 4px; font-size: 15px;">
                     <tr>
                         <td style="vertical-align: middle;">
                             <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
