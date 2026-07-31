@@ -79,10 +79,10 @@
                     border="0"
                     style="
                       width: 65%;
-                      margin: 12px auto;
+                      margin: 2px auto;
                       border-collapse: collapse;
                       border-spacing: 0 14px;
-                      font-size: 15px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -151,7 +151,7 @@
                           width: 61%;
                           text-align: end;
                           font-weight: bold;
-                          padding: 4px 12px;
+                          padding: 2px 12px;
                         "
                       >
                         ХЭМЖЭЭ / ХУГАЦАА
@@ -176,9 +176,9 @@
                     border="0"
                     style="
                       width: 70%;
-                      margin: 0 auto 10px auto;
+                      margin: 8px auto;
                       border-collapse: collapse;
-                      font-size: 15px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -196,7 +196,7 @@
                                 </td>
 
                                 <td style="width: 25%; padding: 0 22px; text-align:end;">
-                                    <span t-out="float(item.get('amount',0))"/>
+                                    <span t-out="'{:,.2f}'.format(item.get(amount,0))"/>
                                 </td>
                             </tr>
                         </t>
@@ -218,7 +218,7 @@
                                 />
                               </td>
                               <td style="width: 25%; padding: 0 22px; text-align: end;">
-                                  <span t-out="item.get('amount','')"/>
+                                   <span t-out="'{:,.2f}'.format(item.get(amount,0))"/>
                               </td>
                             </tr>
                         </t>
@@ -237,9 +237,8 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 15px;
-                      margin: 12px auto;
-
+                      font-size: 14px;
+                      margin: 8px auto;
                     "
                   >
                     <tr>
@@ -261,9 +260,9 @@
                     border="0"
                     style="
                       width: 70%;
-                      margin: 0 auto 10px auto;
+                      margin: 0 auto 4px auto;
                       border-collapse: collapse;
-                      font-size: 15px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -297,7 +296,7 @@
                       border-radius: 12px;
                       overflow: hidden;
                       margin-bottom: 5px;
-                      font-size: 15px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -315,7 +314,7 @@
                       width: 65.5%;
                       margin: 0 auto 10px auto;
                       border-collapse: collapse;
-                      font-size: 15px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -340,8 +339,8 @@
                       background: #fbb515;
                       border-radius: 12px;
                       overflow: hidden;
-                      margin-bottom: 12px;
-                      font-size: 15px;
+                      margin-bottom: 8px;
+                      font-size: 14px;
                     "
                   >
                     <tr>
@@ -349,7 +348,7 @@
                           НИЙТ ТӨЛБӨР</td>
                       <td
                         style="
-                          padding: 4px 0;
+                          padding: 3px auto;
                           width: 41%;
                           text-align: center;
                           font-weight: bold;
@@ -363,10 +362,10 @@
                     cellpadding="0"
                     cellspacing="0"
                     border="0"
-                    style="width: 100%; border-collapse: collapse; margin-bottom: 14px"
+                    style="width: 100%; font-size: 14px; border-collapse: collapse;"
                   >
                     <tr>
-                      <td style="width: 52%; vertical-align: top">
+                      <td style="width: 52%; vertical-align: top;">
                         <table
                           cellpadding="0"
                           cellspacing="0"
@@ -385,10 +384,10 @@
                             </td>
                           </tr>
                           <tr>
-                            <td style="text-align: center">
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="145px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="145px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="145px" alt=""/>
+                            <td>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="140px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="140px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="140px" alt=""/>
                             </td>
                           </tr>
                         </table>
@@ -425,70 +424,73 @@
                     </tr>
                   </table>
 
-                <table
-                        cellpadding="0"
-                        cellspacing="0"
-                        border="0"
+               <table
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                      width: 50%;
+                      border-collapse: collapse;
+                      font-size: 14px;
+                    "
+                    t-att-style="
+                      'width: 50%; margin: ' + ('2% auto;' if env.context.get('data', []) else '6% auto;') + ' border-collapse: collapse;'
+                    "
+                  >
+                    <tr>
+                      <td
+                        colspan="2"
                         style="
-                          width: 50%;
-                          margin: 0 auto;
-                          border-collapse: collapse;
-                          font-size: 15px;
+                          padding: 0 0 7px 0;
+                          text-align: center;
+                          font-weight: bold;
                         "
                       >
-                        <tr>
-                          <td
-                            colspan="2"
-                            style="
-                              padding: 0 0 7px 0;
-                              text-align: center;
-                              font-weight: bold;
-                              font-size: 14px;
-                            "
-                          >
-                            Төлбөр төлөх банкны данс
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
-                            Харилцах данс:
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 1px 0 1px 20px">Голомт банк</td>
-                          <td style="padding: 1px 0; text-align: right">
-                            MN240015001501115008
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 1px 0 1px 20px">Төрийн банк</td>
-                          <td style="padding: 1px 0; text-align: right">
-                            MN960034100000223318
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 1px 0 5px 20px">Худалдаа хөгжлийн банк</td>
-                          <td style="padding: 1px 0 5px 0; text-align: right">
-                            MN17000400049129061
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
-                            Автомат данс:
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 1px 0 1px 20px">Хаан банк</td>
-                          <td style="padding: 1px 0; text-align: right">
-                            MN740004005038006208
-                          </td>
-                        </tr>
-                      </table>
+                        Төлбөр төлөх банкны данс
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                        Харилцах данс:
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 1px 0 1px 20px">Голомт банк</td>
+                      <td style="padding: 1px 0; text-align: right">
+                        MN240015001501115008
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 1px 0 1px 20px">Төрийн банк</td>
+                      <td style="padding: 1px 0; text-align: right">
+                        MN960034100000223318
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 1px 0 5px 20px">Худалдаа хөгжлийн банк</td>
+                      <td style="padding: 1px 0 5px 0; text-align: right">
+                        MN170004000499129061
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                        Автомат данс:
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 1px 0 1px 20px">Хаан банк</td>
+                      <td style="padding: 1px 0; text-align: right">
+                        MN740004005038006208
+                      </td>
+                    </tr>
+                  </table>
+
+
             </main>
 
             <!-- Locked Bottom Footer -->
             <div class="footer-fixed">
-                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 8px; font-size: 15px;">
+                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 4px; font-size: 14px;">
                     <tr>
                         <td style="vertical-align: middle;">
                             <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
@@ -497,7 +499,7 @@
                     <tr>
                         <td style="vertical-align: middle;">
                             <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">
-                                Улаанбаатар хот,Сүхбаатар дүүрэг,6-р хороо,НҮБ-ийн гудамж,Бага тойруу-14,МТ байр
+                                Улаанбаатар хот, Сүхбаатар дүүрэг, 6-р хороо, НҮБ-ийн гудамж, Бага тойруу-14, МТ байр
                             </p>
                         </td>
                     </tr>
