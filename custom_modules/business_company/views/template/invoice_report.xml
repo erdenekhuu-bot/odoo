@@ -385,9 +385,9 @@
                           </tr>
                           <tr>
                             <td>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="145px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="145px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="145px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="150px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="150px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="150px" alt=""/>
                             </td>
                           </tr>
                         </table>
