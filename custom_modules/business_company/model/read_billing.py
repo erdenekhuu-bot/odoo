@@ -314,7 +314,7 @@ class ReadBilling(models.Model):
             })
 
             if len(mails_to_create) >= 100:
-                MailingMailing.create(mails_to_create).
+                MailingMailing.create(mails_to_create)
                 self.env.cr.commit()
                 mails_to_create = []
 
