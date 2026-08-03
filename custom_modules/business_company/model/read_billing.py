@@ -143,17 +143,7 @@ class ReadBilling(models.Model):
                 'total_amount': total_amount,
             }
         )._render_qweb_pdf('business_company.final_report_pdf',res_ids=self.ids)
-
-        # attachment = self.env['ir.attachment'].sudo().create({
-        #     'name': 'invoice.pdf',
-        #     'type': 'binary',
-        #     'datas': base64.b64encode(pdf_content).decode('utf-8'),
-        #     'res_model': self._name,
-        #     'res_id': self.id,
-        #     'mimetype': 'application/pdf',
-        #     'public': True,
-        # })
-        attachment = self._generate_pdf_attachment_for_account(account.acc_number,'2026-06-01')
+        attachment = self._generate_pdf_attachment_for_account(account.acc_number,period_start)
 
         return {
             'type': 'ir.actions.act_url',
@@ -205,7 +195,7 @@ class ReadBilling(models.Model):
             "screen3_b64": self.get_image_base64(
                 "static/img/whitescreen3.png"
             ),
-            "datetimes": f"{year} ОНЫ {month}",
+            "datetimes": f"{year} ОНЫ {month}-Р",
             "profile": account,
             "date_create": f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
             'period_start': f"{str(period_start).replace('-', '/')}",
@@ -257,8 +247,9 @@ class ReadBilling(models.Model):
         BillingGroup = self.env["billing.group"].sudo()
 
         today = fields.Date.context_today(self)
-        target_year, target_month = today.year, today.month
-        start_date = date(target_year, target_month, 1)
+        target_year, target_month = today.year-1, today.month-1
+        # start_date = date(target_year, target_month, 1)
+        start_date ='2026-06-01'
         end_date = start_date + relativedelta(months=1)
 
         list_name = f"{target_year}_{target_month:02d}_mails"
@@ -297,7 +288,7 @@ class ReadBilling(models.Model):
 
         for group in groups:
             try:
-                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,'2026-06-01')
+                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,start_date)
 
             except Exception:
                 _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
