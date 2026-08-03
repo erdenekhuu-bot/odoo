@@ -247,9 +247,8 @@ class ReadBilling(models.Model):
         BillingGroup = self.env["billing.group"].sudo()
 
         today = fields.Date.context_today(self)
-        target_year, target_month = today.year-1, today.month-1
-        # start_date = date(target_year, target_month, 1)
-        start_date ='2026-06-01'
+        target_year, target_month = today.year, today.month-2
+        start_date = date(target_year, target_month, 1)
         end_date = start_date + relativedelta(months=1)
 
         list_name = f"{target_year}_{target_month:02d}_mails"
@@ -288,7 +287,7 @@ class ReadBilling(models.Model):
 
         for group in groups:
             try:
-                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,start_date)
+                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,target_month)
 
             except Exception:
                 _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
