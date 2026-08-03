@@ -276,147 +276,6 @@ class ReadBilling(models.Model):
         )
         return attachment
 
-    def _email_campaign_bills(self):
-        config = self.env["ir.config_parameter"].sudo()
-        MailingList = self.env["mailing.list"].sudo()
-        MailingContact = self.env["mailing.contact"].sudo()
-        MailingMailing = self.env["mailing.mailing"].sudo()
-        BillingGroup = self.env["billing.group"].sudo()
-        BillingRead = self.env["billing.read"].sudo()
-
-        target_year = datetime.today().year
-        target_month = datetime.today().month - 1
-        start_date = f"{target_year}-{target_month:02d}-01"
-
-
-        agent = self.env["res.users"].sudo().search([("login", "=", "bot@gmobile.mn")],limit=1)
-        agent_user_id = agent.id
-
-        mailing_list = MailingList.search([("name", "=", "Billing Customers Group")],limit=1)
-        if not mailing_list:
-            mailing_list = MailingList.create({
-                "name": "Billing Customers Group",
-                "is_public": False,
-            })
-
-        billing_reads = BillingRead.search([('period_start','=',start_date)],limit=10)
-        created_mailings = 0
-        skipped_count = 0
-
-        for billing_rec in billing_reads:
-            try:
-                with self.env.cr.savepoint():
-                    acc_number = (billing_rec.acc_number or "").strip()
-                    year = billing_rec.period_start[:4]
-                    month =billing_rec.period_start[5:7]
-
-                    if not acc_number:
-                        skipped_count += 1
-                        _logger.warning(
-                            "billing.read дээр acc_number хоосон: ID=%s",
-                            billing_rec.id,
-                        )
-                        continue
-
-                    group = BillingGroup.search([],limit=1)
-                    if not group:
-                        skipped_count += 1
-                        _logger.warning(
-                            "billing.group олдсонгүй: "
-                            "billing_read_id=%s, acc_number=%s",
-                            billing_rec.id,
-                            acc_number,
-                        )
-                        continue
-
-                    email = (group.name or "").strip().lower()
-                    if not email or "@" not in email:
-                        skipped_count += 1
-
-                        _logger.warning(
-                            "Email буруу байна: "
-                            "group_id=%s, email=%s, acc_number=%s",
-                            group.id,
-                            email,
-                            acc_number,
-                        )
-                        continue
-
-                    contact = MailingContact.search(
-                        [("email", "=ilike", email)],
-                        limit=1,
-                    )
-
-                    if not contact:
-                        contact = MailingContact.create({
-                            "name": email,
-                            "email": email,
-                            "list_ids": [(4, mailing_list.id)],
-                        })
-
-                    elif mailing_list not in contact.list_ids:
-                        contact.write({
-                            "list_ids": [(4, mailing_list.id)]
-                        })
-
-                    attachment = (
-                        self._generate_pdf_attachment_for_account(
-                            acc_number
-                        )
-                    )
-
-                    if not attachment:
-                        skipped_count += 1
-                        _logger.warning(
-                            "PDF attachment үүссэнгүй: "
-                            "billing_read_id=%s, acc_number=%s",
-                            billing_rec.id,
-                            acc_number,
-                        )
-                        continue
-                    mailing = MailingMailing.create({
-                        "subject": f"{config.get_param("mail.subject")}",
-                        "body_html": (
-                            f"<p>Таны {acc_number} дараа төлбөрт дугаарын {year} оны {month}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна нэхэмжлэл хавсралтаар очиж байна.</p>"
-                        ),
-                        "mailing_type": "mail",
-                        "user_id": agent_user_id,
-                        "mailing_model_id": (
-                            self.env["ir.model"]._get_id(
-                                "mailing.contact"
-                            )
-                        ),
-                        "mailing_domain": repr([
-                            ("id", "=", contact.id)
-                        ]),
-                        "attachment_ids": [
-                            (4, attachment.id)
-                        ],
-                    })
-
-                    mailing.action_put_in_queue()
-                    created_mailings += 1
-                    _logger.info(
-                        "Mailing үүслээ: "
-                        "mailing_id=%s, billing_read_id=%s, "
-                        "email=%s, acc_number=%s",
-                        mailing.id,
-                        billing_rec.id,
-                        email,
-                        acc_number,
-                    )
-
-            except Exception:
-                skipped_count += 1
-                _logger.exception(
-                    "Mailing боловсруулахад алдаа гарлаа: "
-                    "billing_read_id=%s, acc_number=%s",
-                    billing_rec.id,
-                    billing_rec.acc_number,
-                )
-
-        return created_mailings, skipped_count
-
     def _test_email_campaign(self):
         MailingList = self.env["mailing.list"].sudo()
         MailingContact = self.env["mailing.contact"].sudo()
@@ -456,22 +315,41 @@ class ReadBilling(models.Model):
             'list_ids': [(4, mailing_list.id)],
         } for group in groups])
 
-
         if not contacts:
             return 0, len(groups)
 
-        mailing = MailingMailing.create({
-            "subject": f"Billing notice {target_year}-{target_month:02d}",
-            "email_from": self.env.company.email or self.env.user.email,
-            "body_html": "<p>Your monthly billing notice.</p>",
-            "mailing_type": "mail",
-            "contact_list_ids": [(6, 0, [mailing_list.id])],
-        })
-        mailing.action_put_in_queue()
+        skipped = 0
+        mails_to_create = []
+        email_from = self.env.company.email or self.env.user.email
+        subject = f"Billing notice {target_year}-{target_month:02d}"
 
-        skipped = len(groups) - len(contacts)
-        _logger.info(
-            "Mail жагсаалт үүслээ: ","mailing_id=%s",mailing.id)
+        for group in groups:
+            try:
+                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number)
+            except Exception:
+                _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
+                skipped += 1
+                continue
+
+            mails_to_create.append({
+                "subject": subject,
+                "email_from": email_from,
+                "email_to": group.name,
+                "body_html": "<p>Your monthly billing notice.</p>",
+                "attachment_ids": [(6, 0, [pdf_attachment.id])],
+                "auto_delete": True,
+            })
+
+            if len(mails_to_create) >= 100:
+                MailingMailing.create(mails_to_create)
+                self.env.cr.commit()
+                mails_to_create = []
+
+        if mails_to_create:
+            MailingMailing.create(mails_to_create)
+
+        sent_count = len(groups) - skipped
+        _logger.info("Mail жагсаалт үүслээ: sent=%s skipped=%s", sent_count, skipped)
         return len(contacts), skipped
 
     def initiate_action_campaign_bills(self):
