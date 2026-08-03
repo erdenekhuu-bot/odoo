@@ -73,6 +73,38 @@ class ReadBilling(models.Model):
         conn.commit()
         return conn
 
+    def get_image_base64(self, relative_path):
+        resource_path = f"business_company/{relative_path}"
+        try:
+            with file_open(resource_path, 'rb') as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except FileNotFoundError:
+            return False
+
+    def filter_items(self, data: list[dict], item_types: list[str], labels: dict[str, str]) -> list[dict]:
+        return [
+            {
+                **item,
+                'item_type_code': item.get('item_type'),
+                'item_type': labels.get(
+                    item.get('item_type'),
+                    item.get('item_type', '')
+                ),
+            }
+            for item in data
+            if item.get('item_type') in item_types
+        ]
+
+    def generate_head_data(self, params: list[str], tag: list[str]) -> list[dict]:
+        return [
+            {
+                'name': t,
+                'description': '' if p is False else p,
+                'amount': 0,
+            }
+            for p, t in zip(params, tag)
+        ]
+
     def click_btn(self):
         self.ensure_one()
         target_year = datetime.today().year
@@ -128,79 +160,30 @@ class ReadBilling(models.Model):
             'target': 'new',
         }
 
-    def get_image_base64(self, relative_path):
-        resource_path = f"business_company/{relative_path}"
-        try:
-            with file_open(resource_path, 'rb') as image_file:
-                return base64.b64encode(image_file.read()).decode('utf-8')
-        except FileNotFoundError:
-            return False
 
-    def filter_items(self, data: list[dict], item_types: list[str], labels: dict[str, str]) -> list[dict]:
-        return [
-            {
-                **item,
-                'item_type_code': item.get('item_type'),
-                'item_type': labels.get(
-                    item.get('item_type'),
-                    item.get('item_type', '')
-                ),
-            }
-            for item in data
-            if item.get('item_type') in item_types
-        ]
-
-    def generate_head_data(self, params: list[str], tag: list[str]) -> list[dict]:
-        return [
-            {
-                'name': t,
-                'description': '' if p is False else p,
-                'amount': 0,
-            }
-            for p, t in zip(params, tag)
-        ]
 
     def _generate_pdf_attachment_for_account(self, acc_number):
-        acc_number = str(acc_number).strip()
+        self.ensure_one()
         target_year = datetime.today().year
-        target_month = datetime.today().month - 1
+        target_month = datetime.today().month
         start_date = f"{target_year}-{target_month:02d}-01"
+        last_day = calendar.monthrange(target_year, target_month)[1]
+        end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
 
-        account = self.env["billing.read.account"].sudo().search([("acc_number", "=", acc_number)],limit=1)
-        if not account:
-            _logger.warning(
-                "billing.read.account олдсонгүй: acc_number=%s",
-                acc_number,
-            )
-            return False
-
-        billing = self.env['billing.read'].search([
-            ('acc_number', '=', acc_number),
-            ('period_start', '=', start_date),
+        account = self.env['billing.read.account'].search([('acc_number', '=', self.acc_number)], limit=1)
+        bills = self.env['billing.read'].search([
+            ('acc_number', '=', self.acc_number),
+            ('period_start', '=', self.period_start),
         ], limit=1)
-
-        if not billing:
-            _logger.warning(
-                "billing.read олдсонгүй: acc_number=%s period_start=%s",
-                acc_number,
-                billing.period_start,
-            )
-            return False
-
         head_data = self.generate_head_data(
-            [
-                billing.own_network_limit,
-                billing.other_call_limit,
-                billing.all_call_limit,
-                billing.data_limit,
-                billing.sms_limit,
-            ],
-            tagged_types,
-        )
-        data = [i for i in self.filter_items(billing.bill_items or [],selected_types,new_label) if i['amount'] > 0]
-        date_obj = datetime.strptime(billing.period_start,"%Y-%m-%d")
-        year = date_obj.year
-        month = date_obj.month
+            [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
+            tagged_types)
+        data = self.filter_items(bills.bill_items, selected_types, new_label)
+        period_start = datetime.strptime(bills.period_start, '%Y-%m-%d').date()
+        period_end = datetime.strptime(bills.period_end, '%Y-%m-%d').date()
+        year = period_start.year
+        month = period_start.month
+        total_amount = bills.total_amount
 
         context_data = {
             "logo_b64": self.get_image_base64(
@@ -223,46 +206,34 @@ class ReadBilling(models.Model):
             ),
             "datetimes": f"{year} ОНЫ {month}",
             "profile": account,
-            "date_create": (
-                f"{billing.period_start.replace('-', '/')}-"
-                f"{billing.period_end.replace('-', '/')}"
-            ),
-            "period_start": billing.period_start.replace("-", "/"),
-            "period_end": billing.period_end.replace("-", "/"),
+            "date_create": f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
+            'period_start': f"{str(period_start).replace('-', '/')}",
+            'period_end': f"{str(period_end).replace('-', '/')}",
             "head_data": head_data,
             "data": data,
-            "total_amount": billing.total_amount,
+            'total_amount': total_amount,
         }
 
         try:
-            pdf_content, _ = (
-                self.env["ir.actions.report"]
-                .sudo()
+            pdf_content, _ = (self.env["ir.actions.report"].sudo()
                 .with_context(**context_data)
-                ._render_qweb_pdf(
-                    "business_company.final_report_pdf",
-                    res_ids=[billing.id],
-                )
+                ._render_qweb_pdf("business_company.final_report_pdf",res_ids=[bills.id])
             )
         except Exception:
             _logger.exception(
                 "PDF render хийхэд алдаа гарлаа: "
-                "acc_number=%s billing_read_id=%s",
+                "acc_number=%s billing_read=%s",
                 acc_number,
-                billing.id,
+                bills.id,
             )
             return False
 
-        # 5. Attachment үүсгэх
         attachment = self.env["ir.attachment"].sudo().create({
-            "name": (
-                f"Billing_{acc_number}_"
-                f"{billing.period_start}.pdf"
-            ),
+            "name": f"Billing_{acc_number}_{bills.period_start}.pdf",
             "type": "binary",
             "datas": base64.b64encode(pdf_content).decode("utf-8"),
             "res_model": "billing.read",
-            "res_id": billing.id,
+            "res_id": bills.id,
             "mimetype": "application/pdf",
             "public": False,
         })
