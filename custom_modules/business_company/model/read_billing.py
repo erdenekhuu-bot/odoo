@@ -249,6 +249,7 @@ class ReadBilling(models.Model):
         return attachment
 
     def _test_email_campaign(self):
+        config=self.env["ir.config_parameter"].sudo()
         MailingList = self.env["mailing.list"].sudo()
         MailingContact = self.env["mailing.contact"].sudo()
         MailingMailing = self.env["mailing.mailing"].sudo()
@@ -292,13 +293,12 @@ class ReadBilling(models.Model):
 
         skipped = 0
         mails_to_create = []
-        email_from = self.env.company.email or self.env.user.email
         subject = f"Billing notice {target_year}-{target_month:02d}"
 
         for group in groups:
             try:
                 pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,'2026-06-01')
-                print(pdf_attachment)
+
             except Exception:
                 _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
                 skipped += 1
@@ -306,15 +306,15 @@ class ReadBilling(models.Model):
 
             mails_to_create.append({
                 "subject": subject,
-                "email_from": email_from,
-                "email_to": group.name,
+                "email_from": config.get_param("main.mail"),
                 "body_html": "<p>Your monthly billing notice.</p>",
                 "attachment_ids": [(6, 0, [pdf_attachment.id])],
-                "auto_delete": True,
+                "contact_list_ids": [(6, 0, [mailing_list.id])],
+                "state": "in_queue",
             })
 
             if len(mails_to_create) >= 100:
-                MailingMailing.create(mails_to_create)
+                MailingMailing.create(mails_to_create).
                 self.env.cr.commit()
                 mails_to_create = []
 
