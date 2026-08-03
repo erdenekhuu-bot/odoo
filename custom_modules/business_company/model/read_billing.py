@@ -460,14 +460,14 @@ class ReadBilling(models.Model):
         if not contacts:
             return 0, len(groups)
 
-        MailingMailing.create({
+        mailing = MailingMailing.create({
             "subject": f"Billing notice {target_year}-{target_month:02d}",
             "email_from": self.env.company.email or self.env.user.email,
             "body_html": "<p>Your monthly billing notice.</p>",
             "mailing_type": "mail",
             "contact_list_ids": [(6, 0, [mailing_list.id])],
-            "state": "in_queue",
         })
+        mailing.action_put_in_queue()
 
         skipped = len(groups) - len(contacts)
         return len(contacts), skipped
