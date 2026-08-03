@@ -52,7 +52,7 @@
         />
         <field name="domain">
             [
-                ('user_id.id', '=', 1')
+                ('user_id.login', '=', '__system__')
             ]
         </field>
     </record>
