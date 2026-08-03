@@ -287,7 +287,7 @@ class ReadBilling(models.Model):
 
         for group in groups:
             try:
-                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,target_month)
+                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,start_date)
 
             except Exception:
                 _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
