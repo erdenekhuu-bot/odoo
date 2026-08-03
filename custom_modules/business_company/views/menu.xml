@@ -52,7 +52,7 @@
         />
         <field name="domain">
             [
-                ('user_id.login', '=', 'bot@gmobile.mn')
+                ('user_id.id', '=', 1')
             ]
         </field>
     </record>
