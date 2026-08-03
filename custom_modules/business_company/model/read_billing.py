@@ -110,10 +110,8 @@ class ReadBilling(models.Model):
                 'data': data,
                 'total_amount': total_amount,
             }
-        )._render_qweb_pdf(
-            'business_company.final_report_pdf',
-            res_ids=self.ids
-        )
+        )._render_qweb_pdf('business_company.final_report_pdf',res_ids=self.ids)
+
         attachment = self.env['ir.attachment'].sudo().create({
             'name': 'invoice.pdf',
             'type': 'binary',
@@ -424,6 +422,7 @@ class ReadBilling(models.Model):
         MailingContact = self.env["mailing.contact"].sudo()
         MailingMailing = self.env["mailing.mailing"].sudo()
         BillingRead = self.env["billing.read"].sudo()
+        BillingGroup = self.env["billing.group"].sudo()
 
         today = fields.Date.context_today(self)
         target_year, target_month = today.year, today.month
@@ -438,21 +437,28 @@ class ReadBilling(models.Model):
                 "is_public": False,
             })
 
-        bills = BillingRead.search([
-            ("acc_number", "like", "9810"),
-            ("period_start", ">=", start_date),
-            ("period_start", "<", end_date),
-            ("email", "!=", False),
-        ])
+        # bills = BillingRead.search([
+        #     ("acc_number", "like", "9810"),
+        #     ("period_start", ">=", start_date),
+        #     ("period_start", "<", end_date),
+        #     ("email", "!=", False),
+        # ])
+        groups = BillingGroup.search([])
 
-        contacts = MailingContact.create([{
-            "name": bill.acc_number,
-            "email": bill.email,
-            "list_ids": [(4, mailing_list.id)],
-        } for bill in bills])
+        # contacts = MailingContact.create([{
+        #     "name": bill.acc_number,
+        #     "email": bill.email,
+        #     "list_ids": [(4, mailing_list.id)],
+        # } for bill in bills])
+        contacts=MailingContact.create([{
+            'name': group.acc_number,
+            'email':group.name,
+            'list_ids': [(4, mailing_list.id)],
+        } for group in groups])
+
 
         if not contacts:
-            return 0, len(bills)  # created, skipped
+            return 0, len(groups)
 
         MailingMailing.create({
             "subject": f"Billing notice {target_year}-{target_month:02d}",
@@ -463,7 +469,7 @@ class ReadBilling(models.Model):
             "state": "in_queue",
         })
 
-        skipped = len(bills) - len(contacts)
+        skipped = len(groups) - len(contacts)
         return len(contacts), skipped
 
     def initiate_action_campaign_bills(self):
