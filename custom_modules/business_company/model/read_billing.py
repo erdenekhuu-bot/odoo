@@ -1,9 +1,10 @@
 import psycopg2
+from dateutil.relativedelta import relativedelta
 from psycopg2.extras import RealDictCursor
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 import base64
-from datetime import datetime
+from datetime import datetime,date
 from odoo.tools import file_open
 import logging
 import time
@@ -57,11 +58,6 @@ class ReadBilling(models.Model):
     bill_items = fields.Json(string='Bill Items')
     email_title = fields.Char(string='Email Title', default="")
 
-    _sql_constraints = [
-        ('acc_bill_uniq', 'unique(acc_number, bill_id)',
-         'A billing record already exists for this account and bill ID.'),
-    ]
-
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
         conn = psycopg2.connect(
@@ -80,7 +76,7 @@ class ReadBilling(models.Model):
     def click_btn(self):
         self.ensure_one()
         target_year = datetime.today().year
-        target_month = datetime.today().month-1
+        target_month = datetime.today().month
         start_date = f"{target_year}-{target_month:02d}-01"
         last_day = calendar.monthrange(target_year, target_month)[1]
         end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
@@ -88,14 +84,14 @@ class ReadBilling(models.Model):
         account=self.env['billing.read.account'].search([('acc_number', '=', self.acc_number)],limit=1)
         bills = self.env['billing.read'].search([
             ('acc_number', '=', self.acc_number),
-            ('period_start', '=', start_date),
+            ('period_start', '=', self.period_start),
         ], limit=1)
-
         head_data = self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types)
-        data = self.filter_items(bills.bill_items or [], selected_types, new_label)
-        date_obj = datetime.strptime(start_date, '%Y-%m-%d')
-        year = date_obj.year
-        month = date_obj.month
+        data = self.filter_items(bills.bill_items, selected_types, new_label)
+        period_start=datetime.strptime(bills.period_start, '%Y-%m-%d').date()
+        period_end=datetime.strptime(bills.period_end, '%Y-%m-%d').date()
+        year = period_start.year
+        month = period_start.month
         total_amount = bills.total_amount
         pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
             {
@@ -105,11 +101,11 @@ class ReadBilling(models.Model):
                 'screen1_b64': self.get_image_base64('static/img/whitescreen.png'),
                 'screen2_b64': self.get_image_base64('static/img/whitescreen2.png'),
                 'screen3_b64': self.get_image_base64('static/img/whitescreen3.png'),
-                'datetimes': f"{year} ОНЫ {month}",
+                'datetimes': f"{year} ОНЫ {month}-Р",
                 'profile': account,
-                'date_create': f"{bills.period_start.replace('-', '/')}-{bills.period_end.replace('-', '/')}",
-                'period_start': f"{bills.period_start.replace('-', '/')}",
-                'period_end': f"{bills.period_end.replace('-', '/')}",
+                'date_create': f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
+                'period_start': f"{str(period_start).replace('-', '/')}",
+                'period_end': f"{str(period_end).replace('-', '/')}",
                 'head_data': head_data,
                 'data': data,
                 'total_amount': total_amount,
@@ -282,7 +278,7 @@ class ReadBilling(models.Model):
         )
         return attachment
 
-    def _email_campaign_bills(self, limit=None):
+    def _email_campaign_bills(self):
         config = self.env["ir.config_parameter"].sudo()
         MailingList = self.env["mailing.list"].sudo()
         MailingContact = self.env["mailing.contact"].sudo()
@@ -293,6 +289,7 @@ class ReadBilling(models.Model):
         target_year = datetime.today().year
         target_month = datetime.today().month - 1
         start_date = f"{target_year}-{target_month:02d}-01"
+
 
         agent = self.env["res.users"].sudo().search([("login", "=", "bot@gmobile.mn")],limit=1)
         agent_user_id = agent.id
@@ -422,8 +419,55 @@ class ReadBilling(models.Model):
 
         return created_mailings, skipped_count
 
+    def _test_email_campaign(self):
+        MailingList = self.env["mailing.list"].sudo()
+        MailingContact = self.env["mailing.contact"].sudo()
+        MailingMailing = self.env["mailing.mailing"].sudo()
+        BillingRead = self.env["billing.read"].sudo()
+
+        today = fields.Date.context_today(self)
+        target_year, target_month = today.year, today.month
+        start_date = date(target_year, target_month, 1)
+        end_date = start_date + relativedelta(months=1)
+
+        list_name = f"{target_year}_{target_month:02d}_mails"
+        mailing_list = MailingList.search([("name", "=", list_name)], limit=1)
+        if not mailing_list:
+            mailing_list = MailingList.create({
+                "name": list_name,
+                "is_public": False,
+            })
+
+        bills = BillingRead.search([
+            ("acc_number", "like", "9810"),
+            ("period_start", ">=", start_date),
+            ("period_start", "<", end_date),
+            ("email", "!=", False),
+        ])
+
+        contacts = MailingContact.create([{
+            "name": bill.acc_number,
+            "email": bill.email,
+            "list_ids": [(4, mailing_list.id)],
+        } for bill in bills])
+
+        if not contacts:
+            return 0, len(bills)  # created, skipped
+
+        MailingMailing.create({
+            "subject": f"Billing notice {target_year}-{target_month:02d}",
+            "email_from": self.env.company.email or self.env.user.email,
+            "body_html": "<p>Your monthly billing notice.</p>",
+            "mailing_type": "mail",
+            "contact_list_ids": [(6, 0, [mailing_list.id])],
+            "state": "in_queue",
+        })
+
+        skipped = len(bills) - len(contacts)
+        return len(contacts), skipped
+
     def initiate_action_campaign_bills(self):
-        created, skipped = self._email_campaign_bills()
+        created, skipped = self._test_email_campaign()
         if created:
             message = (
                 f"{created} mailing амжилттай үүсэж queue-д орлоо."
@@ -495,21 +539,22 @@ class ReadBilling(models.Model):
             existing_map = {(r[1], r[2]): r[0] for r in self.env.cr.fetchall()}
             _logger.info("Preloaded %d existing keys", len(existing_map))
 
-            to_create = []  # list of vals dicts
-            to_create_keys = []  # parallel list of keys, so we can map created ids back
-            to_update = []
+            to_create = []  # vals dicts queued for create() in this batch
+            to_create_keys = []  # parallel keys, so created ids can be mapped back
+            pending_index = {}  # key -> index into to_create, for same-batch dupes
+            to_update = []  # (existing_id, vals) tuples
             BATCH = 2000
 
             def flush():
-                nonlocal to_create, to_create_keys, to_update, synced
+                nonlocal to_create, to_create_keys, to_update, pending_index, synced
                 if to_create:
                     created = Billing.create(to_create)
-                    # register newly created ids so later dupes in this run route to update
                     for key, rec in zip(to_create_keys, created):
                         existing_map[key] = rec.id
                     synced += len(to_create)
                     to_create = []
                     to_create_keys = []
+                    pending_index = {}
                 if to_update:
                     for rec_id, vals in to_update:
                         try:
@@ -527,10 +572,19 @@ class ReadBilling(models.Model):
                     errors += 1
                     continue
 
+                if not row.get("period_start"):
+                    # required field on the model -- skip rather than let create()/write() blow up the batch
+                    errors += 1
+                    _logger.warning(
+                        "Skipping acc_number=%s bill_id=%s: missing period_start",
+                        acc_number, bill_id
+                    )
+                    continue
+
                 vals = {
                     "acc_number": acc_number,
                     "bill_id": str(bill_id),
-                    "period_start": str(row["period_start"]) if row["period_start"] else False,
+                    "period_start": str(row["period_start"]),
                     "period_end": str(row["period_end"]) if row["period_end"] else False,
                     "total_amount": row["total_amount"] or 0.0,
                     "package_name": row["package_name"],
@@ -541,23 +595,22 @@ class ReadBilling(models.Model):
                     "other_call_limit": row["other_call_limit"],
                     "all_call_limit": row["all_call_limit"],
                     "bill_items": row["bill_items"],
+                    'email_title': row["email"],
                 }
 
                 key = (acc_number, str(bill_id))
                 existing_id = existing_map.get(key)
 
-                if existing_id == "PENDING":
-                    # already queued in this same batch as a create -> route to update instead
+                if key in pending_index:
+                    # same-batch duplicate of a not-yet-created row -> overwrite the queued payload
+                    to_create[pending_index[key]] = vals
                     dupes_seen += 1
-                    # find it in to_create and move it to to_update once flushed;
-                    # simplest safe approach: just skip until next flush, then update
-                    to_update.append((None, vals))  # placeholder, resolved after flush
                 elif existing_id:
                     to_update.append((existing_id, vals))
                 else:
                     to_create.append(vals)
                     to_create_keys.append(key)
-                    existing_map[key] = "PENDING"
+                    pending_index[key] = len(to_create) - 1
 
                 if len(to_create) + len(to_update) >= BATCH:
                     flush()

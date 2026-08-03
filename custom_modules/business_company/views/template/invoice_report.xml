@@ -81,53 +81,52 @@
                       width: 65%;
                       margin: 2px auto;
                       border-collapse: collapse;
-                      border-spacing: 0 12px;
                       font-size: 15px;
                     "
                   >
-                    <tr>
-                      <td style="padding: 3px 0 1px 0">Нэхэмжлэхийн дугаар:</td>
-                      <td style="padding: 3px 0; text-align: right;">
+                   <tr>
+                      <td style="padding: 2px 0;">Нэхэмжлэхийн дугаар:</td>
+                      <td style="text-align: right;">
                        <t t-out="env.context.get('profile').subs_id"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">Хамрагдах хугацаа:</td>
-                      <td style="padding: 3px 0; text-align: right">
+                      <td style="padding: 2px 0;">Хамрагдах хугацаа:</td>
+                      <td style="text-align: right">
                         <t t-out="env.context.get('date_create')"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">
+                      <td style="padding: 2px 0;">
                         Төлбөрийг нэхэмжлэх хугацаа:
                       </td>
-                      <td style="padding: 3px 0; text-align: right">
+                      <td style="text-align: right">
                           <t t-out="env.context.get('period_start')"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">
+                      <td style="padding: 2px 0;">
                         Төлбөр хийх эцсийн хугацаа:
                       </td>
-                      <td style="padding: 3px 0; text-align: right">
+                      <td style="text-align: right">
                           <t t-out="env.context.get('period_end')"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">Хэрэглэгчийн нэр:</td>
-                      <td style="padding: 3px 0; text-align: right;">
+                      <td style="padding: 2px 0;">Хэрэглэгчийн нэр:</td>
+                      <td style="text-align: right;">
                         <t t-out="env.context.get('profile').cust_name"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">Гэрээний дугаар:</td>
-                      <td style="padding: 3px 0; text-align: right">
+                      <td style="padding: 2px 0;">Гэрээний дугаар:</td>
+                      <td style="text-align: right">
                            <t t-out="env.context.get('profile').acc_id"/>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 3px 0 1px 0">Утасны дугаар:</td>
-                      <td style="padding: 3px 0; text-align: right">
+                      <td style="padding: 2px 0;">Утасны дугаар:</td>
+                      <td style="text-align: right">
                           <t t-out="env.context.get('profile').acc_number"/>
                       </td>
                     </tr>
@@ -195,12 +194,9 @@
                                 </td>
                             </tr>
                         </t>
-                    <t t-if="env.context.get('data', [])">
-                        <tr t-if="len(env.context.get('data', [])) &gt; 0">
-                          <td colspan="2" style="padding: 3px 0 2px 0; font-weight: bold">
+                       <td colspan="2" style="padding: 3px 0 2px 0; font-weight: bold">
                             НЭМЭЛТ ХЭРЭГЛЭЭ
                           </td>
-                        </tr>
                         <t t-foreach="env.context.get('data', [])" t-as="item">
                             <tr>
                               <td style="width: 50%; padding: 0 22px;">
@@ -217,7 +213,6 @@
                               </td>
                             </tr>
                         </t>
-                    </t>
                   </table>
 
                 <!--Сарын төлбөр-->
@@ -313,15 +308,17 @@
                     "
                   >
                     <tr>
-                      <td style="width: 80%; ">Тухайн сарын төлбөр</td>
+                      <td style="width: 80%;">Тухайн сарын төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
                           <span t-out="'{:,.2f}'.format(total_amount)"/>
                       </td>
                     </tr>
-<!--                    <tr>-->
-<!--                      <td style="width: 86%; padding: 1px 0 1px 14px">Өмнөх сарын үлдэгдэл төлбөр</td>-->
-<!--                      <td style="padding: 1px 0; text-align: end;"></td>-->
-<!--                    </tr>-->
+                    <tr>
+                      <td style="width: 80%;">Өмнөх сарын үлдэгдэл төлбөр</td>
+                      <td style="padding: 1px 0; text-align: end;">
+                          <span t-out="'{:,.2f}'.format(total_amount)"/>
+                      </td>
+                    </tr>
                   </table>
 
                 <table
@@ -380,9 +377,9 @@
                           </tr>
                           <tr>
                             <td>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="150px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="150px" alt=""/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="150px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="145px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="145px" alt=""/>
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="145px" alt=""/>
                             </td>
                           </tr>
                         </table>
@@ -412,7 +409,6 @@
                               <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="170px" alt=""/>
                                 <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')"  style="padding: 4px;" width="150px" alt=""/>
                             </td>
-
                           </tr>
                         </table>
                       </td>
@@ -483,15 +479,15 @@
 
             <!-- Locked Bottom Footer -->
             <div class="footer-fixed">
-                <table style="width: 100%; border-top: 2px solid #f6b500; padding-top: 5px; margin-top: 4px; font-size: 15px;">
+                <table style="width: 100%; border-top: 2px solid #f6b500; font-size: 15px;">
                     <tr>
                         <td style="vertical-align: middle;">
-                            <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
+                            <p style="margin-left: 12%; color: #4a4a4a;">Жимобайл ХХК</p>
                         </td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;">
-                            <p style="margin: 0; margin-left: 12%; color: #4a4a4a;">
+                            <p style="margin-left: 12%; color: #4a4a4a;">
                                 Улаанбаатар хот, Сүхбаатар дүүрэг, 6-р хороо, НҮБ-ийн гудамж, Бага тойруу-14, МТ байр
                             </p>
                         </td>
