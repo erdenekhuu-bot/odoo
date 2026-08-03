@@ -470,6 +470,8 @@ class ReadBilling(models.Model):
         mailing.action_put_in_queue()
 
         skipped = len(groups) - len(contacts)
+        _logger.info(
+            "Mail жагсаалт үүслээ: ","mailing_id=%s",mailing.id)
         return len(contacts), skipped
 
     def initiate_action_campaign_bills(self):
