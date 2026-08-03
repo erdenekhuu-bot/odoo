@@ -144,15 +144,16 @@ class ReadBilling(models.Model):
             }
         )._render_qweb_pdf('business_company.final_report_pdf',res_ids=self.ids)
 
-        attachment = self.env['ir.attachment'].sudo().create({
-            'name': 'invoice.pdf',
-            'type': 'binary',
-            'datas': base64.b64encode(pdf_content).decode('utf-8'),
-            'res_model': self._name,
-            'res_id': self.id,
-            'mimetype': 'application/pdf',
-            'public': True,
-        })
+        # attachment = self.env['ir.attachment'].sudo().create({
+        #     'name': 'invoice.pdf',
+        #     'type': 'binary',
+        #     'datas': base64.b64encode(pdf_content).decode('utf-8'),
+        #     'res_model': self._name,
+        #     'res_id': self.id,
+        #     'mimetype': 'application/pdf',
+        #     'public': True,
+        # })
+        attachment = self._generate_pdf_attachment_for_account(account.acc_number,'2026-06-01')
 
         return {
             'type': 'ir.actions.act_url',
@@ -162,19 +163,19 @@ class ReadBilling(models.Model):
 
 
 
-    def _generate_pdf_attachment_for_account(self, acc_number):
-        self.ensure_one()
+    def _generate_pdf_attachment_for_account(self, acc_number,period_starts):
         target_year = datetime.today().year
         target_month = datetime.today().month
         start_date = f"{target_year}-{target_month:02d}-01"
         last_day = calendar.monthrange(target_year, target_month)[1]
         end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
-
-        account = self.env['billing.read.account'].search([('acc_number', '=', self.acc_number)], limit=1)
+        account = self.env['billing.read.account'].search([('acc_number', '=', acc_number)], limit=1)
+        _logger.info('account: %s', account)
         bills = self.env['billing.read'].search([
-            ('acc_number', '=', self.acc_number),
-            ('period_start', '=', self.period_start),
+            ('acc_number', '=', acc_number),
+            ('period_start', '=', period_starts),
         ], limit=1)
+        _logger.info('bills: %s', bills)
         head_data = self.generate_head_data(
             [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
             tagged_types)
@@ -235,7 +236,7 @@ class ReadBilling(models.Model):
             "res_model": "billing.read",
             "res_id": bills.id,
             "mimetype": "application/pdf",
-            "public": False,
+            "public": True,
         })
 
         _logger.info(
@@ -296,7 +297,8 @@ class ReadBilling(models.Model):
 
         for group in groups:
             try:
-                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number)
+                pdf_attachment = self._generate_pdf_attachment_for_account(group.acc_number,'2026-06-01')
+                print(pdf_attachment)
             except Exception:
                 _logger.exception("PDF үүссэнгүй %s <-дээр", group.acc_number)
                 skipped += 1
