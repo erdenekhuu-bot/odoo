@@ -297,7 +297,7 @@ class ReadBilling(models.Model):
             mails_to_create.append({
                 "subject": subject,
                 "email_from": config.get_param("main.mail"),
-                "body_html":  f"<p>Таны {group.acc_number} дараа төлбөрт дугаарын {target_year} оны {today.month-2}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна нэхэмжлэл хавсралтаар очиж байна.</p>",
+                "body_html":  f"<p>Таны {group.acc_number} дараа төлбөрт дугаарын {target_year} оны {today.month-2}-р сарын төлбөрийн нэхэмжлэхийг хавсралтаар илгээж байна.</p>",
                 "attachment_ids": [(6, 0, [pdf_attachment.id])],
                 "contact_list_ids": [(6, 0, [mailing_list.id])],
                 "state": "in_queue",
