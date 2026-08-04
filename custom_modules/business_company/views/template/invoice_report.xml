@@ -243,6 +243,7 @@
                    t-value="float(docs.env.context.get('total_amount'))"/>
                 <t t-set="before_tax" t-value="total_amount / 1.1"/>
                 <t t-set="vat_amount" t-value="total_amount * 0.1"/>
+                <t t-set="before_month_bill" t-value="before_month_bill"/>
 
                 <table
                     cellpadding="0"
@@ -316,7 +317,7 @@
                     <tr>
                       <td style="width: 80%;">Өмнөх сарын үлдэгдэл төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(total_amount)"/>
+                          <span t-out="env.context.get('before_month_bill')"/>
                       </td>
                     </tr>
                   </table>
@@ -336,18 +337,12 @@
                     "
                   >
                     <tr>
-                      <td style="padding: 4px 15%; width: 59%; font-weight: bold;">
+                      <td style="padding: 4px 0; padding-left: 15%; width: 70%; font-weight: bold;">
                           НИЙТ ТӨЛБӨР</td>
-                      <td
-                        style="
-                          padding: 3px auto;
-                          width: 41%;
-                          text-align: center;
-                          font-weight: bold;
-                        "
-                      >
-                         <span t-out="'{:,.2f}'.format(total_amount)"/>
+                      <td style="padding: 1px 0; text-align: end; width:12.5%;">
+                           <span t-out="'{:,.2f}'.format(total_amount)"/>
                       </td>
+                        <td style="width:17.5%;"></td>
                     </tr>
                 </table>
                 <table

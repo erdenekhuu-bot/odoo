@@ -161,10 +161,19 @@ class ReadBilling(models.Model):
         end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
         account = self.env['billing.read.account'].search([('acc_number', '=', acc_number)], limit=1)
         _logger.info('account: %s', account)
+
         bills = self.env['billing.read'].search([
             ('acc_number', '=', acc_number),
             ('period_start', '=', period_starts),
         ], limit=1)
+        dt = datetime.strptime(str(period_starts), '%Y-%m-%d')
+        new_dt = dt - relativedelta(months=1)
+        new_date_str = new_dt.strftime('%Y-%m-%d')
+        before_month_bill=self.env['billing.read'].search([
+            ('acc_number', '=', acc_number),
+            ('period_start', '=', new_date_str),
+        ], limit=1)
+
         _logger.info('bills: %s', bills)
         head_data = self.generate_head_data(
             [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
@@ -203,6 +212,7 @@ class ReadBilling(models.Model):
             "head_data": head_data,
             "data": data,
             'total_amount': total_amount,
+            'before_month_bill': before_month_bill.total_amount,
         }
 
         try:
