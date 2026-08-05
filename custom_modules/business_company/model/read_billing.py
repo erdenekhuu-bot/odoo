@@ -295,7 +295,7 @@ class ReadBilling(models.Model):
 
         skipped = 0
         mails_to_create = []
-        subject = f"Billing notice {target_year}-{target_month:02d}"
+        subject = f"Нэхэмжлэл {target_year}-{target_month:02d}"
 
         for group in groups:
             try:
