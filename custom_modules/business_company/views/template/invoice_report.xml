@@ -418,7 +418,7 @@
                       width: 50%;
                       border-collapse: collapse;
                       font-size: 14px;
-                      margin: 1% auto;
+                      margin: 3% auto;
                     "
                   >
                     <tr>
