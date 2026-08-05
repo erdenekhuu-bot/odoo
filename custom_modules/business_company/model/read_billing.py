@@ -151,8 +151,6 @@ class ReadBilling(models.Model):
             'target': 'new',
         }
 
-
-
     def _generate_pdf_attachment_for_account(self, acc_number,period_starts):
         target_year = datetime.today().year
         target_month = datetime.today().month
@@ -178,9 +176,7 @@ class ReadBilling(models.Model):
         head_data = self.generate_head_data(
             [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
             tagged_types)
-        print(bills.bill_items)
         data = self.filter_items(bills.bill_items, selected_types, new_label)
-        print(data)
         period_start = datetime.strptime(bills.period_start, '%Y-%m-%d').date()
         period_end = datetime.strptime(bills.period_end, '%Y-%m-%d').date()
         year = period_start.year
