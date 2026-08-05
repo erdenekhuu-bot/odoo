@@ -182,7 +182,7 @@
                         </tr>
                         <t t-foreach="env.context.get('head_data', [])" t-as="item">
                             <tr>
-                                <td style="width: 50%; padding: 0 22px;">
+                                <td style="width: 50%; padding: 2px 22px;">
                                     <span t-out="item.get('name','')"/>
                                 </td>
                                 <td style="width: 25%; padding: 1px 0;">
@@ -190,7 +190,7 @@
                                 </td>
 
                                 <td style="width: 25%; padding: 0 22px; text-align:end;">
-                                    <span t-out="'{:,.2f}'.format(item.get(amount,0))"/>
+                                    <span t-out="'{:,.2f}'.format(item.get('amount',0))"/>
                                 </td>
                             </tr>
                         </t>
@@ -199,7 +199,7 @@
                           </td>
                         <t t-foreach="env.context.get('data', [])" t-as="item">
                             <tr>
-                              <td style="width: 50%; padding: 0 22px;">
+                              <td style="width: 50%; padding: 2px 22px;">
                                  <span t-out="item.get('item_type')"/>
                               </td>
                               <td style="width: 25%; padding: 1px 0;">
@@ -418,7 +418,7 @@
                       width: 50%;
                       border-collapse: collapse;
                       font-size: 14px;
-                      margin: 2% auto;
+                      margin: 1% auto;
                     "
                   >
                     <tr>
@@ -468,7 +468,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td colspan="2" style="padding: 16px 0 3px 0; font-weight: bold">
+                      <td colspan="2" style="padding: 1px 0 3px 0; font-weight: bold">
                         Хүлээн авагч:
                       </td>
                     </tr>
