@@ -418,7 +418,7 @@
                       width: 50%;
                       border-collapse: collapse;
                       font-size: 14px;
-                      margin: 3% auto;
+                      margin: 2% auto;
                     "
                   >
                     <tr>
@@ -468,7 +468,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                      <td colspan="2" style="padding: 12px 0 3px 0; font-weight: bold">
                         Хүлээн авагч:
                       </td>
                     </tr>
