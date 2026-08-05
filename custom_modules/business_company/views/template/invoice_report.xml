@@ -147,20 +147,21 @@
                     <tr>
                       <td
                         style="
-                          width: 61%;
+                          width: 67%;
                           text-align: end;
                           font-weight: bold;
-                          padding: 2px 12px;
+                          padding: 4px 0;
                         "
                       >
                         ХЭМЖЭЭ / ХУГАЦАА
                       </td>
                       <td
                         style="
-                          width: 39%;
-                          text-align: center;
+                          width: 33%;
+
                           font-weight: bold;
                           padding: 4px 0;
+                          padding-left: 12%;
                         "
                       >
                         ДҮН
@@ -182,10 +183,10 @@
                         </tr>
                         <t t-foreach="env.context.get('head_data', [])" t-as="item">
                             <tr>
-                                <td style="width: 50%; padding: 2px 22px;">
+                                <td style="width: 57%; padding: 2px 22px;">
                                     <span t-out="item.get('name','')"/>
                                 </td>
-                                <td style="width: 25%; padding: 1px 0;">
+                                <td style="padding: 1px 0;">
                                     <span t-out="item.get('description','')"/>
                                 </td>
 
@@ -195,14 +196,14 @@
                             </tr>
                         </t>
                        <td colspan="2" style="padding: 3px 0 2px 0; font-weight: bold">
-                            НЭМЭЛТ ХЭРЭГЛЭЭ
-                          </td>
+                            НЭМЭЛТ ХЭРЭГЛЭЭ:
+                       </td>
                         <t t-foreach="env.context.get('data', [])" t-as="item">
                             <tr>
-                              <td style="width: 50%; padding: 2px 22px;">
+                              <td style="width: 57%; padding: 2px 22px;">
                                  <span t-out="item.get('item_type')"/>
                               </td>
-                              <td style="width: 25%; padding: 1px 0;">
+                              <td style="padding: 1px 0;">
                                   <span
                                     t-if="item.get('charge') not in (0, 0.0, '0', '0.0', '', None)"
                                     t-out="item.get('charge')"
