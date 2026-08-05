@@ -204,12 +204,12 @@
                               </td>
                               <td style="width: 25%; padding: 1px 0;">
                                   <span
-                                    t-if="item.get('limit') not in (0, 0.0, '0', '0.0', '', None)"
-                                    t-out="item.get('limit')"
+                                    t-if="item.get('charge') not in (0, 0.0, '0', '0.0', '', None)"
+                                    t-out="item.get('charge')"
                                 />
                               </td>
                               <td style="width: 25%; padding: 0 22px; text-align: end;">
-                                   <span t-out="'{:,.2f}'.format(item.get(amount,0))"/>
+                                   <span t-out="'{:,.2f}'.format(item.get('amount',0))"/>
                               </td>
                             </tr>
                         </t>
