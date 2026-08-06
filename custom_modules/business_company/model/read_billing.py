@@ -118,31 +118,8 @@ class ReadBilling(models.Model):
             ('acc_number', '=', self.acc_number),
             ('period_start', '=', self.period_start),
         ], limit=1)
-        head_data = self.generate_head_data([bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit], tagged_types)
-        data = self.filter_items(bills.bill_items, selected_types, new_label)
         period_start=datetime.strptime(bills.period_start, '%Y-%m-%d').date()
-        period_end=datetime.strptime(bills.period_end, '%Y-%m-%d').date()
-        year = period_start.year
-        month = period_start.month
-        total_amount = bills.total_amount
-        pdf_content, _ = self.env['ir.actions.report'].sudo().with_context(
-            {
-                'logo_b64': self.get_image_base64('static/img/logo.png'),
-                'app_b64': self.get_image_base64('static/img/appstoreqr.png'),
-                'qr_b64': self.get_image_base64('static/img/playstoreqr.png'),
-                'screen1_b64': self.get_image_base64('static/img/whitescreen.png'),
-                'screen2_b64': self.get_image_base64('static/img/whitescreen2.png'),
-                'screen3_b64': self.get_image_base64('static/img/whitescreen3.png'),
-                'datetimes': f"{year} ОНЫ {month}-Р",
-                'profile': account,
-                'date_create': f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
-                'period_start': f"{str(period_start).replace('-', '/')}",
-                'period_end': f"{str(period_end).replace('-', '/')}",
-                'head_data': head_data,
-                'data': data,
-                'total_amount': total_amount,
-            }
-        )._render_qweb_pdf('business_company.final_report_pdf',res_ids=self.ids)
+
         attachment = self._generate_pdf_attachment_for_account(account.acc_number,period_start)
 
         return {
@@ -192,6 +169,9 @@ class ReadBilling(models.Model):
             ),
             "qr_b64": self.get_image_base64(
                 "static/img/playstoreqr.png"
+            ),
+            "qrs":self.get_image_base64(
+                "static/img/qrs.png"
             ),
             "screen1_b64": self.get_image_base64(
                 "static/img/whitescreen.png"

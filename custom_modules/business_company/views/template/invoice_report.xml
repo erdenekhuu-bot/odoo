@@ -243,7 +243,7 @@
                    t-value="float(docs.env.context.get('total_amount'))"/>
                 <t t-set="before_tax" t-value="total_amount / 1.1"/>
                 <t t-set="vat_amount" t-value="total_amount * 0.1"/>
-                <t t-set="before_month_bill" t-value="before_month_bill"/>
+                <t t-set="before_month_bill" t-value="float(docs.env.context.get('before_month_bill') or 0.0)"/>
 
                 <table
                     cellpadding="0"
@@ -317,7 +317,7 @@
                     <tr>
                       <td style="width: 80%;">Өмнөх сарын үлдэгдэл төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
-                          <span t-out="env.context.get('before_month_bill')"/>
+                          <span t-out="'{:,.2f}'.format(before_month_bill)"/>
                       </td>
                     </tr>
                   </table>
@@ -391,7 +391,7 @@
                             <td
                               colspan="2"
                               style="
-                                padding: 0 0 8px 0;
+
                                 text-align: center;
                                 font-weight: bold;
                               "
@@ -401,8 +401,10 @@
                           </tr>
                           <tr>
                             <td style="text-align: center">
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="170px" alt="" style="padding-left: 8px;"/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')"  style="padding: 4px;" width="150px" alt=""/>
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="170px" alt="" style="padding-left: 8px;"/>-->
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')"  style="padding: 4px;" width="150px" alt=""/>-->
+                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qrs')" width="300px" alt=""/>
+
                             </td>
                           </tr>
                         </table>
@@ -434,25 +436,25 @@
                       </td>
                     </tr>
                     <tr>
-                      <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold">
+                      <td colspan="2" style="padding: 0 0 3px 0; font-weight: bold;">
                         Харилцах данс:
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 1px 0 1px 20px">Голомт банк</td>
-                      <td style="padding: 1px 0; text-align: right">
+                      <td style="padding: 1px 0; padding-left: 7%;">
                         MN240015001501115008
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 1px 0 1px 20px">Төрийн банк</td>
-                      <td style="padding: 1px 0; text-align: right">
+                      <td style="padding: 1px 0; padding-left: 7%;">
                         MN960034100000223318
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 1px 0 5px 20px">Худалдаа хөгжлийн банк</td>
-                      <td style="padding: 1px 0 5px 0; text-align: right">
+                      <td style="padding: 1px 0; padding-left: 7%;">
                         MN170004000499129061
                       </td>
                     </tr>
@@ -463,7 +465,7 @@
                     </tr>
                     <tr>
                       <td style="padding: 1px 0 1px 20px">Хаан банк</td>
-                      <td style="padding: 1px 0; text-align: right">
+                      <td style="padding: 1px 0; padding-left: 7%">
                         MN740004005038006208
                       </td>
                     </tr>
@@ -474,7 +476,7 @@
                     </tr>
                     <tr>
                       <td style="padding: 1px 0 1px 20px">Гүйлгээний утга</td>
-                      <td style="padding: 1px 0; text-align: right">
+                      <td style="padding: 1px 0; padding-left: 7%">
                         Утасны дугаараа заавал бичих
                       </td>
                     </tr>
@@ -558,16 +560,18 @@
                                         <tr>
                                             <td style="vertical-align: middle; padding-right: 5px;">
 
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none">
-                                                    <path stroke="#ffb300" fill="none" d="M8.5 2h2.5L11 2h-2.5zM13 2h2.5L15.5 2h-2.5zM10.5 2h5v0h-5zM8.5 2h5v0h-5zM10 2h3.5L13.5 2h-3.5z">
+                                               <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none">
+                                                    <path stroke="#ffb300" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M8.5 2h2.5L11 2h-2.5zM13 2h2.5L15.5 2h-2.5zM10.5 2h5v0h-5zM8.5 2h5v0h-5zM10 2h3.5L13.5 2h-3.5z">
                                                         <animate fill="freeze" attributeName="d" dur="0.8s" keyTimes="0;0.3;0.5;1" values="M8.5 2h2.5L11 2h-2.5zM13 2h2.5L15.5 2h-2.5zM10.5 2h5v0h-5zM8.5 2h5v0h-5zM10 2h3.5L13.5 2h-3.5z;M8.5 2h2.5L11 22h-2.5zM13 2h2.5L15.5 22h-2.5zM10.5 2h5v2h-5zM8.5 20h5v2h-5zM10 2h3.5L13.5 22h-3.5z;M8.5 2h2.5L11 22h-2.5zM13 2h2.5L15.5 22h-2.5zM10.5 2h5v2h-5zM8.5 20h5v2h-5zM10 2h3.5L13.5 22h-3.5z;M1 2h2.5L18.5 22h-2.5zM5.5 2h2.5L23 22h-2.5zM3 2h5v2h-5zM16 20h5v2h-5zM18.5 2h3.5L5 22h-3.5z"/>
                                                     </path>
                                                 </svg>
+
                                                 <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke="#ffb300" fill-rule="evenodd" clip-rule="evenodd" d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="#f0d422"/>
-                                                    <path stroke="#ffb300" d="M18 5C17.4477 5 17 5.44772 17 6C17 6.55228 17.4477 7 18 7C18.5523 7 19 6.55228 19 6C19 5.44772 18.5523 5 18 5Z" fill="#f0d422"/>
-                                                    <path stroke="#ffb300" fill-rule="evenodd" clip-rule="evenodd" d="M1.65396 4.27606C1 5.55953 1 7.23969 1 10.6V13.4C1 16.7603 1 18.4405 1.65396 19.7239C2.2292 20.8529 3.14708 21.7708 4.27606 22.346C5.55953 23 7.23969 23 10.6 23H13.4C16.7603 23 18.4405 23 19.7239 22.346C20.8529 21.7708 21.7708 20.8529 22.346 19.7239C23 18.4405 23 16.7603 23 13.4V10.6C23 7.23969 23 5.55953 22.346 4.27606C21.7708 3.14708 20.8529 2.2292 19.7239 1.65396C18.4405 1 16.7603 1 13.4 1H10.6C7.23969 1 5.55953 1 4.27606 1.65396C3.14708 2.2292 2.2292 3.14708 1.65396 4.27606ZM13.4 3H10.6C8.88684 3 7.72225 3.00156 6.82208 3.0751C5.94524 3.14674 5.49684 3.27659 5.18404 3.43597C4.43139 3.81947 3.81947 4.43139 3.43597 5.18404C3.27659 5.49684 3.14674 5.94524 3.0751 6.82208C3.00156 7.72225 3 8.88684 3 10.6V13.4C3 15.1132 3.00156 16.2777 3.0751 17.1779C3.14674 18.0548 3.27659 18.5032 3.43597 18.816C3.81947 19.5686 4.43139 20.1805 5.18404 20.564C5.49684 20.7234 5.94524 20.8533 6.82208 20.9249C7.72225 20.9984 8.88684 21 10.6 21H13.4C15.1132 21 16.2777 20.9984 17.1779 20.9249C18.0548 20.8533 18.5032 20.7234 18.816 20.564C19.5686 20.1805 20.1805 19.5686 20.564 18.816C20.7234 18.5032 20.8533 18.0548 20.9249 17.1779C20.9984 16.2777 21 15.1132 21 13.4V10.6C21 8.88684 20.9984 7.72225 20.9249 6.82208C20.8533 5.94524 20.7234 5.49684 20.564 5.18404C20.1805 4.43139 19.5686 3.81947 18.816 3.43597C18.5032 3.27659 18.0548 3.14674 17.1779 3.0751C16.2777 3.00156 15.1132 3 13.4 3Z" fill="#ffb300"/>
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="#f0d422"/>
+                                                    <path d="M18 5C17.4477 5 17 5.44772 17 6C17 6.55228 17.4477 7 18 7C18.5523 7 19 6.55228 19 6C19 5.44772 18.5523 5 18 5Z" fill="#f0d422"/>
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M1.65396 4.27606C1 5.55953 1 7.23969 1 10.6V13.4C1 16.7603 1 18.4405 1.65396 19.7239C2.2292 20.8529 3.14708 21.7708 4.27606 22.346C5.55953 23 7.23969 23 10.6 23H13.4C16.7603 23 18.4405 23 19.7239 22.346C20.8529 21.7708 21.7708 20.8529 22.346 19.7239C23 18.4405 23 16.7603 23 13.4V10.6C23 7.23969 23 5.55953 22.346 4.27606C21.7708 3.14708 20.8529 2.2292 19.7239 1.65396C18.4405 1 16.7603 1 13.4 1H10.6C7.23969 1 5.55953 1 4.27606 1.65396C3.14708 2.2292 2.2292 3.14708 1.65396 4.27606ZM13.4 3H10.6C8.88684 3 7.72225 3.00156 6.82208 3.0751C5.94524 3.14674 5.49684 3.27659 5.18404 3.43597C4.43139 3.81947 3.81947 4.43139 3.43597 5.18404C3.27659 5.49684 3.14674 5.94524 3.0751 6.82208C3.00156 7.72225 3 8.88684 3 10.6V13.4C3 15.1132 3.00156 16.2777 3.0751 17.1779C3.14674 18.0548 3.27659 18.5032 3.43597 18.816C3.81947 19.5686 4.43139 20.1805 5.18404 20.564C5.49684 20.7234 5.94524 20.8533 6.82208 20.9249C7.72225 20.9984 8.88684 21 10.6 21H13.4C15.1132 21 16.2777 20.9984 17.1779 20.9249C18.0548 20.8533 18.5032 20.7234 18.816 20.564C19.5686 20.1805 20.1805 19.5686 20.564 18.816C20.7234 18.5032 20.8533 18.0548 20.9249 17.1779C20.9984 16.2777 21 15.1132 21 13.4V10.6C21 8.88684 20.9984 7.72225 20.9249 6.82208C20.8533 5.94524 20.7234 5.49684 20.564 5.18404C20.1805 4.43139 19.5686 3.81947 18.816 3.43597C18.5032 3.27659 18.0548 3.14674 17.1779 3.0751C16.2777 3.00156 15.1132 3 13.4 3Z" fill="#ffb300"/>
                                                 </svg>
+
                                                  <svg width="18px" height="18px" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
                                                     <path stroke="#ffb300" stroke-linecap="round" stroke-width="12" d="M96 170c40.869 0 74-33.131 74-74 0-40.87-33.131-74-74-74-40.87 0-74 33.13-74 74 0 40.869 33.13 74 74 74Zm0 0v-62m30-48h-10c-11.046 0-20 8.954-20 20v28m0 0H74m22 0h22"/>
                                                 </svg>
