@@ -58,6 +58,11 @@ class ReadBilling(models.Model):
     bill_items = fields.Json(string='Bill Items')
     email_title = fields.Char(string='Email Title', default="")
 
+    # _sql_constraints = [
+    #     ('acc_bill_period_uniq', 'unique(acc_number, bill_id, period_start, period_end)',
+    #      'Duplicate billing record for this account/bill/period.'),
+    # ]
+
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
         conn = psycopg2.connect(
@@ -141,6 +146,7 @@ class ReadBilling(models.Model):
             ('acc_number', '=', acc_number),
             ('period_start', '=', period_starts),
         ], limit=1)
+
         dt = datetime.strptime(str(period_starts), '%Y-%m-%d')
         new_dt = dt - relativedelta(months=1)
         new_date_str = new_dt.strftime('%Y-%m-%d')
@@ -334,6 +340,7 @@ class ReadBilling(models.Model):
         synced = 0
         errors = 0
         dupes_seen = 0
+        skipped_existing = 0
         start = time.time()
 
         try:
@@ -372,34 +379,27 @@ class ReadBilling(models.Model):
 
             Billing = self.env['billing.read'].sudo()
 
-            self.env.cr.execute("SELECT id, acc_number, bill_id FROM billing_read")
-            existing_map = {(r[1], r[2]): r[0] for r in self.env.cr.fetchall()}
-            _logger.info("Preloaded %d existing keys", len(existing_map))
+            self.env.cr.execute(
+                "SELECT acc_number, bill_id, period_start, period_end FROM billing_read"
+            )
+            # set of keys already in the table -- used purely to decide skip vs create
+            existing_keys = {(r[0], r[1], r[2], r[3]) for r in self.env.cr.fetchall()}
+            _logger.info("Preloaded %d existing keys", len(existing_keys))
 
             to_create = []  # vals dicts queued for create() in this batch
-            to_create_keys = []  # parallel keys, so created ids can be mapped back
-            pending_index = {}  # key -> index into to_create, for same-batch dupes
-            to_update = []  # (existing_id, vals) tuples
+            pending_keys = set()  # keys already queued in this batch, to catch same-batch dupes
             BATCH = 2000
 
             def flush():
-                nonlocal to_create, to_create_keys, to_update, pending_index, synced
+                nonlocal to_create, pending_keys, synced
                 if to_create:
                     created = Billing.create(to_create)
-                    for key, rec in zip(to_create_keys, created):
-                        existing_map[key] = rec.id
+                    for vals, rec in zip(to_create, created):
+                        existing_keys.add(
+                            (vals["acc_number"], vals["bill_id"], vals["period_start"], vals["period_end"]))
                     synced += len(to_create)
                     to_create = []
-                    to_create_keys = []
-                    pending_index = {}
-                if to_update:
-                    for rec_id, vals in to_update:
-                        try:
-                            Billing.browse(rec_id).write(vals)
-                        except Exception:
-                            _logger.exception("write failed for id=%s", rec_id)
-                    synced += len(to_update)
-                    to_update = []
+                    pending_keys = set()
                 self.env.cr.commit()
 
             for row in cur:
@@ -410,7 +410,6 @@ class ReadBilling(models.Model):
                     continue
 
                 if not row.get("period_start"):
-                    # required field on the model -- skip rather than let create()/write() blow up the batch
                     errors += 1
                     _logger.warning(
                         "Skipping acc_number=%s bill_id=%s: missing period_start",
@@ -418,11 +417,21 @@ class ReadBilling(models.Model):
                     )
                     continue
 
+                period_start_str = str(row["period_start"])
+                period_end_str = str(row["period_end"]) if row["period_end"] else False
+                key = (acc_number, str(bill_id), period_start_str, period_end_str)
+
+                if key in existing_keys or key in pending_keys:
+                    # already in DB (or already queued this batch) -> leave it alone
+                    dupes_seen += 1
+                    skipped_existing += 1
+                    continue
+
                 vals = {
                     "acc_number": acc_number,
                     "bill_id": str(bill_id),
-                    "period_start": str(row["period_start"]),
-                    "period_end": str(row["period_end"]) if row["period_end"] else False,
+                    "period_start": period_start_str,
+                    "period_end": period_end_str,
                     "total_amount": row["total_amount"] or 0.0,
                     "package_name": row["package_name"],
                     "data_limit": row["data_limit"],
@@ -435,31 +444,21 @@ class ReadBilling(models.Model):
                     'email_title': row["email"],
                 }
 
-                key = (acc_number, str(bill_id))
-                existing_id = existing_map.get(key)
+                to_create.append(vals)
+                pending_keys.add(key)
 
-                if key in pending_index:
-                    # same-batch duplicate of a not-yet-created row -> overwrite the queued payload
-                    to_create[pending_index[key]] = vals
-                    dupes_seen += 1
-                elif existing_id:
-                    to_update.append((existing_id, vals))
-                else:
-                    to_create.append(vals)
-                    to_create_keys.append(key)
-                    pending_index[key] = len(to_create) - 1
-
-                if len(to_create) + len(to_update) >= BATCH:
+                if len(to_create) >= BATCH:
                     flush()
                     elapsed = time.time() - start
                     rate = synced / elapsed if elapsed else 0
                     _logger.info(
-                        "...%d synced, %d dupes (%.1fs elapsed, %.0f rows/sec)",
-                        synced, dupes_seen, elapsed, rate
+                        "...%d synced, %d skipped existing (%.1fs elapsed, %.0f rows/sec)",
+                        synced, skipped_existing, elapsed, rate
                     )
 
             flush()
             cur.close()
+            connection.close()
 
         except psycopg2.Error as error:
             raise UserError(f"PostgreSQL error:\n{str(error)}") from error
@@ -469,7 +468,7 @@ class ReadBilling(models.Model):
 
         self.env.cr.commit()
         _logger.info(
-            "Done. %d synced, %d errors, %d dupes seen, %.1fs total",
-            synced, errors, dupes_seen, time.time() - start
+            "Done. %d synced, %d errors, %d skipped existing, %.1fs total",
+            synced, errors, skipped_existing, time.time() - start
         )
         return True
