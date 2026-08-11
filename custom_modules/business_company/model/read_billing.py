@@ -472,3 +472,6 @@ class ReadBilling(models.Model):
             synced, errors, skipped_existing, time.time() - start
         )
         return True
+
+    def clean_olds(self):
+        return True
