@@ -19,7 +19,7 @@ class SMSHelperApi(SmsApi):
         results = []
 
         for message in messages:
-            content = 'Odoo ERP sent from gmobile'
+            content = config.get_param('sms.body')
 
             for recipient in message['numbers']:
                 number = recipient['number']
