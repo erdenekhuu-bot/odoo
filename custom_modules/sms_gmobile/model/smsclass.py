@@ -2,6 +2,7 @@ import logging
 import requests
 
 from odoo.addons.sms.tools.sms_api import SmsApi
+from odoo.addons.sms.models import sms_sms
 
 _logger = logging.getLogger(__name__)
 
@@ -9,6 +10,9 @@ _logger = logging.getLogger(__name__)
 class SMSHelperApi(SmsApi):
 
     def _send_sms_batch(self, messages, delivery_reports_url=False):
+        _logger.warning(
+            "===== CUSTOM SMSHelperApi._send_sms_batch CALLED ====="
+        )
         _logger.info('Sending SMS batch')
         config = self.env['ir.config_parameter'].sudo()
 
@@ -19,7 +23,7 @@ class SMSHelperApi(SmsApi):
         results = []
 
         for message in messages:
-            content = config.get_param('sms.body')
+            content = message['content']
 
             for recipient in message['numbers']:
                 number = recipient['number']
@@ -64,3 +68,5 @@ class SMSHelperApi(SmsApi):
                     })
 
         return results
+
+SmsApi._send_sms_batch = SMSHelperApi._send_sms_batch
