@@ -1,6 +1,6 @@
 from odoo import models
 
-from smsclass import SMSHelperApi
+from .smsclass import SMSHelperApi
 
 
 class ResCompany(models.Model):
