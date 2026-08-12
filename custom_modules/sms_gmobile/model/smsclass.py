@@ -2,7 +2,6 @@ import logging
 import requests
 
 from odoo.addons.sms.tools.sms_api import SmsApi
-from odoo.addons.sms.models import sms_sms
 
 _logger = logging.getLogger(__name__)
 
