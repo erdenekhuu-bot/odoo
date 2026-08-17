@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hide_clicked_column_sms" model="ir.ui.view">
+        <field name="name">mailing.mailing.view.list.sms</field>
+        <field name="model">mailing.mailing</field>
+        <field name="inherit_id" ref="mass_mailing_sms.mailing_mailing_view_tree_sms"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='clicked']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
