@@ -122,6 +122,7 @@ class ReadBilling(models.Model):
         period_start=datetime.strptime(bills.period_start, '%Y-%m-%d').date()
         attachment = self._generate_pdf_attachment_for_account(bills.acc_number,period_start)
 
+
         return {
             'type': 'ir.actions.act_url',
             'url': f'/web/content/{attachment.id}?download=false',
@@ -171,14 +172,16 @@ class ReadBilling(models.Model):
                 .with_context(**context_data)
                 ._render_qweb_pdf("business_company.final_report_pdf",res_ids=[bills.id])
             )
-        except Exception:
+        except Exception as error:
             _logger.exception(
                 "PDF render хийхэд алдаа гарлаа: "
                 "acc_number=%s billing_read=%s",
                 acc_number,
                 bills.id,
             )
-            return False
+            raise UserError(
+                f"PDF render хийхэд алдаа гарлаа:\n{error}"
+            ) from error
 
         attachment = self.env["ir.attachment"].sudo().create({
             "name": f"Billing_{acc_number}_{bills.period_start}.pdf",
