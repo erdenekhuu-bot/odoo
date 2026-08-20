@@ -61,10 +61,10 @@ class ReadBilling(models.Model):
     bill_items = fields.Json(string='Bill Items')
     email_title = fields.Char(string='Email Title', default="")
 
-    _sql_constraints = [
-        ('acc_bill_period_uniq', 'unique(acc_number, bill_id, period_start, period_end)',
-         'Duplicate billing record for this account/bill/period.'),
-    ]
+    # _sql_constraints = [
+    #     ('acc_bill_period_uniq', 'unique(acc_number, bill_id, period_start, period_end)',
+    #      'Duplicate billing record for this account/bill/period.'),
+    # ]
 
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
