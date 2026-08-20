@@ -332,7 +332,7 @@ class ReadBilling(models.Model):
                 JOIN bill b ON b.acc_number_id = an.id
                 JOIN bill_item bi ON bi.bill_id = b.id
                 JOIN packages p ON an.acc_number = p.acc_number
-                WHERE  b.billing_cycle_id = '586'
+                
                 GROUP BY
                     an.subs_id,an.acct_id,an.acc_number,an.cust_name,an.email,b.bill_id,b.billing_cycle_id,
                     b.period_start,b.period_end,b.total_amount,p.data_limit,p.data_nemelt,p.sms_limit,
