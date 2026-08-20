@@ -121,7 +121,7 @@
                     <tr>
                       <td style="padding: 2px 0;">Гэрээний дугаар:</td>
                       <td style="text-align: right">
-                           <t t-out="env.context.get('profile').acc_id"/>
+                           <t t-out="env.context.get('profile').acct_id"/>
                       </td>
                     </tr>
                     <tr>
@@ -241,9 +241,8 @@
 
                 <t t-set="total_amount"
                    t-value="float(docs.env.context.get('total_amount'))"/>
-                <t t-set="before_tax" t-value="total_amount / 1.1"/>
-                <t t-set="vat_amount" t-value="total_amount * 0.1"/>
-                <t t-set="before_month_bill" t-value="float(docs.env.context.get('before_month_bill') or 0.0)"/>
+                <t t-set="month_payment" t-value="float(env.context.get('befoe_tax'))+float(env.context.get('vat'))"/>
+                <t t-set="old_month_payment" t-value="float(total_amount) - float(month_payment)"/>
 
                 <table
                     cellpadding="0"
@@ -259,19 +258,19 @@
                     <tr>
                       <td style="width: 80%; padding: 0 22px;">Татвар тооцоогүй дүн</td>
                       <td style="padding: 1px 20px; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(before_tax)"/>
+                          <span t-out="'{:,.2f}'.format(env.context.get('befoe_tax'))"/>
                       </td>
                     </tr>
                     <tr>
                       <td style="width: 80%; padding: 0 22px;">НӨАТ /10%/</td>
                       <td style="padding: 1px 20px; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(vat_amount)"/>
+                          <span t-out="'{:,.2f}'.format(env.context.get('vat'))"/>
                       </td>
                     </tr>
                     <tr>
                       <td style="width: 80%; padding: 0 22px; font-weight: bold">Дүн</td>
                       <td style="padding: 1px 20px; text-align: end;">
-                           <span t-out="'{:,.2f}'.format(total_amount)"/>
+                           <span t-out="'{:,.2f}'.format(month_payment)"/>
                       </td>
                     </tr>
                   </table>
@@ -311,13 +310,13 @@
                     <tr>
                       <td style="width: 80%;">Тухайн сарын төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(total_amount)"/>
+                          <span t-out="'{:,.2f}'.format(month_payment)"/>
                       </td>
                     </tr>
                     <tr>
                       <td style="width: 80%;">Өмнөх сарын үлдэгдэл төлбөр</td>
                       <td style="padding: 1px 0; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(before_month_bill)"/>
+                          <span t-out="'{:,.2f}'.format(old_month_payment)"/>
                       </td>
                     </tr>
                   </table>

@@ -8,23 +8,22 @@ from datetime import datetime,date
 from odoo.tools import file_open
 import logging
 import time
-import calendar
 
 _logger = logging.getLogger(__name__)
 
 selected_types = [
-    'LOCAL_CALL', 'OTHER_NET_CALL', 'SPECIAL_CALL',
-    'SMS_OWN', 'SMS_OTHER', 'INTERNET_USAGE_FEE',
+    'CALL_OWN_NETWORK', 'CALL_OTHER_NETWORK', 'CALL_SPECIAL',
+    'SMS_OWN_NETWORK', 'SMS_OTHER_NETWORK', 'DATA_USAGE',
     'EXTRA_DATA_FEE', 'OTHER_USAGE', 'CALLKEEPER', 'GTONE'
 ]
 
 new_label = {
-    'LOCAL_CALL': 'Сүлжээн дэх яриа',
-    'OTHER_NET_CALL': 'Бусад сүлжээн дэх яриа',
-    'SPECIAL_CALL': 'Тусгай дугаарын яриа',
-    'SMS_OWN': 'Сүлжээн дэх мессеж',
-    'SMS_OTHER': 'Бусад сүлжээн дэх мессеж',
-    'INTERNET_USAGE_FEE': 'Дата',
+    'CALL_OWN_NETWORK': 'Сүлжээн дэх яриа',
+    'CALL_OTHER_NETWORK': 'Бусад сүлжээн дэх яриа',
+    'CALL_SPECIAL': 'Тусгай дугаарын яриа',
+    'SMS_OWN_NETWORK': 'Сүлжээн дэх мессеж',
+    'SMS_OTHER_NETWORK': 'Бусад сүлжээн дэх мессеж',
+    'DATA_USAGE': 'Дата',
     'EXTRA_DATA_FEE': 'Нэмэлт дата багц',
     'OTHER_USAGE': 'Бусад хэрэглээ',
     'CALLKEEPER': 'Дуудлага хадгалах үйлчилгээ',
@@ -34,7 +33,7 @@ new_label = {
 tagged_types = [
     'Сүлжээдээ ярих',
     'Бусад сүлжээнд ярих',
-    'Сүлжээ хоорондын яриа',
+    'Сүлжээ харгалзахгүй яриа',
     'Дата',
     'Мессеж'
 ]
@@ -44,11 +43,15 @@ class ReadBilling(models.Model):
     _description = 'Read billing'
 
     acc_number = fields.Char(string='Account Number', required=True, index=True)
-    bill_id = fields.Char(string='Bill ID', required=True, index=True)
-    period_start = fields.Char(string='Period Start', required=True)
+    bill_id = fields.Char(string='Bill ID')
+    email= fields.Char(string='Email')
+    cust_name= fields.Char(string='Customer Name')
+    subs_id= fields.Char(string='Subs ID')
+    acct_id= fields.Char(string='Account ID')
+    billing_cycle_id=fields.Char(string='Bill Cycle ID')
+    period_start = fields.Char(string='Period Start')
     period_end = fields.Char(string='Period End')
     total_amount = fields.Float(string='Total Amount')
-    package_name = fields.Char(string='Package Name')
     data_limit = fields.Char(string='Data Limit')
     data_nemelt = fields.Char(string='Data Nemelt')
     sms_limit = fields.Char(string='SMS Limit')
@@ -58,10 +61,10 @@ class ReadBilling(models.Model):
     bill_items = fields.Json(string='Bill Items')
     email_title = fields.Char(string='Email Title', default="")
 
-    # _sql_constraints = [
-    #     ('acc_bill_period_uniq', 'unique(acc_number, bill_id, period_start, period_end)',
-    #      'Duplicate billing record for this account/bill/period.'),
-    # ]
+    _sql_constraints = [
+        ('acc_bill_period_uniq', 'unique(acc_number, bill_id, period_start, period_end)',
+         'Duplicate billing record for this account/bill/period.'),
+    ]
 
     def _get_connection(self):
         config = self.env["ir.config_parameter"].sudo()
@@ -86,7 +89,7 @@ class ReadBilling(models.Model):
         except FileNotFoundError:
             return False
 
-    def filter_items(self, data: list[dict], item_types: list[str], labels: dict[str, str]) -> list[dict]:
+    def filter_items(self, data: list, item_types: list, labels: dict) -> list[dict]:
         return [
             {
                 **item,
@@ -97,7 +100,7 @@ class ReadBilling(models.Model):
                 ),
             }
             for item in data
-            if item.get('item_type') in item_types
+            if item['item_type'] in item_types
         ]
 
     def generate_head_data(self, params: list[str], tag: list[str]) -> list[dict]:
@@ -112,20 +115,12 @@ class ReadBilling(models.Model):
 
     def click_btn(self):
         self.ensure_one()
-        target_year = datetime.today().year
-        target_month = datetime.today().month
-        start_date = f"{target_year}-{target_month:02d}-01"
-        last_day = calendar.monthrange(target_year, target_month)[1]
-        end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
-
-        account=self.env['billing.read.account'].search([('acc_number', '=', self.acc_number)],limit=1)
         bills = self.env['billing.read'].search([
             ('acc_number', '=', self.acc_number),
             ('period_start', '=', self.period_start),
         ], limit=1)
         period_start=datetime.strptime(bills.period_start, '%Y-%m-%d').date()
-
-        attachment = self._generate_pdf_attachment_for_account(account.acc_number,period_start)
+        attachment = self._generate_pdf_attachment_for_account(bills.acc_number,period_start)
 
         return {
             'type': 'ir.actions.act_url',
@@ -134,27 +129,10 @@ class ReadBilling(models.Model):
         }
 
     def _generate_pdf_attachment_for_account(self, acc_number,period_starts):
-        target_year = datetime.today().year
-        target_month = datetime.today().month
-        start_date = f"{target_year}-{target_month:02d}-01"
-        last_day = calendar.monthrange(target_year, target_month)[1]
-        end_date = f"{target_year}-{target_month:02d}-{last_day} 23:59:59"
-        account = self.env['billing.read.account'].search([('acc_number', '=', acc_number)], limit=1)
-        _logger.info('account: %s', account)
-
         bills = self.env['billing.read'].search([
             ('acc_number', '=', acc_number),
             ('period_start', '=', period_starts),
         ], limit=1)
-
-        dt = datetime.strptime(str(period_starts), '%Y-%m-%d')
-        new_dt = dt - relativedelta(months=1)
-        new_date_str = new_dt.strftime('%Y-%m-%d')
-        before_month_bill=self.env['billing.read'].search([
-            ('acc_number', '=', acc_number),
-            ('period_start', '=', new_date_str),
-        ], limit=1)
-
         _logger.info('bills: %s', bills)
         head_data = self.generate_head_data(
             [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
@@ -165,38 +143,27 @@ class ReadBilling(models.Model):
         year = period_start.year
         month = period_start.month
         total_amount = bills.total_amount
+        vat=next((i for i in bills.bill_items if i.get('item_type')=='VAT'), None)['amount']
+        before_tax=next((i for i in bills.bill_items if i.get('item_type')=='TOTAL_CHARGE'), None)['amount']
 
         context_data = {
-            "logo_b64": self.get_image_base64(
-                "static/img/logo.png"
-            ),
-            "app_b64": self.get_image_base64(
-                "static/img/appstoreqr.png"
-            ),
-            "qr_b64": self.get_image_base64(
-                "static/img/playstoreqr.png"
-            ),
-            "qrs":self.get_image_base64(
-                "static/img/qrs.png"
-            ),
-            "screen1_b64": self.get_image_base64(
-                "static/img/whitescreen.png"
-            ),
-            "screen2_b64": self.get_image_base64(
-                "static/img/whitescreen2.png"
-            ),
-            "screen3_b64": self.get_image_base64(
-                "static/img/whitescreen3.png"
-            ),
+            "logo_b64": self.get_image_base64("static/img/logo.png"),
+            "app_b64": self.get_image_base64("static/img/appstoreqr.png"),
+            "qr_b64": self.get_image_base64("static/img/playstoreqr.png"),
+            "qrs":self.get_image_base64("static/img/qrs.png"),
+            "screen1_b64": self.get_image_base64("static/img/whitescreen.png"),
+            "screen2_b64": self.get_image_base64("static/img/whitescreen2.png"),
+            "screen3_b64": self.get_image_base64("static/img/whitescreen3.png"),
             "datetimes": f"{year} ОНЫ {month}-Р",
-            "profile": account,
+            "profile": bills,
             "date_create": f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
             'period_start': f"{str(period_start).replace('-', '/')}",
             'period_end': f"{str(period_end).replace('-', '/')}",
             "head_data": head_data,
             "data": data,
             'total_amount': total_amount,
-            'before_month_bill': before_month_bill.total_amount,
+            'befoe_tax': before_tax,
+            'vat': vat,
         }
 
         try:
@@ -348,9 +315,8 @@ class ReadBilling(models.Model):
             QUERY = """
                 SELECT
                     an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-                    b.bill_id, b.period_start, b.period_end, b.total_amount,
-                    p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-                    p.own_network_limit, p.other_call_limit, p.all_call_limit,
+                    b.bill_id, b.billing_cycle_id, b.period_start, b.period_end, b.total_amount,
+                    p.data_limit,p.data_nemelt,p.sms_limit,p.own_network_limit,p.other_call_limit,p.all_call_limit,
                     json_agg(
                         json_build_object(
                             'item_group_type', bi.item_group_type,
@@ -366,11 +332,11 @@ class ReadBilling(models.Model):
                 JOIN bill b ON b.acc_number_id = an.id
                 JOIN bill_item bi ON bi.bill_id = b.id
                 JOIN packages p ON an.acc_number = p.acc_number
+                WHERE  b.billing_cycle_id = '586'
                 GROUP BY
-                    an.subs_id, an.acct_id, an.acc_number, an.cust_name, an.email,
-                    b.bill_id, b.period_start, b.period_end, b.state, b.total_amount,
-                    p.package_name, p.data_limit, p.data_nemelt, p.sms_limit,
-                    p.own_network_limit, p.other_call_limit, p.all_call_limit;
+                    an.subs_id,an.acct_id,an.acc_number,an.cust_name,an.email,b.bill_id,b.billing_cycle_id,
+                    b.period_start,b.period_end,b.total_amount,p.data_limit,p.data_nemelt,p.sms_limit,
+                    p.own_network_limit,p.other_call_limit,p.all_call_limit;
             """
 
             cur = connection.cursor("billing_sync_cursor", cursor_factory=psycopg2.extras.RealDictCursor)
@@ -433,15 +399,19 @@ class ReadBilling(models.Model):
                     "period_start": period_start_str,
                     "period_end": period_end_str,
                     "total_amount": row["total_amount"] or 0.0,
-                    "package_name": row["package_name"],
+                    'billing_cycle_id': row["billing_cycle_id"],
+                    'email': row["email"],
+                    'acct_id': row["acct_id"],
+                    'subs_id': row["subs_id"],
                     "data_limit": row["data_limit"],
                     "data_nemelt": row["data_nemelt"],
+                    'cust_name': row["cust_name"],
                     "sms_limit": row["sms_limit"],
                     "own_network_limit": row["own_network_limit"],
                     "other_call_limit": row["other_call_limit"],
                     "all_call_limit": row["all_call_limit"],
                     "bill_items": row["bill_items"],
-                    'email_title': row["email"],
+                    'email_title': '',
                 }
 
                 to_create.append(vals)
