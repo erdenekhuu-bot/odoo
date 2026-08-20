@@ -113,6 +113,33 @@ class ReadBilling(models.Model):
             for p, t in zip(params, tag)
         ]
 
+    def convert_amount(
+            self,
+            description: str,
+            sample: list[dict],
+    ):
+        type_mapping = {
+            "CALL_OWN_NETWORK": "LOCAL_CALL",
+            "CALL_OTHER_NETWORK": "OTHER_NET_CALL",
+            "CALL_SPECIAL": "SPECIAL_CALL",
+            "SMS_OWN_NETWORK": "SMS_OWN",
+            "SMS_OTHER_NETWORK": "SMS_OTHER",
+            "DATA_USAGE": "DATA_USAGE",
+            "EXTRA_DATA_FEE": "EXTRA_DATA_FEE",
+            "OTHER_USAGE": "OTHER_USAGE",
+            "CALLKEEPER": "CALLKEEPER",
+            "GTONE": "GRONE_319_CALL",
+        }
+
+        bill_dict = {
+            item.get("item_type"): item
+            for item in sample
+        }
+
+        source_type = type_mapping.get(description, description)
+
+        return bill_dict.get(source_type, {}).get("amount", 0)
+
     def click_btn(self):
         self.ensure_one()
         bills = self.env['billing.read'].search([
@@ -139,13 +166,28 @@ class ReadBilling(models.Model):
             [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
             tagged_types)
         data = self.filter_items(bills.bill_items, selected_types, new_label)
+        data = [
+            {
+                **item,
+                "amount": self.convert_amount(
+                    item.get("item_type_code", ""),
+                    bills.bill_items,
+                ),
+            }
+            for item in data
+        ]
+
+
         period_start = datetime.strptime(bills.period_start, '%Y-%m-%d').date()
         period_end = datetime.strptime(bills.period_end, '%Y-%m-%d').date()
         year = period_start.year
         month = period_start.month
         total_amount = bills.total_amount
-        vat=next((i for i in bills.bill_items if i.get('item_type')=='VAT'), None)['amount']
-        before_tax=next((i for i in bills.bill_items if i.get('item_type')=='TOTAL_CHARGE'), None)['amount']
+
+        vat_item = next((i for i in bills.bill_items if i.get('item_type') == 'VAT'), None)
+        vat = vat_item.get('amount', 0.0) if vat_item else 0.0
+        total_item = next((i for i in bills.bill_items if i.get('item_type') == 'TOTAL_CHARGE'), None)
+        before_tax = total_item.get('amount', 0.0) if total_item else 0.0
 
         context_data = {
             "logo_b64": self.get_image_base64("static/img/logo.png"),

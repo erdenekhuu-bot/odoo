@@ -241,7 +241,7 @@
 
                 <t t-set="total_amount"
                    t-value="float(docs.env.context.get('total_amount'))"/>
-                <t t-set="month_payment" t-value="float(env.context.get('befoe_tax'))+float(env.context.get('vat'))"/>
+                <t t-set="month_payment" t-value="float(env.context.get('before_tax',0))+float(env.context.get('vat',0))"/>
                 <t t-set="old_month_payment" t-value="float(total_amount)-float(month_payment)"/>
 
                 <table
@@ -258,7 +258,7 @@
                     <tr>
                       <td style="width: 80%; padding: 0 22px;">Татвар тооцоогүй дүн</td>
                       <td style="padding: 1px 20px; text-align: end;">
-                          <span t-out="'{:,.2f}'.format(env.context.get('befoe_tax'))"/>
+                          <span t-out="'{:,.2f}'.format(env.context.get('before_tax',0))"/>
                       </td>
                     </tr>
                     <tr>
