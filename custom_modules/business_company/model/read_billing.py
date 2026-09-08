@@ -5,7 +5,6 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 import base64
 from datetime import datetime,date
-from odoo.tools import file_open
 import logging
 import time
 
@@ -80,14 +79,6 @@ class ReadBilling(models.Model):
             c.execute("SET statement_timeout = '300000';")
         conn.commit()
         return conn
-
-    def get_image_base64(self, relative_path):
-        resource_path = f"business_company/{relative_path}"
-        try:
-            with file_open(resource_path, 'rb') as image_file:
-                return base64.b64encode(image_file.read()).decode('utf-8')
-        except FileNotFoundError:
-            return False
 
     def filter_items(self, data: list, item_types: list, labels: dict) -> list[dict]:
         return [
@@ -190,13 +181,6 @@ class ReadBilling(models.Model):
         before_tax = total_item.get('amount', 0.0) if total_item else 0.0
 
         context_data = {
-            "logo_b64": self.get_image_base64("static/img/logo.png"),
-            "app_b64": self.get_image_base64("static/img/appstoreqr.png"),
-            "qr_b64": self.get_image_base64("static/img/playstoreqr.png"),
-            "qrs":self.get_image_base64("static/img/qrs.png"),
-            "screen1_b64": self.get_image_base64("static/img/whitescreen.png"),
-            "screen2_b64": self.get_image_base64("static/img/whitescreen2.png"),
-            "screen3_b64": self.get_image_base64("static/img/whitescreen3.png"),
             "datetimes": f"{year} ОНЫ {month}-Р",
             "profile": bills,
             "date_create": f"{str(period_start).replace('-', '/')}-{str(period_end).replace('-', '/')}",
