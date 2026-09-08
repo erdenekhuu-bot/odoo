@@ -66,7 +66,11 @@
                         </h1>
                     </td>
                     <td style="text-align: right; vertical-align: middle; padding: 2px 0;">
-                      <img t-att-src="'data:image/png;base64,%s' % env.context.get('logo_b64')" width="140px" alt=""/>
+<!--                      <img t-att-src="'data:image/png;base64,%s' % env.context.get('logo_b64')" width="140px" alt=""/>-->
+                         <img t-att-src="web_base_url + '/business_company/static/img/logo.png'"
+                                            alt=""
+                                            style="width: 140px;"
+                                        />
                     </td>
                 </tr>
             </table>
@@ -371,9 +375,24 @@
                           </tr>
                           <tr>
                             <td>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="140px" alt="" style="padding-left: 12px; padding-top:16px;"/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="140px" alt="" style="padding-top:16px;"/>
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="140px" alt="" style="padding-top:16px;" />
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen1_b64')" width="140px" alt="" style="padding-left: 12px; padding-top:16px;"/>-->
+                                <img t-att-src="web_base_url + '/business_company/static/img/whitescreen.png'"
+                                      alt=""
+                                      width="140px"
+                                      style="padding-left: 12px; padding-top:16px;"
+                                        />
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen2_b64')" width="140px" alt="" style="padding-top:16px;"/>-->
+                                <img t-att-src="web_base_url + '/business_company/static/img/whitescreen2.png'"
+                                      alt=""
+                                      width="140px"
+                                      style="padding-top:16px;"
+                                        />
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('screen3_b64')" width="140px" alt="" style="padding-top:16px;" />-->
+                                 <img t-att-src="web_base_url + '/business_company/static/img/whitescreen3.png'"
+                                      alt=""
+                                      width="140px"
+                                      style="padding-top:16px;"
+                                        />
                             </td>
                           </tr>
                         </table>
@@ -400,9 +419,11 @@
                           </tr>
                           <tr>
                             <td style="text-align: center">
-<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('app_b64')" width="170px" alt="" style="padding-left: 8px;"/>-->
-<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qr_b64')"  style="padding: 4px;" width="150px" alt=""/>-->
-                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qrs')" width="300px" alt=""/>
+<!--                                <img t-att-src="'data:image/png;base64,%s' % env.context.get('qrs')" width="300px" alt=""/>-->
+                                <img t-att-src="web_base_url + '/business_company/static/img/qrs.png'"
+                                      alt=""
+                                      width="300px"
+                                        />
 
                             </td>
                           </tr>

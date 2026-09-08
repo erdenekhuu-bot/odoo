@@ -265,12 +265,12 @@ class ReadBilling(models.Model):
                 "is_public": False,
             })
 
-        # bills = BillingRead.search([
-        #     ("acc_number", "like", "9810"),
-        #     ("period_start", ">=", start_date),
-        #     ("period_start", "<", end_date),
-        #     ("email", "!=", False),
-        # ])
+        bills = BillingRead.search([
+            ("acc_number", "like", "9810"),
+            ("period_start", ">=", start_date),
+            ("period_start", "<", end_date),
+            ("email", "!=", False),
+        ])
         groups = BillingGroup.search([])
 
         # contacts = MailingContact.create([{
@@ -393,8 +393,11 @@ class ReadBilling(models.Model):
             self.env.cr.execute(
                 "SELECT acc_number, bill_id, period_start, period_end FROM billing_read"
             )
-            # set of keys already in the table -- used purely to decide skip vs create
-            existing_keys = {(r[0], r[1], r[2], r[3]) for r in self.env.cr.fetchall()}
+            existing_keys = {
+                (str(r[0]), str(r[1]), str(r[2]), str(r[3]) if r[3] else False)
+                for r in self.env.cr.fetchall()
+            }
+
             _logger.info("Preloaded %d existing keys", len(existing_keys))
 
             to_create = []  # vals dicts queued for create() in this batch
@@ -404,8 +407,19 @@ class ReadBilling(models.Model):
             def flush():
                 nonlocal to_create, pending_keys, synced
                 if to_create:
-                    created = Billing.create(to_create)
-                    for vals, rec in zip(to_create, created):
+                    try:
+                        created = Billing.create(to_create)
+                    except psycopg2.errors.UniqueViolation:
+                        self.env.cr.rollback()
+                        created = []
+                        for vals in to_create:
+                            try:
+                                rec = Billing.create(vals)
+                                created.append(rec)
+                            except psycopg2.errors.UniqueViolation:
+                                self.env.cr.rollback()
+                                _logger.warning("Skipped dup on fallback: %s", vals.get("acc_number"))
+                    for vals in to_create:
                         existing_keys.add(
                             (vals["acc_number"], vals["bill_id"], vals["period_start"], vals["period_end"]))
                     synced += len(to_create)
