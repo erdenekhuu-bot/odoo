@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="practice_window_action" model="ir.actions.act_window">
+        <field name="name">Odoo practice</field>
+        <field name="res_model">practice.odoo.model</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+    <menuitem id="jishee_menu_id" name="Jishee" sequence="2" action="practice_window_action"/>
+</odoo>

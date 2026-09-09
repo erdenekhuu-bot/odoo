@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="all_practice" model="ir.ui.view">
+        <field name="name">practice.odoo.model.list</field>
+        <field name="model">practice.odoo.model</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+</odoo>
