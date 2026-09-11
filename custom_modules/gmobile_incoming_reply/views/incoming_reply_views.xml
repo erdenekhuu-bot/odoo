@@ -33,7 +33,7 @@
     </record>
 
     <record id="action_incoming_reply" model="ir.actions.act_window">
-        <field name="name">Incoming Replies</field>
+        <field name="name">Gmobile Email Replies</field>
         <field name="res_model">gmobile.incoming.reply</field>
         <field name="view_mode">list,form</field>
     </record>
