@@ -9,7 +9,8 @@
             <field name="interval_number">1</field>
             <field name="interval_type">weeks</field>
             <field name="nextcall">2026-08-07 18:30:00</field>
-            <field name="active" eval="True"/>
+<!--            <field name="active" eval="True"/>-->
+            <field name="active">False</field>
         </record>
         <record id="ir_cron_read_account" model="ir.cron">
             <field name="name">Read Account (Billing)</field>
@@ -36,6 +37,15 @@
             <field name="code">model.initiate_action_campaign_bills()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">months</field>
+            <field name="active">False</field>
+        </record>
+        <record id="ir_cron_billing_oracle_sync" model="ir.cron">
+            <field name="name">GMobile: Sync Oracle Billing Data</field>
+            <field name="model_id" ref="model_billing_oracle"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_sync_billing()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
             <field name="active">False</field>
         </record>
     </data>

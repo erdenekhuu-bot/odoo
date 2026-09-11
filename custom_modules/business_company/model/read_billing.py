@@ -11,9 +11,10 @@ import time
 _logger = logging.getLogger(__name__)
 
 selected_types = [
-    'CALL_OWN_NETWORK', 'CALL_OTHER_NETWORK', 'CALL_SPECIAL',
-    'SMS_OWN_NETWORK', 'SMS_OTHER_NETWORK', 'DATA_USAGE',
-    'EXTRA_DATA_FEE', 'OTHER_USAGE', 'CALLKEEPER', 'GTONE'
+    # 'CALL_OWN_NETWORK', 'CALL_OTHER_NETWORK', 'CALL_SPECIAL',
+    # 'SMS_OWN_NETWORK', 'SMS_OTHER_NETWORK', 'DATA_USAGE',
+    # 'EXTRA_DATA_FEE', 'OTHER_USAGE', 'CALLKEEPER', 'GTONE'
+    'CALLKEEPER','GTONE','FRANK_CALL','ENJOY_RADIO'
 ]
 
 new_label = {
@@ -27,14 +28,20 @@ new_label = {
     'OTHER_USAGE': 'Бусад хэрэглээ',
     'CALLKEEPER': 'Дуудлага хадгалах үйлчилгээ',
     'GTONE': 'Gtone үйлчилгээ',
+    'FRANK_CALL': 'Пранк дуудлага',
+    'ENJOY_RADIO': 'Enjoy радио'
 }
 
 tagged_types = [
-    'Сүлжээдээ ярих',
-    'Бусад сүлжээнд ярих',
+    'Сүлжээн дэх яриа',
+    'Бусад сүлжээн дэх яриа',
     'Сүлжээ харгалзахгүй яриа',
-    'Дата',
-    'Мессеж'
+    'Нэмэлт дата',
+    'Мессеж',
+    'ОУ-ын яриа',
+    'ОУ-ын мессеж',
+    'Тусгай дугаарын яриа',
+    'Тусгай дугаарын мессеж'
 ]
 
 class ReadBilling(models.Model):
@@ -153,8 +160,30 @@ class ReadBilling(models.Model):
             ('period_start', '=', period_starts),
         ], limit=1)
         _logger.info('bills: %s', bills)
+        international_call = next(
+            (item for item in bills.bill_items if item['item_type'] == 'INTERNATIONAL_CALL'),
+            None
+        )
+        international_sms = next(
+            (item for item in bills.bill_items if item['item_type'] == 'INTERNATIONAL_SMS'),
+            None
+        )
+        special_call=next(
+            (item for item in bills.bill_items if item['item_type'] == 'SPECIAL_CALL'),
+            None
+        )
+        speical_sms = next(
+            (item for item in bills.bill_items if item['item_type'] == 'SPECIAL_SMS'),
+            None
+        )
         head_data = self.generate_head_data(
-            [bills.own_network_limit, bills.other_call_limit, bills.all_call_limit, bills.data_limit, bills.sms_limit],
+            [bills.own_network_limit, bills.other_call_limit,
+                    bills.all_call_limit, bills.data_limit,
+                     international_call['item_type'] if international_call else None,
+                     international_sms['item_type'] if international_sms else None,
+                     special_call['item_type'] if special_call else None,
+                     speical_sms['item_type'] if speical_sms else None
+             ],
             tagged_types)
         data = self.filter_items(bills.bill_items, selected_types, new_label)
         data = [
