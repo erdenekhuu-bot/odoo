@@ -33,11 +33,11 @@
     </record>
 
     <record id="action_incoming_reply" model="ir.actions.act_window">
-        <field name="name">Gmobile Email Replies</field>
+        <field name="name">Replies</field>
         <field name="res_model">gmobile.incoming.reply</field>
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_incoming_reply_root" name="Incoming Replies" sequence="90"/>
+    <menuitem id="menu_incoming_reply_root" name="Gmobile Email Replies" sequence="90"/>
     <menuitem id="menu_incoming_reply" parent="menu_incoming_reply_root" action="action_incoming_reply" sequence="1"/>
 </odoo>
