@@ -7,7 +7,6 @@
                 <field name="received_date"/>
                 <field name="email_from"/>
                 <field name="subject"/>
-                <field name="body_preview"/>
             </list>
         </field>
     </record>
