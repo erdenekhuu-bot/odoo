@@ -11,38 +11,32 @@ import time
 _logger = logging.getLogger(__name__)
 
 selected_types = [
-    # 'CALL_OWN_NETWORK', 'CALL_OTHER_NETWORK', 'CALL_SPECIAL',
-    # 'SMS_OWN_NETWORK', 'SMS_OTHER_NETWORK', 'DATA_USAGE',
-    # 'EXTRA_DATA_FEE', 'OTHER_USAGE', 'CALLKEEPER', 'GTONE'
     'CALLKEEPER','GTONE','FRANK_CALL','ENJOY_RADIO'
+]
+
+head_types = [
+    'CALL_OWN_NETWORK','CALL_OTHER_NETWORK','SMS_OWN_NETWORK','DATA_USAGE','SPECIAL_CALL','SPECIAL_SMS','INTERNATIONAL_CALL','INTERNATIONAL_SMS'
 ]
 
 new_label = {
     'CALL_OWN_NETWORK': 'Сүлжээн дэх яриа',
     'CALL_OTHER_NETWORK': 'Бусад сүлжээн дэх яриа',
     'CALL_SPECIAL': 'Тусгай дугаарын яриа',
-    'SMS_OWN_NETWORK': 'Сүлжээн дэх мессеж',
+    'SMS_OWN_NETWORK': 'Мессеж',
     'SMS_OTHER_NETWORK': 'Бусад сүлжээн дэх мессеж',
-    'DATA_USAGE': 'Дата',
+    'DATA_USAGE': 'Нэмэлт дата',
     'EXTRA_DATA_FEE': 'Нэмэлт дата багц',
     'OTHER_USAGE': 'Бусад хэрэглээ',
     'CALLKEEPER': 'Дуудлага хадгалах үйлчилгээ',
     'GTONE': 'Gtone үйлчилгээ',
     'FRANK_CALL': 'Пранк дуудлага',
-    'ENJOY_RADIO': 'Enjoy радио'
+    'ENJOY_RADIO': 'Enjoy радио',
+    'SPECIAL_CALL': 'Тусгай дугаарын яриа',
+    'SPECIAL_SMS': 'Тусгай дугаарын мессеж',
+    'INTERNATIONAL_CALL': 'ОУ-ын яриа',
+    'INTERNATIONAL_SMS': 'ОУ-ын мессеж'
 }
 
-tagged_types = [
-    'Сүлжээн дэх яриа',
-    'Бусад сүлжээн дэх яриа',
-    'Сүлжээ харгалзахгүй яриа',
-    'Нэмэлт дата',
-    'Мессеж',
-    'ОУ-ын яриа',
-    'ОУ-ын мессеж',
-    'Тусгай дугаарын яриа',
-    'Тусгай дугаарын мессеж'
-]
 
 class ReadBilling(models.Model):
     _name = 'billing.read'
@@ -101,16 +95,6 @@ class ReadBilling(models.Model):
             if item['item_type'] in item_types
         ]
 
-    def generate_head_data(self, params: list[str], tag: list[str]) -> list[dict]:
-        return [
-            {
-                'name': t,
-                'description': '' if p is False else p,
-                'amount': 0,
-            }
-            for p, t in zip(params, tag)
-        ]
-
     def convert_amount(
             self,
             description: str,
@@ -119,7 +103,7 @@ class ReadBilling(models.Model):
         type_mapping = {
             "CALL_OWN_NETWORK": "LOCAL_CALL",
             "CALL_OTHER_NETWORK": "OTHER_NET_CALL",
-            "CALL_SPECIAL": "SPECIAL_CALL",
+            "SPECIAL_CALL": "SPECIAL_CALL",
             "SMS_OWN_NETWORK": "SMS_OWN",
             "SMS_OTHER_NETWORK": "SMS_OTHER",
             "DATA_USAGE": "DATA_USAGE",
@@ -127,6 +111,9 @@ class ReadBilling(models.Model):
             "OTHER_USAGE": "OTHER_USAGE",
             "CALLKEEPER": "CALLKEEPER",
             "GTONE": "GRONE_319_CALL",
+            'INTERNATIONAL_CALL':'INTERNATIONAL_CALL',
+            'INTERNATIONAL_SMS':'INTERNATIONAL_SMS'
+
         }
 
         bill_dict = {
@@ -136,7 +123,7 @@ class ReadBilling(models.Model):
 
         source_type = type_mapping.get(description, description)
 
-        return bill_dict.get(source_type, {}).get("amount", 0)
+        return bill_dict.get(source_type, {}).get("charge", 0)
 
     def click_btn(self):
         self.ensure_one()
@@ -160,31 +147,20 @@ class ReadBilling(models.Model):
             ('period_start', '=', period_starts),
         ], limit=1)
         _logger.info('bills: %s', bills)
-        international_call = next(
-            (item for item in bills.bill_items if item['item_type'] == 'INTERNATIONAL_CALL'),
-            None
-        )
-        international_sms = next(
-            (item for item in bills.bill_items if item['item_type'] == 'INTERNATIONAL_SMS'),
-            None
-        )
-        special_call=next(
-            (item for item in bills.bill_items if item['item_type'] == 'SPECIAL_CALL'),
-            None
-        )
-        speical_sms = next(
-            (item for item in bills.bill_items if item['item_type'] == 'SPECIAL_SMS'),
-            None
-        )
-        head_data = self.generate_head_data(
-            [bills.own_network_limit, bills.other_call_limit,
-                    bills.all_call_limit, bills.data_limit,
-                     international_call['item_type'] if international_call else None,
-                     international_sms['item_type'] if international_sms else None,
-                     special_call['item_type'] if special_call else None,
-                     speical_sms['item_type'] if speical_sms else None
-             ],
-            tagged_types)
+
+        head_data=self.filter_items(bills.bill_items,head_types,new_label)
+
+        head_data = [
+            {
+                **item,
+                "charge": self.convert_amount(
+                    item.get("item_type_code", ""),
+                    bills.bill_items,
+                ),
+            }
+            for item in head_data
+        ]
+
         data = self.filter_items(bills.bill_items, selected_types, new_label)
         data = [
             {
@@ -196,7 +172,7 @@ class ReadBilling(models.Model):
             }
             for item in data
         ]
-
+        print(data)
 
         period_start = datetime.strptime(bills.period_start, '%Y-%m-%d').date()
         period_end = datetime.strptime(bills.period_end, '%Y-%m-%d').date()
@@ -513,7 +489,4 @@ class ReadBilling(models.Model):
             "Done. %d synced, %d errors, %d skipped existing, %.1fs total",
             synced, errors, skipped_existing, time.time() - start
         )
-        return True
-
-    def clean_olds(self):
         return True
