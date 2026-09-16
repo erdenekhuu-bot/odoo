@@ -39,6 +39,7 @@
              name="Synchronization"
              sequence="10"
              action="action_billing_read_window"
+             groups="base.group_system"
      />
 
      <record id="action_single_bill_mailings" model="ir.actions.act_window">
