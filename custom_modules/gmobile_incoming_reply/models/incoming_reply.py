@@ -24,3 +24,23 @@ class IncomingReply(models.Model):
         if custom_values:
             values.update(custom_values)
         return super().message_new(msg_dict, values)
+
+    def action_reply_to_customer(self):
+        self.ensure_one()
+        compose_ctx = {
+            'default_model': self._name,
+            'default_res_ids': [self.id],
+            'default_composition_mode': 'comment',
+            'default_subject': f"Re: {self.subject or ''}",
+            'default_partner_ids': [],
+            'default_email_to': self.email_from,
+            'default_body': '',
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reply to Customer',
+            'res_model': 'mail.compose.message',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': compose_ctx,
+        }

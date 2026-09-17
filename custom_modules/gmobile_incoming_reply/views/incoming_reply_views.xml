@@ -15,19 +15,25 @@
         <field name="name">gmobile.incoming.reply.form</field>
         <field name="model">gmobile.incoming.reply</field>
         <field name="arch" type="xml">
-            <form string="Incoming Reply">
-                <sheet>
-                    <group>
-                        <field name="email_from"/>
-                        <field name="subject"/>
-                        <field name="received_date"/>
-                    </group>
+            <form>
+            <header>
+                <button name="action_reply_to_customer"
+                        string="Reply to Customer"
+                        type="object"
+                        class="btn-primary"/>
+            </header>
+            <sheet>
+                <group>
+                    <field name="email_from"/>
+                    <field name="subject"/>
+                    <field name="received_date"/>
                     <field name="body_preview"/>
-                </sheet>
-                <div class="oe_chatter">
-                    <field name="message_ids"/>
-                </div>
-            </form>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_ids"/>
+            </div>
+        </form>
         </field>
     </record>
 

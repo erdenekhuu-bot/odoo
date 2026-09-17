@@ -172,7 +172,6 @@ class ReadBilling(models.Model):
             }
             for item in data
         ]
-        print(data)
 
         period_start = datetime.strptime(bills.period_start, '%Y-%m-%d').date()
         period_end = datetime.strptime(bills.period_end, '%Y-%m-%d').date()
