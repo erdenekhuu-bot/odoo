@@ -7,10 +7,10 @@
                 <field name="received_date"/>
                 <field name="email_from"/>
                 <field name="subject"/>
-                 <button name="action_reply_to_customer"
-                            string="Reply to Customer"
-                            type="object"
-                            class="btn-primary"/>
+<!--                 <button name="action_reply_to_customer"-->
+<!--                            string="Reply to Customer"-->
+<!--                            type="object"-->
+<!--                            class="btn-primary"/>-->
             </list>
         </field>
     </record>

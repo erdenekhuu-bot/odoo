@@ -31,30 +31,23 @@ class IncomingReply(models.Model):
         if not self.email_from:
             raise UserError("No customer email address to reply to.")
 
-        # mail = self.env['mail.mail'].sudo().create({
-        #     'email_from': config.get_param("main.mail"),
-        #     'email_to': self.email_from,
-        #     'subject': f"Re: {self.subject or ''}",
-        #     'body_html': self.body_preview or '',
-        #     'model': self._name,
-        #     'res_id': self.id,
-        #     'auto_delete': True,
-        #     'state': 'outgoing',
-        # })
+        mail = self.env['mail.mail'].sudo().create({
+            'email_from': config.get_param("main.mail"),
+            'email_to': self.email_from,
+            'subject': f"Re: {self.subject or ''}",
+            'body_html': self.body_preview or '',
+            'model': self._name,
+            'res_id': self.id,
+            'auto_delete': True,
+            'state': 'outgoing',
+        })
         return {
-            'name': 'Select Mail to Reply',
+            'name': 'Reply back',
             'type': 'ir.actions.act_window',
             'res_model': 'mail.mail',
-            'view_mode': 'list,form',
-            'views': [(self.env.ref('mail.view_mail_tree').id, 'list'),
-                      (self.env.ref('mail.view_mail_form').id, 'form')],
-            'domain': [('email_to', '=', self.email_from)],
+            'res_id': mail.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('mail.view_mail_form').id,
             'target': 'new',
-            'context': {
-                'default_email_to': self.email_from,
-                'default_email_from': config.get_param("main.mail"),
-                'default_subject': f"Re: {self.subject or ''}",
-                'default_model': self._name,
-                'default_res_id': self.id,
-            },
+            'context': {'create': False},
         }
