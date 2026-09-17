@@ -27,20 +27,22 @@ class IncomingReply(models.Model):
 
     def action_reply_to_customer(self):
         self.ensure_one()
-        compose_ctx = {
+        compose_form = self.env.ref('mail.email_compose_message_wizard_form')
+        ctx = {
             'default_model': self._name,
             'default_res_ids': [self.id],
             'default_composition_mode': 'comment',
             'default_subject': f"Re: {self.subject or ''}",
-            'default_partner_ids': [],
             'default_email_to': self.email_from,
             'default_body': '',
         }
         return {
-            'type': 'ir.actions.act_window',
             'name': 'Reply to Customer',
-            'res_model': 'mail.compose.message',
+            'type': 'ir.actions.act_window',
             'view_mode': 'form',
-            'target': 'current',
-            'context': compose_ctx,
+            'res_model': 'mail.compose.message',
+            'views': [(compose_form.id, 'form')],
+            'view_id': compose_form.id,
+            'target': 'new',
+            'context': ctx,
         }
