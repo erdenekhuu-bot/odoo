@@ -29,7 +29,7 @@ class IncomingReply(models.Model):
         self.ensure_one()
         config = self.env["ir.config_parameter"].sudo()
         if not self.email_from:
-            raise UserError("No customer email address to reply to.")
+            raise UserError("No customer email address")
 
         mail = self.env['mail.mail'].sudo().create({
             'email_from': config.get_param("main.mail"),
