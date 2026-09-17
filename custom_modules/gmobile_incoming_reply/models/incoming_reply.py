@@ -39,10 +39,15 @@ class IncomingReply(models.Model):
             'model': self._name,
             'res_id': self.id,
             'auto_delete': True,
+            'state': 'outgoing',
         })
-        mail.send()
-
-        self.message_post(
-            body=f"Reply sent to {self.email_from}",
-            subtype_xmlid='mail.mt_note',
-        )
+        return {
+            'name': 'Reply to Customer',
+            'type': 'ir.actions.act_window',
+            'res_model': 'mail.mail',
+            'res_id': mail.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('mail.view_mail_form').id,
+            'target': 'new',
+            'context': {'create': False},
+        }
