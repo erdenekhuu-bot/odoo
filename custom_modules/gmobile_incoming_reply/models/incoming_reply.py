@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-
+from odoo.exceptions import UserError
 
 class IncomingReply(models.Model):
     _name = 'gmobile.incoming.reply'
@@ -27,23 +27,22 @@ class IncomingReply(models.Model):
 
     def action_reply_to_customer(self):
         self.ensure_one()
-        compose_form = self.env.ref('mail.email_compose_message_wizard_form')
-        ctx = {
-            'default_model': self._name,
-            'default_res_ids': [self.id],
-            'default_composition_mode': 'comment',
-            'default_subject': f"Re: {self.subject or ''}",
-            'default_email_to': self.email_from,
-            'default_email_from': 'alert@gmobile.mn',
-            'default_body': '',
-        }
-        return {
-            'name': 'Reply to Customer',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'mail.compose.message',
-            'views': [(compose_form.id, 'form')],
-            'view_id': compose_form.id,
-            'target': 'new',
-            'context': ctx,
-        }
+        config = self.env["ir.config_parameter"].sudo()
+        if not self.email_from:
+            raise UserError("No customer email address to reply to.")
+
+        mail = self.env['mail.mail'].sudo().create({
+            'email_from': config.get_param("main.mail"),
+            'email_to': self.email_from,
+            'subject': f"Re: {self.subject or ''}",
+            'body_html': self.body_preview or '',
+            'model': self._name,
+            'res_id': self.id,
+            'auto_delete': True,
+        })
+        mail.send()
+
+        self.message_post(
+            body=f"Reply sent to {self.email_from}",
+            subtype_xmlid='mail.mt_note',
+        )
