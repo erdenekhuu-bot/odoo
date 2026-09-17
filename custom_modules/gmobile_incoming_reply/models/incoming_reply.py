@@ -34,6 +34,7 @@ class IncomingReply(models.Model):
             'default_composition_mode': 'comment',
             'default_subject': f"Re: {self.subject or ''}",
             'default_email_to': self.email_from,
+            'default_email_from': 'alert@gmobile.mn',
             'default_body': '',
         }
         return {
