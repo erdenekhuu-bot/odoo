@@ -12,6 +12,7 @@ class IncomingReply(models.Model):
     subject = fields.Char(string="Subject")
     body_preview = fields.Html(string="Body")
     received_date = fields.Datetime(string="Received", default=fields.Datetime.now)
+    reply_body = fields.Html(string="Reply Text")
 
     # @api.model
     # def message_new(self, msg_dict, custom_values=None):
@@ -30,12 +31,14 @@ class IncomingReply(models.Model):
         config = self.env["ir.config_parameter"].sudo()
         if not self.email_from:
             raise UserError("No customer email address")
+        if not self.reply_body:
+            raise UserError("Please write a reply before sending.")
 
         mail = self.env['mail.mail'].sudo().create({
             'email_from': config.get_param("main.mail"),
             'email_to': self.email_from,
             'subject': f"Re: {self.subject or ''}",
-            'body_html': self.body_preview or '',
+            'body_html': self.reply_body,
             'model': self._name,
             'res_id': self.id,
             'auto_delete': True,
