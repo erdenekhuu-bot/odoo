@@ -16,31 +16,31 @@
         <field name="model">gmobile.incoming.reply</field>
         <field name="arch" type="xml">
             <form>
-            <header>
-                <button name="action_reply_to_customer"
-                        string="Reply to Customer"
-                        type="object"
-                        class="btn-primary"/>
-            </header>
-            <sheet>
-                <group>
-                    <field name="email_from"/>
-                    <field name="subject"/>
-                    <field name="received_date"/>
-                    <field name="body_preview"/>
-                </group>
-            </sheet>
-            <div class="oe_chatter">
-                <field name="message_ids"/>
-            </div>
-        </form>
+                <header>
+                    <button name="action_reply_to_customer"
+                            string="Reply to Customer"
+                            type="object"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="email_from"/>
+                        <field name="subject"/>
+                        <field name="received_date"/>
+                        <field name="body_preview"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
         </field>
     </record>
 
     <record id="action_incoming_reply" model="ir.actions.act_window">
         <field name="name">Replies</field>
         <field name="res_model">gmobile.incoming.reply</field>
-        <field name="view_mode">list,form,kanban</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem id="menu_incoming_reply_root" name="Gmobile Email Replies" sequence="90"/>
