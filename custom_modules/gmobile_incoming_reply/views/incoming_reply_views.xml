@@ -57,6 +57,3 @@
     <menuitem id="menu_incoming_reply_root" name="Gmobile Email Replies" sequence="90"/>
     <menuitem id="menu_incoming_reply" parent="menu_incoming_reply_root" action="action_incoming_reply" sequence="1"/>
 </odoo>
-
-alert@gmobile.mn
-ehlsEkcSEK6BuFEUSAvy
