@@ -1,4 +1,16 @@
 <odoo>
+
+    <record id="reply_action" model="ir.actions.server">
+        <field name="name">Reply back to customer</field>
+        <field name="model_id" ref="model_gmobile_incoming_reply"/>
+        <field name="binding_model_id" ref="model_gmobile_incoming_reply"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="state">code</field>
+        <field name="code">records.action_back_reply()
+        </field>
+    </record>
+
+
     <record id="view_incoming_reply_list" model="ir.ui.view">
         <field name="name">gmobile.incoming.reply.list</field>
         <field name="model">gmobile.incoming.reply</field>
@@ -17,25 +29,22 @@
         <field name="model">gmobile.incoming.reply</field>
         <field name="arch" type="xml">
             <form>
-            <header>
-                <button name="action_reply_to_customer"
+                <header>
+                    <button name="%(reply_action)d"
                         string="Reply to Customer"
-                        type="object"
+                        type="action"
                         class="btn-primary"/>
-            </header>
-            <sheet>
-                <group>
-                    <field name="email_from"/>
-                    <field name="subject"/>
-                    <field name="received_date"/>
-                    <field name="body_preview"/>
-                    <field name="reply_body" placeholder="Type your reply here..."/>
-                </group>
-            </sheet>
-<!--            <div class="oe_chatter">-->
-<!--                <field name="message_ids"/>-->
-<!--            </div>-->
-        </form>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="email_from"/>
+                        <field name="subject"/>
+                        <field name="received_date"/>
+                        <field name="body_preview"/>
+                        <field name="reply_body" placeholder="Type your reply here..."/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
