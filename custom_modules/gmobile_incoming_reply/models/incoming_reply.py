@@ -24,6 +24,7 @@ class IncomingReply(models.Model):
     reply_body = fields.Html(string="Reply Text")
     mail_message_id = fields.Char(string="Message-ID", index=True, readonly=True)
     in_reply_to = fields.Char(string="In-Reply-To", readonly=True)
+    references = fields.Text(string="References",readonly=True)
 
     _sql_constraints = [
         ('mail_message_id_uniq', 'unique(mail_message_id)',
@@ -39,6 +40,7 @@ class IncomingReply(models.Model):
             'received_date': fields.Datetime.now(),
             'mail_message_id': msg_dict.get('message_id'),
             'in_reply_to': msg_dict.get('in_reply_to'),
+            'references': msg_dict.get('references'),
         }
         if custom_values:
             values.update(custom_values)
@@ -47,6 +49,7 @@ class IncomingReply(models.Model):
     def click_button(self):
         _logger.info('clicked: %s',self.mail_message_id)
         return True
+
 
     def action_back_reply(self):
         self.ensure_one()
@@ -178,6 +181,7 @@ class IncomingReply(models.Model):
 
         return True
 
+    @staticmethod
     def decode_mime_header(value):
         if not value:
             return ""
