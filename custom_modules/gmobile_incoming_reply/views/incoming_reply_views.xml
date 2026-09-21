@@ -30,7 +30,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="%(click_button)d"
+<!--                    <button name="%(reply_action)d"-->
+<!--                        string="Reply to Customer"-->
+<!--                        type="action"-->
+<!--                        class="btn-primary"/>-->
+                     <button name="click_button"
                         string="Reply to Customer"
                         type="action"
                         class="btn-primary"/>
