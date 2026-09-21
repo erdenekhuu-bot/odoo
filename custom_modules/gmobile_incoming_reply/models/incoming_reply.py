@@ -133,15 +133,6 @@ class IncomingReply(models.Model):
         # Reply body
         # -----------------------------------------
 
-        # reply.set_content(
-        #     """
-        #     Сайн байна уу,
-        #
-        #     Таны илгээсэн мэйлийг хүлээн авлаа.
-        #
-        #     Баярлалаа. Дараа дахин үйлчлүүлээрэй
-        #     """.strip()
-        # )
         if not self.reply_body:
             raise UserError(
                 "Заавал хариугаа бичээрэй."
@@ -157,6 +148,7 @@ class IncomingReply(models.Model):
             raise UserError(
                 "Хариу текст бичих эсвэл мэйл template сонгоно уу."
             )
+        base_url = config.get_param("web.base.url")
         combined_html = f"""
         <div>
             {reply_text_html}
@@ -164,6 +156,9 @@ class IncomingReply(models.Model):
 
         {template_html}
         """
+        combined_html = self.env["mail.render.mixin"]._replace_local_links(
+            combined_html, base_url=base_url
+        )
 
         # Plain text fallback
         plain_body = html2plaintext(
