@@ -144,7 +144,7 @@ class IncomingReply(models.Model):
             
             Таны илгээсэн мэйлийг хүлээн авлаа.
             
-            Баярлалаа.
+            Баярлалаа. Дараа дахин үйлчлүүлээрэй
             """.strip()
         )
 
@@ -179,7 +179,16 @@ class IncomingReply(models.Model):
                 f"Email илгээхэд алдаа гарлаа: {e}"
             )
 
-        return True
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Амжилттай",
+                "message": f"{customer_address} хаяг руу хариу амжилттай илгээгдлээ.",
+                "type": "success",
+                "sticky": False,
+            },
+        }
 
     @staticmethod
     def decode_mime_header(value):
