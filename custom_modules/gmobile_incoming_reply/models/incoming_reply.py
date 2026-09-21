@@ -48,41 +48,151 @@ class IncomingReply(models.Model):
         _logger.info('clicked: %s',self.mail_message_id)
         return True
 
-    def action_reply_to_customer(self):
+    def action_back_reply(self):
         self.ensure_one()
         config = self.env["ir.config_parameter"].sudo()
-        imap = imaplib.IMAP4_SSL(
-            config.get_param("IMAP.SERVER"),
-            config.get_param("IMAP.PORT")
-        )
-        imap.login(
-            config.get_param("USERNAME"),
-            config.get_param("PASSWORD"),
-        )
-        imap.select("INBOX")
+        smtp_server = config.get_param("mail.smtp.server")
+        smtp_port = int(config.get_param("mail.smtp.port","587"))
+        smtp_username = config.get_param("USERNAME")
+        smtp_password = config.get_param("PASSWORD")
+        from_address = config.get_param("main.mail")
 
-        if not self.email_from:
-            raise UserError("No customer email address")
-        if not self.reply_body:
-            raise UserError("Please write a reply before sending.")
+        if not self.email_from or not self.mail_message_id:
+            raise UserError("Хариу бичих боломжгүй")
 
-        mail = self.env['mail.mail'].sudo().create({
-            'email_from': config.get_param("main.mail"),
-            'email_to': self.email_from,
-            'subject': f"Re: {self.subject or ''}",
-            'body_html': self.reply_body,
-            'model': self._name,
-            'res_id': self.id,
-            'auto_delete': True,
-            'state': 'outgoing',
-        })
-        return {
-            'name': 'Reply back',
-            'type': 'ir.actions.act_window',
-            'res_model': 'mail.mail',
-            'res_id': mail.id,
-            'view_mode': 'form',
-            'view_id': self.env.ref('mail.view_mail_form').id,
-            'target': 'new',
-            'context': {'create': False},
-        }
+        if not smtp_server:
+            raise UserError(
+                "SMTP server тохируулаагүй байна."
+            )
+
+        if not from_address:
+            raise UserError(
+                "Хариу илгээгч тохируулаагүй байна."
+            )
+
+        # Name <email@gmail.com> байвал
+        # зөвхөн email address-ийг салгаж авна.
+        customer_address = parseaddr(
+            self.email_from
+        )[1]
+
+        if not customer_address:
+            customer_address = self.email_from
+
+        # -----------------------------------------
+        # Reply message
+        # -----------------------------------------
+
+        reply = EmailMessage()
+
+        reply["From"] = from_address
+        reply["To"] = customer_address
+
+        original_subject = (
+                self.subject or ""
+        ).strip()
+
+        if original_subject.lower().startswith(
+                "re:"
+        ):
+            reply["Subject"] = (
+                original_subject
+            )
+        else:
+            reply["Subject"] = (
+                f"Re: {original_subject}"
+            )
+
+        # =========================================
+        # ХАМГИЙН ЧУХАЛ
+        # Incoming customer mail-ийн Message-ID
+        # =========================================
+
+        reply["In-Reply-To"] = (
+            self.mail_message_id
+        )
+
+        # =========================================
+        # Thread References
+        # =========================================
+
+        references = []
+
+        if self.references:
+            references.append(
+                self.references.strip()
+            )
+
+        references.append(
+            self.mail_message_id.strip()
+        )
+
+        reply["References"] = " ".join(
+            references
+        )
+
+        # -----------------------------------------
+        # Reply body
+        # -----------------------------------------
+
+        reply.set_content(
+            """
+            Сайн байна уу,
+            
+            Таны илгээсэн мэйлийг хүлээн авлаа.
+            
+            Баярлалаа.
+            """.strip()
+        )
+
+        # -----------------------------------------
+        # SMTP
+        # -----------------------------------------
+
+        try:
+            with smtplib.SMTP(
+                    smtp_server,
+                    smtp_port,
+                    timeout=30,
+            ) as smtp:
+
+                smtp.ehlo()
+
+                smtp.starttls()
+
+                smtp.ehlo()
+
+                smtp.login(
+                    smtp_username,
+                    smtp_password,
+                )
+
+                smtp.send_message(
+                    reply
+                )
+
+        except Exception as e:
+            raise UserError(
+                f"Email илгээхэд алдаа гарлаа: {e}"
+            )
+
+        return True
+
+    def decode_mime_header(value):
+        if not value:
+            return ""
+
+        decoded_parts = decode_header(value)
+
+        result = ""
+
+        for part, encoding in decoded_parts:
+            if isinstance(part, bytes):
+                result += part.decode(
+                    encoding or "utf-8",
+                    errors="replace"
+                )
+            else:
+                result += part
+
+        return result

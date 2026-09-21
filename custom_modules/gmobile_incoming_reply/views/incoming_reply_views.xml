@@ -30,11 +30,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-<!--                    <button name="%(reply_action)d"-->
-<!--                        string="Reply to Customer"-->
-<!--                        type="action"-->
-<!--                        class="btn-primary"/>-->
-                     <button name="click_button" string="Reply to Customer" type="object" class="btn-primary"/>
+                    <button name="%(reply_action)d"
+                        string="Reply back"
+                        type="action"
+                        class="btn-primary"/>
+<!--                     <button name="click_button" string="Reply to Customer" type="object" class="btn-primary"/>-->
                 </header>
                 <sheet>
                     <group>
