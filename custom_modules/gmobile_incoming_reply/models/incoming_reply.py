@@ -6,6 +6,9 @@ from email.message import EmailMessage
 from email.utils import parseaddr
 import imaplib
 import smtplib
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class IncomingReply(models.Model):
     _name = 'gmobile.incoming.reply'
@@ -42,7 +45,8 @@ class IncomingReply(models.Model):
         return super().message_new(msg_dict, custom_values=values)
 
     def click_button(self):
-        return self.mail_message_id
+        _logger.info('clicked: %s',self.mail_message_id)
+        return True
 
     def action_reply_to_customer(self):
         self.ensure_one()
