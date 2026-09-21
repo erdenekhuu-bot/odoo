@@ -20,7 +20,7 @@ function gmobileReplySuccess(env, action) {
 }
 
 registry.category("actions").add(
-    "gmobile_reply_success",
+    "display_notification",
     gmobileReplySuccess
 );
 

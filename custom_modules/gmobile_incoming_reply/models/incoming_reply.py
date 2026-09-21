@@ -1,10 +1,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
-from email import message_from_bytes
 from email.header import decode_header
 from email.message import EmailMessage
 from email.utils import parseaddr
-import imaplib
 import smtplib
 import logging
 
@@ -167,13 +165,12 @@ class IncomingReply(models.Model):
 
         return {
             "type": "ir.actions.client",
-            "tag": "gmobile_reply_success",
+            "tag": "display_notification",
             "params": {
                 "title": "Амжилттай",
-                "message": (
-                    f"{customer_address} хаяг руу "
-                    "хариу амжилттай илгээгдлээ."
-                ),
+                "message": f"{customer_address} хаяг руу хариу амжилттай илгээгдлээ.",
+                "type": "success",
+                "sticky": False,
             },
         }
 
