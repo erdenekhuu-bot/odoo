@@ -8,6 +8,11 @@
         'security/ir.model.access.csv',
         'views/incoming_reply_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'gmobile_incoming_reply/static/src/js/login_alert.js'
+        ]
+    },
     'installable': True,
     'application': False,
 }

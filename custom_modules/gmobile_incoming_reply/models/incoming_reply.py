@@ -153,26 +153,12 @@ class IncomingReply(models.Model):
         # -----------------------------------------
 
         try:
-            with smtplib.SMTP(
-                    smtp_server,
-                    smtp_port,
-                    timeout=30,
-            ) as smtp:
-
+            with smtplib.SMTP(smtp_server,smtp_port,timeout=30) as smtp:
                 smtp.ehlo()
-
                 smtp.starttls()
-
                 smtp.ehlo()
-
-                smtp.login(
-                    smtp_username,
-                    smtp_password,
-                )
-
-                smtp.send_message(
-                    reply
-                )
+                smtp.login(smtp_username,smtp_password)
+                smtp.send_message(reply)
 
         except Exception as e:
             raise UserError(
@@ -181,12 +167,13 @@ class IncomingReply(models.Model):
 
         return {
             "type": "ir.actions.client",
-            "tag": "display_notification",
+            "tag": "gmobile_reply_success",
             "params": {
                 "title": "Амжилттай",
-                "message": f"{customer_address} хаяг руу хариу амжилттай илгээгдлээ.",
-                "type": "success",
-                "sticky": False,
+                "message": (
+                    f"{customer_address} хаяг руу "
+                    "хариу амжилттай илгээгдлээ."
+                ),
             },
         }
 
