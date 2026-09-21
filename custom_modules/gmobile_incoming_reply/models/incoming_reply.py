@@ -27,18 +27,6 @@ class IncomingReply(models.Model):
          'This email was already received.'),
     ]
 
-
-    # @api.model
-    # def message_new(self, msg_dict, custom_values=None):
-    #     values = {
-    #         'email_from': msg_dict.get('from'),
-    #         'subject': msg_dict.get('subject'),
-    #         'body_preview': msg_dict.get('body'),
-    #         'received_date': fields.Datetime.now(),
-    #     }
-    #     if custom_values:
-    #         values.update(custom_values)
-    #     return self.create(values)
     @api.model
     def message_new(self, msg_dict, custom_values=None):
         values = {
@@ -52,6 +40,9 @@ class IncomingReply(models.Model):
         if custom_values:
             values.update(custom_values)
         return super().message_new(msg_dict, custom_values=values)
+
+    def click_button(self):
+        return self.mail_message_id
 
     def action_reply_to_customer(self):
         self.ensure_one()
