@@ -44,11 +44,6 @@ class IncomingReply(models.Model):
             values.update(custom_values)
         return super().message_new(msg_dict, custom_values=values)
 
-    def click_button(self):
-        _logger.info('clicked: %s',self.mail_message_id)
-        return True
-
-
     def action_back_reply(self):
         self.ensure_one()
         config = self.env["ir.config_parameter"].sudo()
@@ -136,15 +131,20 @@ class IncomingReply(models.Model):
         # Reply body
         # -----------------------------------------
 
-        reply.set_content(
-            """
-            Сайн байна уу,
-            
-            Таны илгээсэн мэйлийг хүлээн авлаа.
-            
-            Баярлалаа. Дараа дахин үйлчлүүлээрэй
-            """.strip()
-        )
+        # reply.set_content(
+        #     """
+        #     Сайн байна уу,
+        #
+        #     Таны илгээсэн мэйлийг хүлээн авлаа.
+        #
+        #     Баярлалаа. Дараа дахин үйлчлүүлээрэй
+        #     """.strip()
+        # )
+        if not self.reply_body:
+            raise UserError(
+                "Заавал хариугаа бичээрэй."
+            )
+        reply.set_content(self.reply_body)
 
         # -----------------------------------------
         # SMTP

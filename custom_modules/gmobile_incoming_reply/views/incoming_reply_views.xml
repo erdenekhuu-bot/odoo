@@ -34,7 +34,6 @@
                         string="Reply back"
                         type="action"
                         class="btn-primary"/>
-<!--                     <button name="click_button" string="Reply to Customer" type="object" class="btn-primary"/>-->
                 </header>
                 <sheet>
                     <group>
