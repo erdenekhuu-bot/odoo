@@ -53,8 +53,8 @@ class IncomingReply(models.Model):
         config = self.env["ir.config_parameter"].sudo()
         smtp_server = config.get_param("mail.smtp.server")
         smtp_port = int(config.get_param("mail.smtp.port","587"))
-        smtp_username = config.get_param("USERNAME")
-        smtp_password = config.get_param("PASSWORD")
+        smtp_username = config.get_param("smtp.USERNAME")
+        smtp_password = config.get_param("smtp.PASSWORD")
         from_address = config.get_param("main.mail")
 
         if not self.email_from or not self.mail_message_id:
