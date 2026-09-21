@@ -56,14 +56,25 @@ class IncomingReply(models.Model):
         from_address = config.get_param("main.mail")
 
 
-        # if not self.email_from or not self.mail_message_id:
-        #     raise UserError("Хариу бичих боломжгүй")
 
-        _logger.info(
-            "email_from: %s, mail_message_id: %s",
-            self.email_from,
-            self.mail_message_id
-        )
+        try:
+            if not self.email_from or not self.mail_message_id:
+                _logger.info(
+                    "email_from: %s, mail_message_id: %s",
+                    self.email_from,
+                    self.mail_message_id
+                )
+            else:
+                _logger.info(
+                    "email_from: %s, mail_message_id: %s",
+                    self.email_from,
+                    self.mail_message_id
+                )
+
+        except UserError as e:
+            _logger.error("Email Not Found",e)
+
+
 
         if not smtp_server:
             raise UserError(
