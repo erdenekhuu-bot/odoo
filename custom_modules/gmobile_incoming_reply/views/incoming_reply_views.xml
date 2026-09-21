@@ -6,7 +6,8 @@
         <field name="binding_model_id" ref="model_gmobile_incoming_reply"/>
         <field name="binding_view_types">form,list</field>
         <field name="state">code</field>
-        <field name="code">records.action_back_reply()
+        <field name="code">
+            action = records.action_back_reply()
         </field>
     </record>
 
@@ -19,7 +20,6 @@
                 <field name="received_date"/>
                 <field name="email_from"/>
                 <field name="subject"/>
-
             </list>
         </field>
     </record>
