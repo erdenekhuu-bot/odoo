@@ -54,6 +54,7 @@ class IncomingReply(models.Model):
         smtp_username = config.get_param("smtp.USERNAME")
         smtp_password = config.get_param("smtp.PASSWORD")
         from_address = config.get_param("main.mail")
+        _logger.info("email_from: %s", from_address, "mail_message_id: %s", self.mail_message_id)
 
         if not self.email_from or not self.mail_message_id:
             raise UserError("Хариу бичих боломжгүй")
