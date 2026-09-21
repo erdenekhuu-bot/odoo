@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from email.utils import parseaddr
 import smtplib
 import logging
+from odoo.tools import html2plaintext
 
 _logger = logging.getLogger(__name__)
 
@@ -144,7 +145,12 @@ class IncomingReply(models.Model):
             raise UserError(
                 "Заавал хариугаа бичээрэй."
             )
-        reply.set_content(self.reply_body)
+        html_body = str(self.reply_body)
+
+        text_body = html2plaintext(
+            html_body
+        ).strip()
+        reply.set_content(text_body)
 
         # -----------------------------------------
         # SMTP
