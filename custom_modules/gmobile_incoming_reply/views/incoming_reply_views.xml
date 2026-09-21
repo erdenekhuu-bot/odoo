@@ -41,7 +41,15 @@
                         <field name="subject"/>
                         <field name="received_date"/>
                         <field name="body_preview"/>
-                        <field name="reply_body" placeholder="Type your reply here..."/>
+
+                    </group>
+                    <group>
+                         <field name="reply_body" placeholder="Reply ..."/>
+                         <field
+                                name="mail_template"
+                                options="{'no_create': True, 'no_create_edit': True}"
+                            />
+
                     </group>
                 </sheet>
             </form>

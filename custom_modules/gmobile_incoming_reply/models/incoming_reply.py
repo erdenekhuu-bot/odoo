@@ -24,6 +24,7 @@ class IncomingReply(models.Model):
     mail_message_id = fields.Char(string="Message-ID", index=True, readonly=True)
     in_reply_to = fields.Char(string="In-Reply-To", readonly=True)
     references = fields.Text(string="References",readonly=True)
+    mail_template = fields.Many2one('mailing.mailing',string="Mailing Template")
 
     _sql_constraints = [
         ('mail_message_id_uniq', 'unique(mail_message_id)',
@@ -145,13 +146,37 @@ class IncomingReply(models.Model):
             raise UserError(
                 "Заавал хариугаа бичээрэй."
             )
-        html_body = str(self.reply_body)
+        reply_text_html = str(self.reply_body or "")
+        template_html = ""
+        if self.mail_template:
+            template_html = str(
+                self.mail_template.body_html or ""
+            )
 
-        text_body = html2plaintext(
-            html_body
+        if not html2plaintext(reply_text_html).strip() and not template_html:
+            raise UserError(
+                "Хариу текст бичих эсвэл мэйл template сонгоно уу."
+            )
+        combined_html = f"""
+        <div>
+            {reply_text_html}
+        </div>
+
+        {template_html}
+        """
+
+        # Plain text fallback
+        plain_body = html2plaintext(
+            combined_html
         ).strip()
-        reply.set_content(text_body)
 
+        reply.set_content(
+            plain_body
+        )
+        reply.add_alternative(
+            combined_html,
+            subtype="html"
+        )
         # -----------------------------------------
         # SMTP
         # -----------------------------------------

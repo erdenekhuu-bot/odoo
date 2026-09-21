@@ -3,7 +3,7 @@
     'version': '18.0.1.0.0',
     'category': 'Mail',
     'summary': 'Logs inbound replies to alert@gmobile.mn as records',
-    'depends': ['mail','web'],
+    'depends': ['mail','web','mass_mailing'],
     'data': [
         'security/ir.model.access.csv',
         'views/incoming_reply_views.xml',
