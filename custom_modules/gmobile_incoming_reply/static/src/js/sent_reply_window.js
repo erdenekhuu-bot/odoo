@@ -2,15 +2,17 @@
 
 import { registry } from "@web/core/registry";
 
-async function gmobileReplySuccess(env, action) {
-    const notification = env.services.notification;
+console.log("===== GMOBILE REPLY JS LOADED =====");
+
+function gmobileReplySuccess(env, action) {
+    console.log("===== GMOBILE REPLY ACTION CALLED =====", action);
 
     const params = action.params || {};
 
-    notification.add(
+    env.services.notification.add(
         params.message || "Хариу амжилттай илгээгдлээ.",
         {
-            title: params.title || "Хариу",
+            title: params.title || "Амжилттай",
             type: "success",
             sticky: false,
         }
@@ -21,3 +23,5 @@ registry.category("actions").add(
     "gmobile_reply_success",
     gmobileReplySuccess
 );
+
+console.log("===== GMOBILE REPLY ACTION REGISTERED =====");
