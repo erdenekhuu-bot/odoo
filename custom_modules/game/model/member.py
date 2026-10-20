@@ -5,5 +5,5 @@ class Member(models.Model):
 
     name = fields.Char(string="Name", required=True)
     phone = fields.Char(string="Phone", default="")
-    score = fields.Integer(string="Score", required=True)
+    score = fields.Integer(string="Score", default=0)
 

@@ -43,7 +43,7 @@ class APIController(http.Controller):
 
     @http.route('/game/members', type='http',auth='public', methods=['GET'])
     def get_members(self, **kwargs):
-        members = request.env['game.member'].sudo().search([], limit=10, order='id asc')
+        members = request.env['game.member'].sudo().search([], limit=10, order='score asc')
 
         return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
 
@@ -69,11 +69,8 @@ class APIController(http.Controller):
 
             name = data.get('name')
             phone = data.get('phone')
-            score = data.get('score')
 
-            if (not isinstance(name, str) or not name.strip()
-                    or not isinstance(phone, str) or not phone.strip()
-                    or type(score) is not int):
+            if (not isinstance(name, str) or not name.strip() or not isinstance(phone, str) or not phone.strip()):
                 raise ValueError()
 
         except (ValueError, UnicodeDecodeError):
@@ -84,13 +81,29 @@ class APIController(http.Controller):
         member = request.env['game.member'].sudo().create({
             'name': name,
             'phone': phone,
-            'score': score
         })
 
         return request.make_json_response({
             "success": True,
             "id": member.id
         }, status=201)
+    # Update
+    @http.route('/game/members/<int:member_id>', type='http', auth='public', methods=['PATCH'], csrf=False)
+    def update_member(self, member_id, **kwargs):
+        member = request.env['game.member'].sudo().browse(member_id)
+        if not member.exists():
+            return request.make_response(json.dumps({'error': 'Not found'}), status=404)
+
+        data = json.loads(request.httprequest.get_data(as_text=True))
+
+        vals = {}
+        if 'name' in data: vals['name'] = data['name']
+        if 'score' in data: vals['score'] = int(data['score'])
+
+        member.write(vals)
+        return request.make_response(json.dumps({'status': 'success'}), status=200)
+
+
 
     # DELETE
     @http.route('/game/members/<int:member_id>',
