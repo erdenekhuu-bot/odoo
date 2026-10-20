@@ -6,33 +6,53 @@ from odoo.http import request
 
 class APIController(http.Controller):
 
-    # READ - First 10
-    @http.route('/game/members', type='http',
-                auth='public', methods=['GET'])
-    def get_members(self, **kwargs):
+    @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False
+    )
+    def login(self, **kw):
+        try:
+            data = json.loads(request.httprequest.get_data(as_text=True))
+            name = data.get('name')
+            if not isinstance(name, str) or not name.strip():
+                return request.make_json_response(
+                    {"error": "Name is required"},
+                    status=400
+                )
 
-        members = request.env['game.member'].sudo().search(
-            [], limit=10, order='id asc'
-        )
+            member = request.env['game.member'].sudo().search([
+                ('name', '=', name.strip()),
+            ], limit=1)
 
-        return request.make_json_response({
-            "success": True,
-            "data": members.read(['name', 'phone', 'score'])
-        })
+            if not member:
+                return request.make_json_response(
+                    {"error": "Member not found"},
+                    status=404
+                )
 
-    # READ - By ID
-    @http.route('/game/members/<int:member_id>',
-                type='http', auth='public', methods=['GET'])
-    def get_member(self, member_id):
+            return request.make_json_response({
+                "success": True,
+                "id": member.id,
+                "name": member.name,
+                "score": member.score
+            }, status=200)
 
-        member = request.env['game.member'].sudo().browse(
-            member_id
-        ).exists()
-
-        if not member:
+        except (ValueError, TypeError):
             return request.make_json_response(
-                {"error": "Member not found"}, status=404
+                {"error": "Invalid member data"},
+                status=400
             )
+
+
+    @http.route('/game/members', type='http',auth='public', methods=['GET'])
+    def get_members(self, **kwargs):
+        members = request.env['game.member'].sudo().search([], limit=10, order='id asc')
+
+        return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
+
+    @http.route('/game/members/<int:member_id>',type='http', auth='public', methods=['GET'])
+    def get_member(self, member_id):
+        member = request.env['game.member'].sudo().browse(member_id).exists()
+        if not member:
+            return request.make_json_response({"error": "Member not found"}, status=404)
 
         return request.make_json_response({
             "success": True,
@@ -40,14 +60,10 @@ class APIController(http.Controller):
         })
 
     # CREATE
-    @http.route('/game/members', type='http',
-                auth='public', methods=['POST'], csrf=False)
+    @http.route('/game/members', type='http',auth='public', methods=['POST'], csrf=False)
     def create_member(self, **kwargs):
-
         try:
-            data = json.loads(
-                request.httprequest.get_data(as_text=True)
-            )
+            data = json.loads(request.httprequest.get_data(as_text=True))
 
             if not isinstance(data, dict):
                 raise ValueError()
@@ -83,14 +99,9 @@ class APIController(http.Controller):
                 methods=['DELETE'], csrf=False)
     def delete_member(self, member_id):
 
-        member = request.env['game.member'].sudo().browse(
-            member_id
-        ).exists()
-
+        member = request.env['game.member'].sudo().browse(member_id).exists()
         if not member:
-            return request.make_json_response(
-                {"error": "Member not found"}, status=404
-            )
+            return request.make_json_response({"error": "Member not found"}, status=404)
 
         member.unlink()
 
