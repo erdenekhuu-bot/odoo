@@ -6,8 +6,7 @@ from odoo.http import request
 
 class APIController(http.Controller):
 
-    @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False
-    )
+    @http.route('/game/members/login', type='http', auth='public', methods=['POST'], csrf=False)
     def login(self, **kw):
         try:
             data = json.loads(request.httprequest.get_data(as_text=True))
@@ -18,15 +17,13 @@ class APIController(http.Controller):
                     status=400
                 )
 
-            member = request.env['game.member'].sudo().search([
-                ('name', '=', name.strip()),
-            ], limit=1)
+            cleaned_name = name.strip()
+            Member = request.env['game.member'].sudo()
+
+            member = Member.search([('name', '=', cleaned_name)], limit=1)
 
             if not member:
-                return request.make_json_response(
-                    {"error": "Member not found"},
-                    status=404
-                )
+                member = Member.create({'name': cleaned_name})
 
             return request.make_json_response({
                 "success": True,
