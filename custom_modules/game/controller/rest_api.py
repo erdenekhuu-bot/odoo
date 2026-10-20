@@ -43,7 +43,7 @@ class APIController(http.Controller):
 
     @http.route('/game/members', type='http',auth='public', methods=['GET'])
     def get_members(self, **kwargs):
-        members = request.env['game.member'].sudo().search([], limit=10, order='score asc')
+        members = request.env['game.member'].sudo().search([], limit=10, order='score desc')
 
         return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
 
@@ -59,34 +59,23 @@ class APIController(http.Controller):
         })
 
     # CREATE
-    @http.route('/game/members', type='http',auth='public', methods=['POST'], csrf=False)
+    @http.route('/game/members', type='http', auth='public', methods=['POST'], csrf=False)
     def create_member(self, **kwargs):
         try:
             data = json.loads(request.httprequest.get_data(as_text=True))
+            name, phone = data.get('name', '').strip(), data.get('phone', '')
 
-            if not isinstance(data, dict):
+            if not name:
                 raise ValueError()
 
-            name = data.get('name')
-            phone = data.get('phone')
+            Model = request.env['game.member'].sudo()
+            if Model.search([('name', '=', name)], limit=1):
+                return request.make_json_response({"error": "Name already exists"}, status=400)
 
-            if (not isinstance(name, str) or not name.strip() or not isinstance(phone, str) or not phone.strip()):
-                raise ValueError()
-
-        except (ValueError, UnicodeDecodeError):
-            return request.make_json_response(
-                {"error": "Invalid member data"}, status=400
-            )
-
-        member = request.env['game.member'].sudo().create({
-            'name': name,
-            'phone': phone,
-        })
-
-        return request.make_json_response({
-            "success": True,
-            "id": member.id
-        }, status=201)
+            member = Model.create({'name': name, 'phone': phone})
+            return request.make_json_response({"success": True, "id": member.id}, status=201)
+        except:
+            return request.make_json_response({"error": "Invalid data"}, status=400)
     # Update
     @http.route('/game/members/<int:member_id>', type='http', auth='public', methods=['PATCH'], csrf=False)
     def update_member(self, member_id, **kwargs):
@@ -97,13 +86,10 @@ class APIController(http.Controller):
         data = json.loads(request.httprequest.get_data(as_text=True))
 
         vals = {}
-        if 'name' in data: vals['name'] = data['name']
         if 'score' in data: vals['score'] = int(data['score'])
 
         member.write(vals)
         return request.make_response(json.dumps({'status': 'success'}), status=200)
-
-
 
     # DELETE
     @http.route('/game/members/<int:member_id>',
