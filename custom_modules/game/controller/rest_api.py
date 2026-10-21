@@ -47,16 +47,6 @@ class APIController(http.Controller):
 
         return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
 
-    @http.route('/game/members/<int:member_id>',type='http', auth='public', methods=['GET'],cors='*')
-    def get_member(self, member_id):
-        member = request.env['game.member'].sudo().browse(member_id).exists()
-        if not member:
-            return request.make_json_response({"error": "Member not found"}, status=404)
-
-        return request.make_json_response({
-            "success": True,
-            "data": member.read(['name', 'phone', 'score'])[0]
-        })
 
     # CREATE
     @http.route('/game/members', type='http', auth='public', methods=['POST'], csrf=False,cors='*')
@@ -77,31 +67,62 @@ class APIController(http.Controller):
         except:
             return request.make_json_response({"error": "Invalid data"}, status=400)
     # Update
-    @http.route('/game/members/<int:member_id>', type='http', auth='public', methods=['PATCH'], csrf=False,cors='*')
-    def update_member(self, member_id, **kwargs):
-        member = request.env['game.member'].sudo().browse(member_id)
-        if not member.exists():
-            return request.make_response(json.dumps({'error': 'Not found'}), status=404)
-
-        data = json.loads(request.httprequest.get_data(as_text=True))
-
-        vals = {}
-        if 'score' in data: vals['score'] = int(data['score'])
-
-        member.write(vals)
-        return request.make_response(json.dumps({'status': 'success'}), status=200)
-
-    # DELETE
-    @http.route('/game/members/<int:member_id>',type='http', auth='public',methods=['DELETE'], csrf=False,cors='*')
-    def delete_member(self, member_id):
+    @http.route(
+        '/game/members/<int:member_id>',
+        type='http',
+        auth='public',
+        methods=['GET', 'PATCH', 'DELETE'],
+        csrf=False,
+        cors='*'
+    )
+    def member_detail(self, member_id, **kwargs):
 
         member = request.env['game.member'].sudo().browse(member_id).exists()
+
         if not member:
-            return request.make_json_response({"error": "Member not found"}, status=404)
+            return request.make_json_response(
+                {"error": "Member not found"},
+                status=404
+            )
 
-        member.unlink()
+        method = request.httprequest.method
 
-        return request.make_json_response({
-            "success": True,
-            "message": "Member deleted"
-        })
+        # GET
+        if method == 'GET':
+            return request.make_json_response({
+                "success": True,
+                "data": member.read(['name', 'phone', 'score'])[0]
+            })
+
+        # PATCH
+        if method == 'PATCH':
+            try:
+                data = json.loads(
+                    request.httprequest.get_data(as_text=True)
+                )
+
+                vals = {}
+                if 'score' in data:
+                    vals['score'] = int(data['score'])
+
+                member.write(vals)
+
+                return request.make_json_response({
+                    "status": "success"
+                })
+
+            except (ValueError, TypeError):
+                return request.make_json_response(
+                    {"error": "Invalid data"},
+                    status=400
+                )
+
+        # DELETE
+        if method == 'DELETE':
+            member.unlink()
+
+            return request.make_json_response({
+                "success": True,
+                "message": "Member deleted"
+            })
+
