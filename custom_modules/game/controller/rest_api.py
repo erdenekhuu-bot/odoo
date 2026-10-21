@@ -6,7 +6,7 @@ from odoo.http import request
 
 class APIController(http.Controller):
 
-    @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False)
+    @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False,cors='*')
     def login(self, **kw):
         try:
             data = json.loads(request.httprequest.get_data(as_text=True))
@@ -41,13 +41,13 @@ class APIController(http.Controller):
             )
 
 
-    @http.route('/game/members', type='http',auth='public', methods=['GET'])
+    @http.route('/game/members', type='http',auth='public', methods=['GET'],cors='*')
     def get_members(self, **kwargs):
         members = request.env['game.member'].sudo().search([], limit=10, order='score desc')
 
         return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
 
-    @http.route('/game/members/<int:member_id>',type='http', auth='public', methods=['GET'])
+    @http.route('/game/members/<int:member_id>',type='http', auth='public', methods=['GET'],cors='*')
     def get_member(self, member_id):
         member = request.env['game.member'].sudo().browse(member_id).exists()
         if not member:
@@ -59,7 +59,7 @@ class APIController(http.Controller):
         })
 
     # CREATE
-    @http.route('/game/members', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/game/members', type='http', auth='public', methods=['POST'], csrf=False,cors='*')
     def create_member(self, **kwargs):
         try:
             data = json.loads(request.httprequest.get_data(as_text=True))
@@ -77,7 +77,7 @@ class APIController(http.Controller):
         except:
             return request.make_json_response({"error": "Invalid data"}, status=400)
     # Update
-    @http.route('/game/members/<int:member_id>', type='http', auth='public', methods=['PATCH'], csrf=False)
+    @http.route('/game/members/<int:member_id>', type='http', auth='public', methods=['PATCH'], csrf=False,cors='*')
     def update_member(self, member_id, **kwargs):
         member = request.env['game.member'].sudo().browse(member_id)
         if not member.exists():
@@ -92,9 +92,7 @@ class APIController(http.Controller):
         return request.make_response(json.dumps({'status': 'success'}), status=200)
 
     # DELETE
-    @http.route('/game/members/<int:member_id>',
-                type='http', auth='public',
-                methods=['DELETE'], csrf=False)
+    @http.route('/game/members/<int:member_id>',type='http', auth='public',methods=['DELETE'], csrf=False,cors='*')
     def delete_member(self, member_id):
 
         member = request.env['game.member'].sudo().browse(member_id).exists()
