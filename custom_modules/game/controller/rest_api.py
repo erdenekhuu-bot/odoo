@@ -8,11 +8,20 @@ class APIController(http.Controller):
 
     @http.route('/game/reset/member',type='http',auth='public',methods=['GET'],cors='*')
     def game_reset(self, **kwargs):
-        members = request.env['game.member'].sudo().search([])
+        Member = request.env['game.member'].sudo()
+        top_members = Member.search(
+            [('checked', '=', False)],
+            limit=10,
+            order='score desc, id asc'
+        )
+        top_members.write({'checked': True})
+        members = Member.search([])
         members.write({'score': 0})
+
         return request.make_json_response({
             "success": True,
-            "message": "All scores had been reset",
+            "message": "all scores reset",
+            "checked_count": len(top_members),
             "total_members": len(members)
         }, status=200)
 
@@ -61,8 +70,15 @@ class APIController(http.Controller):
 
     @http.route('/game/members', type='http',auth='public', methods=['GET'],cors='*')
     def get_members(self, **kwargs):
-        members = request.env['game.member'].sudo().search([], limit=10, order='score desc')
-        return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
+        members = request.env['game.member'].sudo().search(
+            [('checked', '=', False)],
+            limit=10,
+            order='score desc, id asc'
+        )
+        return request.make_json_response({
+            "success": True,
+            "data": members.read(['name', 'phone', 'score'])
+        }, status=200)
 
     # Update
     @http.route('/game/members/<int:member_id>',type='http',auth='public',methods=['GET', 'PATCH', 'DELETE'],csrf=False,cors='*')
