@@ -6,35 +6,51 @@ from odoo.http import request
 
 class APIController(http.Controller):
 
-    @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False,cors='*')
+    @http.route(
+        '/game/members/login',type='http',auth='public',methods=['POST'],csrf=False,cors='*')
     def login(self, **kw):
         try:
             data = json.loads(request.httprequest.get_data(as_text=True))
             name = data.get('name')
+            phone = data.get('phone', '')
+
             if not isinstance(name, str) or not name.strip():
                 return request.make_json_response(
                     {"error": "Name is required"},
                     status=400
                 )
 
-            member = request.env['game.member'].sudo().search([
-                ('name', '=', name.strip()),
-            ], limit=1)
+            name = name.strip()
+            Model = request.env['game.member'].sudo()
+            member = Model.search([('name', '=', name)], limit=1)
 
-            if not member:
-                return request.make_json_response(
-                    {"error": "Member not found"},
-                    status=404
-                )
+            # Байвал 200 буцаана
+            if member:
+                return request.make_json_response({
+                    "success": True,
+                    "id": member.id,
+                    "name": member.name,
+                    "score": member.score
+                }, status=200)
+
+            # Байхгүй бол create хийнэ
+            if not isinstance(phone, str):
+                phone = ''
+
+            member = Model.create({
+                'name': name,
+                'phone': phone.strip(),
+                'score': 0
+            })
 
             return request.make_json_response({
                 "success": True,
                 "id": member.id,
                 "name": member.name,
                 "score": member.score
-            }, status=200)
+            }, status=201)
 
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             return request.make_json_response(
                 {"error": "Invalid member data"},
                 status=400
@@ -47,25 +63,6 @@ class APIController(http.Controller):
 
         return request.make_json_response({"success": True,"data": members.read(['name', 'phone', 'score'])})
 
-
-    # CREATE
-    @http.route('/game/members', type='http', auth='public', methods=['POST'], csrf=False,cors='*')
-    def create_member(self, **kwargs):
-        try:
-            data = json.loads(request.httprequest.get_data(as_text=True))
-            name, phone = data.get('name', '').strip(), data.get('phone', '')
-
-            if not name:
-                raise ValueError()
-
-            Model = request.env['game.member'].sudo()
-            if Model.search([('name', '=', name)], limit=1):
-                return request.make_json_response({"error": "Name already exists"}, status=400)
-
-            member = Model.create({'name': name, 'phone': phone})
-            return request.make_json_response({"success": True, "id": member.id}, status=201)
-        except:
-            return request.make_json_response({"error": "Invalid data"}, status=400)
     # Update
     @http.route(
         '/game/members/<int:member_id>',
