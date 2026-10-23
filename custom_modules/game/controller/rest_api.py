@@ -6,25 +6,40 @@ from odoo.http import request
 
 class APIController(http.Controller):
 
-    @http.route('/game/reset/member',type='http',auth='public',methods=['GET'],cors='*')
+    @http.route(
+        '/game/reset/member',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        cors='*'
+    )
     def game_reset(self, **kwargs):
         Member = request.env['game.member'].sudo()
+
+        members = Member.search([])
+
+        # Өмнөх checked төлөвийг цэвэрлэх
+        members.write({'checked': False})
+
+        # Оноо reset хийхээс өмнөх TOP 10
         top_members = Member.search(
-            [('checked', '=', False)],
+            [],
             limit=10,
             order='score desc, id asc'
         )
+
+        # TOP 10 хэрэглэгчийг тэмдэглэх
         top_members.write({'checked': True})
-        members = Member.search([])
+
+        # Бүх оноог 0 болгох
         members.write({'score': 0})
 
         return request.make_json_response({
             "success": True,
-            "message": "all scores reset",
+            "message": "All scores reset",
             "checked_count": len(top_members),
             "total_members": len(members)
         }, status=200)
-
 
     @http.route('/game/members/login',type='http',auth='public',methods=['POST'],csrf=False,cors='*')
     def login(self, **kw):
